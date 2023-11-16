@@ -1,9 +1,10 @@
 {
   "name": "vuer",
-  "private": true,
+  "author": "Ge Yang",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
