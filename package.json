@@ -1,10 +1,9 @@
 {
-  "name": "vuer",
+  "name": "@vuer-ai/vuer",
   "author": "Ge Yang",
   "version": "0.0.0",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "private": false,
+  "main": "vuer/index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
