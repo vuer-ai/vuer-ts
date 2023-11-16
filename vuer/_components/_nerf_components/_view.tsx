@@ -14,8 +14,8 @@ import {SocketContext, SocketContextType} from "../_contexts/_websocket";
 import {BBox} from "../_three_components/_primitives/_bbox";
 import {GroupSlave, rot2array, scale2array, v3array,} from "../_three_components/_group";
 import {ButtonInput, ButtonSettings} from "leva/plugin";
-import {ClientEvent, ServerEvent, VuerProps} from "../../_interfaces.tsx";
-import {V3} from "../_three_components/_number_types.tsx";
+import {ClientEvent, ServerEvent, VuerProps} from "../../_interfaces";
+import {V3} from "../_three_components/_number_types";
 
 export const RenderContext = createContext({});
 

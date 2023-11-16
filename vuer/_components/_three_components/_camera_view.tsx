@@ -13,7 +13,7 @@ import {
 } from "three";
 import {SocketContext, SocketContextType} from "../_contexts/_websocket";
 import {Frustum} from "./_frustum";
-import {VuerProps} from "../../_interfaces.tsx";
+import {VuerProps} from "../../_interfaces";
 
 
 type CameraViewProps = VuerProps<{

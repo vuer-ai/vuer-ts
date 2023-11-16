@@ -17,7 +17,7 @@ import {SocketContext, SocketContextType} from "../_contexts/_websocket";
 import {BackgroundColor} from "./_color";
 import queryString, {ParsedQuery} from "query-string";
 import {document} from "../../_lib/_browser-monads";
-import {ClientEvent} from "../../_interfaces.tsx";
+import {ClientEvent} from "../../_interfaces";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;

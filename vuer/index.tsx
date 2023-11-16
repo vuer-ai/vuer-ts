@@ -10,10 +10,10 @@ import yaml from "js-yaml";
 import {list2menu} from "./_components/_three_components/_leva_helper";
 import {addNode, findByKey, removeByKey} from "./_util";
 import {WebSocketProvider} from "./_components/_contexts/_websocket";
-import {parseArray} from "./_components/_three_components/_utils.tsx";
+import {parseArray} from "./_components/_three_components/_utils";
 
 
-import {ServerEvent} from "./_interfaces.tsx";
+import {ServerEvent} from "./_interfaces";
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the

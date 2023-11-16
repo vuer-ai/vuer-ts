@@ -1,6 +1,6 @@
 import {MutableRefObject, useEffect, useState} from "react";
 import {Center, PivotControls, Sphere} from "@react-three/drei";
-import {VuerProps} from "../../_interfaces.tsx";
+import {VuerProps} from "../../_interfaces";
 import {BufferGeometry, Color, ColorRepresentation, Group, Mesh, Points} from "three";
 import {URDFRobot} from "urdf-loader";
 import {ThreeEvent} from "@react-three/fiber";

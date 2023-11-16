@@ -4,11 +4,11 @@ import {document} from "../../_lib/_browser-monads";
 import {button, useControls} from "leva";
 import useStateRef from "react-usestateref";
 import queryString from "query-string";
-import {Store} from "../_store.tsx";
+import {Store} from "../_store";
 import {pack, unpack} from "msgpackr";
 
 
-import {ClientEvent, ServerEvent} from "../../_interfaces.tsx";
+import {ClientEvent, ServerEvent} from "../../_interfaces";
 
 export type msgFn = (event: ClientEvent) => void;
 export type SocketContextType = {

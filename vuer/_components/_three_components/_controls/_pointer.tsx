@@ -3,7 +3,7 @@ import {Mesh, Object3D, Raycaster, Vector2, Vector3} from "three";
 import {Camera, Intersection, invalidate, useThree} from "@react-three/fiber";
 import {Sphere as ThreeSphere} from "@react-three/drei";
 import {useControls} from "leva";
-import {SocketContext, SocketContextType} from "../../_contexts/_websocket.tsx";
+import {SocketContext, SocketContextType} from "../../_contexts/_websocket";
 
 function getPosition(
     camera: Camera,

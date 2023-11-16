@@ -2,7 +2,7 @@ import {CSSProperties, PropsWithChildren, ReactElement, useMemo} from "react";
 // import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import {Remark} from "react-remark";
-import {VuerProps} from "../../_interfaces.tsx";
+import {VuerProps} from "../../_interfaces";
 // @ts-ignore: not sure why this errors
 import { RemarkRehypeOptions } from "react-markdown/lib";
 

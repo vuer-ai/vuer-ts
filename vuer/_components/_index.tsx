@@ -1,5 +1,5 @@
 import {comp_list} from "./_components";
-import {Node} from "../index.tsx";
+import {Node} from "../index";
 import {ElementType} from "react";
 
 type HydrateProps = {

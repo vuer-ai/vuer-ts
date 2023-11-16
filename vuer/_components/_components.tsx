@@ -53,7 +53,7 @@ import {PointCloud} from "./_three_components/_primitives/_pointclound";
 import {TriMesh} from "./_three_components/_primitives/_trimesh";
 import {Gamepad} from "./_three_components/_controls/_gamepad";
 import {Hands} from "./_three_components/_controls/_hands";
-import {VuerProps} from "../_interfaces.tsx";
+import {VuerProps} from "../_interfaces";
 
 type VuerControlProps = VuerProps<{ value: never }>
 

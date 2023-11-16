@@ -7,8 +7,8 @@ import {SceneStoreType, useSceneStore} from "../../_store";
 import {Euler, Vector3} from "@react-three/fiber";
 
 
-import {ClientEvent} from "../../_interfaces.tsx";
-import {Sim3, SO3, V3} from "./_number_types.tsx";
+import {ClientEvent} from "../../_interfaces";
+import {Sim3, SO3, V3} from "./_number_types";
 
 export function deg2rad(rotation: SO3): SO3 {
     return {
