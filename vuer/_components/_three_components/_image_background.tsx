@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useFrame, useThree} from "@react-three/fiber";
 import {
     LinearFilter,
@@ -24,24 +24,24 @@ function interpolateTexture(texture: Texture, interpolate: boolean) {
     }
 }
 
-type RenderPlaneProps = {
+type ImageBackgroundProps = {
     src?: string | Blob;
     alphaSrc?: string | Blob;
     distanceToCamera?: number;
     interpolate?: boolean;
-    // useAlpha?: boolean;
     opacity?: number;
+    fixed?: boolean | undefined;
 };
 
-export function RenderPlane(
+export function ImageBackground(
     {
         src,
         alphaSrc,
         distanceToCamera = 10,
         interpolate = false,
-        // useAlpha = null,
         opacity = 1.0,
-    }: RenderPlaneProps
+        fixed = false,
+    }: ImageBackgroundProps
 ) {
     const planeRef = useRef<Mesh>(null);
     const matRef = useRef<MeshBasicMaterial>(null);
@@ -52,6 +52,7 @@ export function RenderPlane(
         if (!planeRef.current) return;
         // if (!src || !depthSrc) return;
         if (!src) return;
+        if (fixed) return;
         const plane = planeRef.current;
         // note: only works with perspective camera
         let h: number;
@@ -81,17 +82,17 @@ export function RenderPlane(
 
     const [rgbTexture, setRGB] = useState<Texture>();
     const [alphaTexture, setAlpha] = useState<Texture>();
+    const loader = useMemo(() => new TextureLoader(), [])
 
     useEffect(() => {
         if (!src) {
             setRGB(undefined);
         } else if (typeof src === "string") {
-            const loader = new TextureLoader();
             loader.load(src, setRGB);
         } else {
-            const rgbSrc: ImageBitmapSource = src
+            const blob: ImageBitmapSource = new Blob([src], {type: "image"});
             const texture = new Texture();
-            createImageBitmap(rgbSrc, {imageOrientation: "flipY"}).then((imageBitmap) => {
+            createImageBitmap(blob, {imageOrientation: "flipY"}).then((imageBitmap) => {
                 texture.image = imageBitmap;
                 texture.needsUpdate = true;
                 if (matRef.current) matRef.current.needsUpdate = true
@@ -100,16 +101,16 @@ export function RenderPlane(
         }
     }, [src]);
 
+
     useEffect(() => {
         if (!alphaSrc) {
             setAlpha(undefined);
         } else if (typeof alphaSrc === "string") {
-            const loader = new TextureLoader();
             loader.load(alphaSrc, setRGB);
         } else {
-            const aSrc: ImageBitmapSource = alphaSrc
+            const blob: ImageBitmapSource = new Blob([alphaSrc], {type: "image"});
             const texture = new Texture();
-            createImageBitmap(aSrc, {imageOrientation: "flipY"}).then((imageBitmap) => {
+            createImageBitmap(blob, {imageOrientation: "flipY"}).then((imageBitmap) => {
                 texture.image = imageBitmap;
                 texture.needsUpdate = true
                 if (matRef.current) matRef.current.needsUpdate = true
@@ -124,19 +125,20 @@ export function RenderPlane(
     }, [rgbTexture, alphaTexture, interpolate]);
 
     const image: HTMLImageElement = rgbTexture?.image;
+    console.log("image", image?.width, image?.height)
 
     return (
         <Plane
             ref={planeRef}
             args={[1, 1, image?.width, image?.height]}
             scale={[1, 1, 1]}
-            // frustrumCulled={false}
         >
             <meshBasicMaterial
                 ref={matRef}
                 attach="material"
                 map={rgbTexture}
-                alphaMap={alphaTexture}
+                // map={rt}
+                // alphaMap={alphaTexture}
                 transparent
                 opacity={opacity}
             />

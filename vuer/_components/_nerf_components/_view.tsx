@@ -9,7 +9,7 @@ import {
     useState,
 } from "react";
 import {button, buttonGroup, useControls} from "leva";
-import {RenderPlane} from "../_three_components/_render_plane";
+import {ImageBackground} from "../_three_components/_image_background.tsx";
 import {SocketContext, SocketContextType} from "../_contexts/_websocket";
 import {BBox} from "../_three_components/_primitives/_bbox";
 import {GroupSlave, rot2array, scale2array, v3array,} from "../_three_components/_group";
@@ -126,9 +126,7 @@ export function Render(
             c.key,
             {value: layers.indexOf(c.key as string) >= 0, label: `[${c.key}]`},
         ]);
-        const layer_settings = Object.fromEntries(keyVals);
-        // console.log("layer settings", layer_settings, layers);ˆ
-        return layer_settings;
+        return Object.fromEntries(keyVals);
     }, []);
 
     const layerSelect = useControls(
@@ -148,9 +146,7 @@ export function Render(
     useEffect(() => {
         setTimeout(() => uplink?.publish({etype: "CAMERA_UPDATE"}), 0);
         return uplink.addReducer("CAMERA_MOVE", (event) => {
-            // const layers = context.layers;
-            // console.log("context", context, "layers", layers);
-            const payload = {
+            return {
                 ...event,
                 value: {
                     ...event.value,
@@ -165,8 +161,6 @@ export function Render(
                     },
                 },
             };
-            // console.log("payload", payload);
-            return payload;
         });
     }, [selectChildren, uplink, renderSettings, controls]);
 
@@ -285,20 +279,12 @@ export function RenderLayer(
                 // allow local rendering params over-ride.
                 let uri = data[renderParams.channel || channel];
                 if (!uri) return;
-                if (!uri?.startsWith || !uri.startsWith("data:image/")) {
-                    const blob = new Blob([uri], {type: "image"});
-                    uri = blob;
-                }
                 setRGB(uri);
             }
             if (alphaChannel in data) {
                 // allow local rendering params over-ride.
                 let uri = data[renderParams.alphaChannel || alphaChannel];
                 if (!uri) return;
-                if (!uri?.startsWith || !uri?.startsWith("data:image/")) {
-                    const blob = new Blob([uri], {type: "image"});
-                    uri = blob;
-                }
                 setAlphaMap(uri);
             }
         },
@@ -320,7 +306,7 @@ export function RenderLayer(
                 </GroupSlave>
             ) : null}
             {rgbURI ? (
-                <RenderPlane
+                <ImageBackground
                     src={rgbURI}
                     alphaSrc={renderParams.useAlpha ? alphaURI : undefined}
                     // todo: add displacementMap, and other texture maps.
