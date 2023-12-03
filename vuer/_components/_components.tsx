@@ -54,6 +54,8 @@ import {TriMesh} from "./_three_components/_primitives/_trimesh";
 import {Gamepad} from "./_three_components/_controls/_gamepad";
 import {Hands} from "./_three_components/_controls/_hands";
 import {VuerProps} from "../_interfaces";
+import {SceneBackground} from "./_three_components/_scene_background.tsx";
+import {ImageBackground} from "./_three_components/_image_background.tsx";
 
 type VuerControlProps = VuerProps<{ value: never }>
 
@@ -92,6 +94,7 @@ export function Img({_key: key, children, ...props}: VuerProps) {
     const {sendMsg} = useContext(SocketContext) as SocketContextType;
     return (
         <img
+            alt={props.alt || key}
             className="input-image"
             onClick={(e: MouseEvent<HTMLImageElement>) => {
                 console.log("click on image");
@@ -156,7 +159,7 @@ export function Input(
                 setValue(defaultValue);
             }
             // info: submit
-            if (e.keyCode == 13 && e.shiftKey == false) {
+            if (e.keyCode == 13 && !e.shiftKey) {
                 // on enter:
                 e.preventDefault();
                 sendMsg({etype: "INPUT", key, value});
@@ -242,6 +245,8 @@ type CompList = {
 export const comp_list: CompList = {
     Slider, Input, Text, Img, Button, ImageUpload, Div,
     // parts of the three-js scene components, can be written as an extension - Ge
+    SceneBackground,
+    ImageBackground,
     Scene, Ply, Obj, Pcd, Glb, Gltf: Glb,
     PointCloud, TriMesh,
     Urdf, Gripper, SkeletalGripper, Pivot, Movable,

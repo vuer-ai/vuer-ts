@@ -49,7 +49,8 @@ vueree vuer
 │       │   ├── _pointclound.tsx
 │       │   ├── _primitives.tsx
 │       │   └── _trimesh.tsx
-│       ├── _render_plane.tsx
+│       ├── _image_background.tsx
+│       ├── _scene_background.tsx
 │       ├── _scene.tsx
 │       └── _utils.tsx
 ├── _constants

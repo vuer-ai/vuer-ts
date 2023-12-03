@@ -5,8 +5,8 @@ import {ElementType} from "react";
 type HydrateProps = {
     _key?: string;
     tag: string;
-    children: Node[];
     className: string;
+    children?: Node[] | string[] | undefined | null;
     [key: string]: any;
 };
 
@@ -22,7 +22,7 @@ export function Hydrate(
     const Component = (comp_list[Tag] || Tag) as ElementType;
     // const {sendMsg} = useContext<SocketContextType>(SocketContext);
 
-    const hydratedChildren = (children || []).map((child: Node) => {
+    const hydratedChildren = (children || []).map((child: Node | string) => {
         if (typeof child === "string") return child;
         const {key, ..._child} = child;
         // @ts-ignore: not sure how to fix this;

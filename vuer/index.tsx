@@ -20,19 +20,18 @@ import {ServerEvent} from "./_interfaces";
 export type Node = {
     key?: string;
     tag: string;
-    children?: Node[];
+    children?: Node[] | string[] | null;
     [key: string]: any;
 };
 
 function makeProps(props?: any) {
-    const toProps = (data: Node[]) => {
+    return (data: Node[]) => {
         const children = (data || [])
             .map(({key, ...child}: Node) => {
                 return <Hydrate key={key} _key={key} {...props} {...child} />;
             });
         return {children};
     };
-    return toProps;
 }
 
 type QueryParams = {
@@ -50,8 +49,6 @@ type SceneType = {
 }
 
 export default function Vuer({style, children: _, ..._props}: PropsWithChildren<any>) {
-
-    console.log("print this is working.")
 
     const queries = useMemo<QueryParams>(() => {
         const parsed = queryString.parse(document.location.search);
