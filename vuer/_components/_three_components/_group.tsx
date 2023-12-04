@@ -26,7 +26,7 @@ export const euler2array = ({x, y, z, order = undefined}: SO3): Euler => {
 }
 export const rot2array = (rotation: SO3): Euler => euler2array(deg2rad(rotation));
 
-export const scale2array = (scale: number |[number, number, number] | V3): Vector3 => {
+export const scale2array = (scale: number | [number, number, number] | V3): Vector3 => {
     if (typeof scale === "number") return [scale, scale, scale] as Vector3;
     return v3array(scale as V3) as Vector3;
 }

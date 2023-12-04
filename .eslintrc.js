@@ -9,15 +9,24 @@ module.exports = {
     tsconfigRootDir: __dirname
   },
   plugins: [
+    "import",
     "react",
   ],
   extends: [
     "airbnb-typescript",
     // "eslint:recommended", // ESLint's inbuilt "recommended" config
     "plugin:react/recommended",
-    `plugin:react/jsx-runtime`,
     // "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/strict-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
-  ]
+  ],
+  settings: {
+    react: {
+      pragma: 'React',
+      version: "detect"
+    }
+  },
+  rules: {
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
+  }
 }

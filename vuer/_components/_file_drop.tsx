@@ -6,7 +6,6 @@ import {pluginFile} from "../_lib/_leva-file-picker";
 import {Glb, Obj, Pcd, Ply, Urdf} from "./_three_components/_data_loaders";
 
 
-
 export function FileDrop() {
     const [buffer, setBuffer] = useState(null);
     const {File: file} = useControls("Upload", {

@@ -82,7 +82,7 @@ export function TriMesh(
                 />
             </bufferGeometry>
             <MType
-        
+
                 // @ts-expect-error
                 attach="material"
                 wireframe={wireframe}

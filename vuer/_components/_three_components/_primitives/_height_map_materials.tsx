@@ -22,7 +22,7 @@ import {TextureImageData} from "three/src/textures/types";
 //     );
 // }
 
-const isLoaded = (image:TextureImageData) => image?.complete && image.naturalHeight !== 0;
+const isLoaded = (image: TextureImageData) => image?.complete && image.naturalHeight !== 0;
 
 type HeightMaterialProps = {
     _key?: string;
@@ -121,7 +121,7 @@ export function HeightMaterial(
 
     return (
         <MType
-    
+
             attach="material"
             {...props}
             {...controls}

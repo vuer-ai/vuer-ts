@@ -1,5 +1,5 @@
 // Dependencies
-import { Nothing, isNothing } from 'nothing-mock';
+import {isNothing, Nothing} from 'nothing-mock';
 
 // Directly check and export global objects
 export const window = typeof globalThis.window !== 'undefined' ? globalThis.window : Nothing;

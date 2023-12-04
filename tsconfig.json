@@ -24,10 +24,12 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "main": "./vuer/index.js",
+  "main": "./vuer/index.tsx",
   "include": [
-    "vuer"
+    "vuer",
+    "vite.config.ts"
   ],
+  "exclude": ["./node_modules", "tsconfig.ts", "tsconfig.node.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"
