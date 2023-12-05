@@ -20,8 +20,8 @@ export default defineConfig({
     lib: {
       name: 'Vuer',
       entry: {
-        "index": path.resolve(__dirname, "./vuer/index.tsx"),
-        "demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),
+        "vuer/index": path.resolve(__dirname, "./vuer/index.tsx"),
+        "vuer/demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),
         // "store": path.resolve(__dirname, "./vuer/store.tsx"),
         // "util": path.resolve(__dirname, "./vuer/util.tsx"),
         // "interfaces": path.resolve(__dirname, "./vuer/interfaces.tsx"),

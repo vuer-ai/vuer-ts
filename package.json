@@ -6,12 +6,8 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": "./dist/index.js",
-    "./demos/3dfs_demo": "./dist/demos/3dfs_demo.js"
-  },
+  "main": "dist/vuer/index.js",
+  "types": "dist/vuer/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
