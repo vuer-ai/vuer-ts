@@ -82,8 +82,8 @@ export function ImageBackground(
     plane.lookAt(camera.position);
   });
 
-  const [rgbTexture, setRGB] = useState<Texture>();
-  const [alphaTexture, setAlpha] = useState<Texture>();
+  const [ rgbTexture, setRGB ] = useState<Texture>();
+  const [ alphaTexture, setAlpha ] = useState<Texture>();
   const loader = useMemo(() => new TextureLoader(), []);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export function ImageBackground(
     } else if (typeof src === 'string') {
       loader.load(src, setRGB);
     } else {
-      const blob: ImageBitmapSource = new Blob([src], { type: 'image' });
+      const blob: ImageBitmapSource = new Blob([ src ], { type: 'image' });
       const texture = new Texture();
       createImageBitmap(blob, { imageOrientation: 'flipY' }).then((imageBitmap) => {
         texture.image = imageBitmap;
@@ -101,7 +101,7 @@ export function ImageBackground(
         setRGB(texture);
       });
     }
-  }, [src]);
+  }, [ src ]);
 
   useEffect(() => {
     if (!alphaSrc) {
@@ -109,7 +109,7 @@ export function ImageBackground(
     } else if (typeof alphaSrc === 'string') {
       loader.load(alphaSrc, setRGB);
     } else {
-      const blob: ImageBitmapSource = new Blob([alphaSrc], { type: 'image' });
+      const blob: ImageBitmapSource = new Blob([ alphaSrc ], { type: 'image' });
       const texture = new Texture();
       createImageBitmap(blob, { imageOrientation: 'flipY' }).then((imageBitmap) => {
         texture.image = imageBitmap;
@@ -118,12 +118,12 @@ export function ImageBackground(
         setAlpha(texture);
       });
     }
-  }, [alphaSrc]);
+  }, [ alphaSrc ]);
 
   useEffect(() => {
     if (rgbTexture) interpolateTexture(rgbTexture, interpolate);
     if (alphaTexture) interpolateTexture(alphaTexture, interpolate);
-  }, [rgbTexture, alphaTexture, interpolate]);
+  }, [ rgbTexture, alphaTexture, interpolate ]);
 
   const image: HTMLImageElement = rgbTexture?.image;
   console.log('image', image?.width, image?.height);
@@ -131,8 +131,8 @@ export function ImageBackground(
   return (
     <Plane
       ref={planeRef}
-      args={[1, 1, image?.width, image?.height]}
-      scale={[1, 1, 1]}
+      args={[ 1, 1, image?.width, image?.height ]}
+      scale={[ 1, 1, 1 ]}
     >
       <meshBasicMaterial
         ref={matRef}

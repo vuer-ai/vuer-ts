@@ -20,17 +20,17 @@ export function deg2rad(rotation: SO3): SO3 {
   } as SO3;
 }
 
-export const v3array = ({ x, y, z }: V3): [number, number, number] => [x, y, z];
+export const v3array = ({ x, y, z }: V3): [number, number, number] => [ x, y, z ];
 export const euler2array = ({
   x, y, z, order = undefined,
 }: SO3): Euler => {
-  if (typeof order === 'undefined') return [x, y, z] as Euler;
-  return [x, y, z, order] as Euler;
+  if (typeof order === 'undefined') return [ x, y, z ] as Euler;
+  return [ x, y, z, order ] as Euler;
 };
 export const rot2array = (rotation: SO3): Euler => euler2array(deg2rad(rotation));
 
 export const scale2array = (scale: number | [number, number, number] | V3): Vector3 => {
-  if (typeof scale === 'number') return [scale, scale, scale] as Vector3;
+  if (typeof scale === 'number') return [ scale, scale, scale ] as Vector3;
   return v3array(scale as V3) as Vector3;
 };
 
@@ -66,12 +66,12 @@ export function SceneGroup({
 
     if (q.rotation) {
       // @ts-expect-error: okay for now
-      const [x, y, z] = q.rotation.split(',').filter((u) => u && u === u).map(parseFloat);
+      const [ x, y, z ] = q.rotation.split(',').filter((u) => u && u === u).map(parseFloat);
       rotation = { x, y, z };
     }
     if (q.position) {
       // @ts-expect-error: okay for now
-      const [x, y, z] = q.position.split(',').filter((u) => u && u === u).map(parseFloat);
+      const [ x, y, z ] = q.position.split(',').filter((u) => u && u === u).map(parseFloat);
       position = { x, y, z };
     }
     if (q.scale) {
@@ -127,11 +127,11 @@ export function SceneGroup({
         },
       },
     } as ClientEvent));
-  }, [uplink, position, rotation, scale]);
+  }, [ uplink, position, rotation, scale ]);
   return (
     <group
-      position={v3array(position) as Vector3 || [0, 0, 0]}
-      rotation={rot2array(rotation) || [0, 0, 0]}
+      position={v3array(position) as Vector3 || [ 0, 0, 0 ]}
+      rotation={rot2array(rotation) || [ 0, 0, 0 ]}
       scale={scale2array(scale || 1.0)}
     >
       {children}
@@ -142,8 +142,8 @@ export function GroupSlave({ children }: PropsWithChildren) {
   const { position, rotation, scale } = useSceneStore() as Sim3;
   return (
     <group
-      position={v3array(position) as Vector3 || [0, 0, 0]}
-      rotation={rot2array(rotation) || [0, 0, 0]}
+      position={v3array(position) as Vector3 || [ 0, 0, 0 ]}
+      rotation={rot2array(rotation) || [ 0, 0, 0 ]}
       scale={scale2array(scale || 1.0)}
     >
       {children}

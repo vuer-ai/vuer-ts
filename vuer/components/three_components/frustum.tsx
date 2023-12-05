@@ -114,7 +114,7 @@ export function Frustum(
       // @ts-ignore: don't know how to fix this.
       groupRef.current.rotation.set(...rotation);
     }
-  }, [fov, focus, near, far]);
+  }, [ fov, focus, near, far ]);
 
   const all_points = useMemo<ptList>((): ptList => {
     const tan = Math.tan((fov / 360) * Math.PI);
@@ -135,76 +135,76 @@ export function Frustum(
 
     return {
       up: [
-        [-cx_focal * 0.6, cy_focal * 1.05, -focalLength],
-        [cx_focal * 0.6, cy_focal * 1.05, -focalLength],
-        [0, cx_focal * 1.2, -focalLength],
-        [-cx_focal * 0.6, cy_focal * 1.05, -focalLength],
+        [ -cx_focal * 0.6, cy_focal * 1.05, -focalLength ],
+        [ cx_focal * 0.6, cy_focal * 1.05, -focalLength ],
+        [ 0, cx_focal * 1.2, -focalLength ],
+        [ -cx_focal * 0.6, cy_focal * 1.05, -focalLength ],
       ],
       // prettier-ignore
       imagePlaneCone: [
-        [0, 0, 0], [-cx_focal, -cy_focal, -focalLength],
-        [0, 0, 0], [cx_focal, -cy_focal, -focalLength],
-        [0, 0, 0], [cx_focal, cy_focal, -focalLength],
-        [0, 0, 0], [-cx_focal, cy_focal, -focalLength],
+        [ 0, 0, 0 ], [ -cx_focal, -cy_focal, -focalLength ],
+        [ 0, 0, 0 ], [ cx_focal, -cy_focal, -focalLength ],
+        [ 0, 0, 0 ], [ cx_focal, cy_focal, -focalLength ],
+        [ 0, 0, 0 ], [ -cx_focal, cy_focal, -focalLength ],
       ],
       imagePlane: [
-        [-cx_focal, -cy_focal, -focalLength],
-        [cx_focal, -cy_focal, -focalLength],
-        [cx_focal, cy_focal, -focalLength],
-        [-cx_focal, cy_focal, -focalLength],
-        [-cx_focal, -cy_focal, -focalLength],
+        [ -cx_focal, -cy_focal, -focalLength ],
+        [ cx_focal, -cy_focal, -focalLength ],
+        [ cx_focal, cy_focal, -focalLength ],
+        [ -cx_focal, cy_focal, -focalLength ],
+        [ -cx_focal, -cy_focal, -focalLength ],
       ],
       nearPlane: [
-        [-cx_near, -cy_near, -near],
-        [cx_near, -cy_near, -near],
-        [cx_near, cy_near, -near],
-        [-cx_near, cy_near, -near],
-        [-cx_near, -cy_near, -near],
+        [ -cx_near, -cy_near, -near ],
+        [ cx_near, -cy_near, -near ],
+        [ cx_near, cy_near, -near ],
+        [ -cx_near, cy_near, -near ],
+        [ -cx_near, -cy_near, -near ],
       ],
       cone: [
-        [0, 0, 0],
-        [-cx_near, -cy_near, -near],
-        [0, 0, 0],
-        [cx_near, -cy_near, -near],
-        [0, 0, 0],
-        [cx_near, cy_near, -near],
-        [0, 0, 0],
-        [-cx_near, cy_near, -near],
-        [0, 0, 0],
-        [-cx_near, -cy_near, -near],
+        [ 0, 0, 0 ],
+        [ -cx_near, -cy_near, -near ],
+        [ 0, 0, 0 ],
+        [ cx_near, -cy_near, -near ],
+        [ 0, 0, 0 ],
+        [ cx_near, cy_near, -near ],
+        [ 0, 0, 0 ],
+        [ -cx_near, cy_near, -near ],
+        [ 0, 0, 0 ],
+        [ -cx_near, -cy_near, -near ],
       ],
       farPlane: [
-        [-cx_far, -cy_far, -far],
-        [cx_far, -cy_far, -far],
-        [cx_far, cy_far, -far],
-        [-cx_far, cy_far, -far],
-        [-cx_far, -cy_far, -far],
+        [ -cx_far, -cy_far, -far ],
+        [ cx_far, -cy_far, -far ],
+        [ cx_far, cy_far, -far ],
+        [ -cx_far, cy_far, -far ],
+        [ -cx_far, -cy_far, -far ],
       ],
       farPlaneFrustum: [
-        [-cx_near, -cy_near, -near],
-        [-cx_far, -cy_far, -far],
-        [cx_near, -cy_near, -near],
-        [cx_far, -cy_far, -far],
-        [cx_near, cy_near, -near],
-        [cx_far, cy_far, -far],
-        [-cx_near, cy_near, -near],
-        [-cx_far, cy_far, -far],
+        [ -cx_near, -cy_near, -near ],
+        [ -cx_far, -cy_far, -far ],
+        [ cx_near, -cy_near, -near ],
+        [ cx_far, -cy_far, -far ],
+        [ cx_near, cy_near, -near ],
+        [ cx_far, cy_far, -far ],
+        [ -cx_near, cy_near, -near ],
+        [ -cx_far, cy_far, -far ],
       ],
       focalPlane: [
-        [-cx, -cy, -focus],
-        [cx, -cy, -focus],
-        [cx, cy, -focus],
-        [-cx, cy, -focus],
-        [-cx, -cy, -focus],
+        [ -cx, -cy, -focus ],
+        [ cx, -cy, -focus ],
+        [ cx, cy, -focus ],
+        [ -cx, cy, -focus ],
+        [ -cx, -cy, -focus ],
       ],
       crossHair: [
-        [0, cy, -focus],
-        [0, -cy, -focus],
-        [cx, 0, -focus],
-        [-cx, 0, -focus],
+        [ 0, cy, -focus ],
+        [ 0, -cy, -focus ],
+        [ cx, 0, -focus ],
+        [ -cx, 0, -focus ],
       ],
     };
-  }, [fov, focus, aspect, near, far]);
+  }, [ fov, focus, aspect, near, far ]);
 
   return (
     <group
@@ -274,7 +274,7 @@ export function Frustum(
         ? [
           <Sphere
             key="focus"
-            position={[0, 0, -focus]}
+            position={[ 0, 0, -focus ]}
             material-color={colorTarget}
             scale={0.2}
           />,

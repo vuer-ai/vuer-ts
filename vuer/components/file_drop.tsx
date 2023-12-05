@@ -8,7 +8,7 @@ import {
 } from './three_components/data_loaders.tsx';
 
 export function FileDrop() {
-  const [buffer, setBuffer] = useState(null);
+  const [ buffer, setBuffer ] = useState(null);
   const { File: file } = useControls('Upload', {
     File: pluginFile(),
   });
@@ -20,7 +20,7 @@ export function FileDrop() {
       const buff = await file.arrayBuffer();
       setBuffer(buff);
     })();
-  }, [file]);
+  }, [ file ]);
 
   if (!file) return <mesh />;
   if (file.path.endsWith('.ply')) {

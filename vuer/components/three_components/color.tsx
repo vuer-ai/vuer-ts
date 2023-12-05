@@ -12,7 +12,7 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
   const bgColor = useMemo<string>((): string | undefined => {
     if (queries.background) return `#${queries.background}`;
     if (color) return color;
-  }, [color]);
+  }, [ color ]);
   const { background } = useControls(
     levaPrefix,
     {
@@ -22,7 +22,7 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
       },
     },
     { collapsed: true },
-    [color],
+    [ color ],
   );
   const { uplink } = useContext(SocketContext);
   useEffect(
@@ -35,8 +35,8 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
           world: { ...event.value?.world, background },
         },
       })),
-    [uplink, background],
+    [ uplink, background ],
   );
 
-  return <color attach="background" args={[background]} />;
+  return <color attach="background" args={[ background ]} />;
 }

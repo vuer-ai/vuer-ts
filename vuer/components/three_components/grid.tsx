@@ -38,13 +38,13 @@ export function Grid({ far = null, levaPrefix = 'Scene.' }) {
       infiniteGrid: true,
     },
     { collapsed: true },
-    [far, camera.far],
+    [ far, camera.far ],
   );
   if (showGrid) {
     return (
       <DreiGrid
-        position={[0, yOffset, 0]}
-        args={[10, 10]}
+        position={[ 0, yOffset, 0 ]}
+        args={[ 10, 10 ]}
         fadeDistance={Math.min(camera.far || 5, fadeDistance)}
         {...config}
       />

@@ -29,6 +29,8 @@ module.exports = {
   ],
   rules: {
     "indent": ["error", 2],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "always"],
     "import/prefer-default-export": "off",
     "import/extensions": [
       "error",

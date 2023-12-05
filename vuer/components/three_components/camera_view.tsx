@@ -142,16 +142,16 @@ export function CameraView(
     let polarity;
     switch (origin) {
     case 'bottom-left':
-      polarity = [-1, -1];
+      polarity = [ -1, -1 ];
       break;
     case 'bottom-right':
-      polarity = [1, -1];
+      polarity = [ 1, -1 ];
       break;
     case 'top-left':
-      polarity = [-1, 1];
+      polarity = [ -1, 1 ];
       break;
     case 'top-right':
-      polarity = [1, 1];
+      polarity = [ 1, 1 ];
       break;
     }
     // prettier-ignore
@@ -184,7 +184,7 @@ export function CameraView(
     // @ts-ignore: aspect is only available on the PerspectiveCamera.
     cam.aspect = width / height;
     cameraRef.current.updateProjectionMatrix();
-  }, [width, height, cameraRef.current]);
+  }, [ width, height, cameraRef.current ]);
 
   useLayoutEffect(() => {
     if (!cameraRef.current || !matrix || matrix.length !== 16) return;
@@ -193,7 +193,7 @@ export function CameraView(
     m.decompose(cam.position, cam.quaternion, cam.scale);
     cam.rotation.setFromQuaternion(cam.quaternion);
     cam.updateProjectionMatrix();
-  }, [matrix, cameraRef.current]);
+  }, [ matrix, cameraRef.current ]);
 
   if (hide) return null;
   return (
@@ -204,7 +204,7 @@ export function CameraView(
       <Plane
         ref={planeRef}
         key="rgb" // ref={} // args={[1, 1]}
-        args={[1, 1, width, height]}
+        args={[ 1, 1, width, height ]}
         renderOrder={1}
       >
         <meshBasicMaterial attach="material" map={fbo.texture} />

@@ -150,7 +150,7 @@ export function UrdfView(
     () => {
       if (jointValues) robot?.setJointValues(jointValues);
     },
-    [robot, jointValues],
+    [ robot, jointValues ],
   );
   return <primitive ref={_ref} object={robot} {...rest} />;
 }
@@ -191,43 +191,43 @@ export function Gripper(
   }
   return (
     <group ref={_ref} {...rest}>
-      {axes && <axesHelper args={[0.1]} />}
+      {axes && <axesHelper args={[ 0.1 ]} />}
       <mesh
-        position={[0, 0.07, 0]}
-        rotation={[0, 0, Math.PI / 2]}
-        scale={[1, 1, 1]}
+        position={[ 0, 0.07, 0 ]}
+        rotation={[ 0, 0, Math.PI / 2 ]}
+        scale={[ 1, 1, 1 ]}
       >
-        <cylinderGeometry attach="geometry" args={[0.015, 0.015, 0.12, 32]} />
+        <cylinderGeometry attach="geometry" args={[ 0.015, 0.015, 0.12, 32 ]} />
         <meshBasicMaterial attach="material" color={color || '#cecece'} />
       </mesh>
-      <mesh position={[-pinchWidth - 0.005, 0.0, 0.0]} scale={1}>
-        <boxGeometry attach="geometry" args={[0.01, 0.02, 0.025, 32]} />
+      <mesh position={[ -pinchWidth - 0.005, 0.0, 0.0 ]} scale={1}>
+        <boxGeometry attach="geometry" args={[ 0.01, 0.02, 0.025, 32 ]} />
         <meshBasicMaterial attach="material" color={color || '#23aaff'} />
       </mesh>
-      <mesh position={[-pinchWidth - 0.005, 0.0275 + 0.01, 0.0]} scale={1}>
-        <boxGeometry attach="geometry" args={[0.01, 0.055, 0.025, 32]} />
+      <mesh position={[ -pinchWidth - 0.005, 0.0275 + 0.01, 0.0 ]} scale={1}>
+        <boxGeometry attach="geometry" args={[ 0.01, 0.055, 0.025, 32 ]} />
         <meshBasicMaterial attach="material" color={color || '#8ed6ff'} />
       </mesh>
-      <mesh position={[pinchWidth + 0.005, 0.0, 0.0]} scale={1}>
-        <boxGeometry attach="geometry" args={[0.01, 0.02, 0.025, 32]} />
+      <mesh position={[ pinchWidth + 0.005, 0.0, 0.0 ]} scale={1}>
+        <boxGeometry attach="geometry" args={[ 0.01, 0.02, 0.025, 32 ]} />
         <meshBasicMaterial attach="material" color={color || '#ff5656'} />
       </mesh>
-      <mesh position={[pinchWidth + 0.005, 0.0275 + 0.01, 0.0]} scale={1}>
-        <boxGeometry attach="geometry" args={[0.01, 0.055, 0.025, 32]} />
+      <mesh position={[ pinchWidth + 0.005, 0.0275 + 0.01, 0.0 ]} scale={1}>
+        <boxGeometry attach="geometry" args={[ 0.01, 0.055, 0.025, 32 ]} />
         <meshBasicMaterial attach="material" color={color || '#ff9595'} />
       </mesh>
       <mesh
-        position={[0, 0.075 + 0.025, 0]}
-        rotation={[0, 0, 0]}
-        scale={[1, 1, 1]}
+        position={[ 0, 0.075 + 0.025, 0 ]}
+        rotation={[ 0, 0, 0 ]}
+        scale={[ 1, 1, 1 ]}
       >
-        <cylinderGeometry attach="geometry" args={[0.0125, 0.0125, 0.05, 32]} />
+        <cylinderGeometry attach="geometry" args={[ 0.0125, 0.0125, 0.05, 32 ]} />
         <meshBasicMaterial attach="material" color={color || '#5b5b5b'} />
       </mesh>
       {/* add a sphere to show the origin */}
       {showOrigin ? (
-        <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
-          <sphereGeometry attach="geometry" args={[0.0075, 32, 32]} />
+        <mesh position={[ 0, 0, 0 ]} rotation={[ 0, 0, 0 ]}>
+          <sphereGeometry attach="geometry" args={[ 0.0075, 32, 32 ]} />
           <meshBasicMaterial attach="material" color="green" />
         </mesh>
       ) : null}
@@ -256,13 +256,13 @@ export function SkeletalGripper(
   return (
     <group scale={1} {...rest} ref={_ref}>
       <mesh
-        position={[0, 0.07, 0]}
-        rotation={[Math.PI / 2, 0, 0]}
-        scale={[1, 1, 1]}
+        position={[ 0, 0.07, 0 ]}
+        rotation={[ Math.PI / 2, 0, 0 ]}
+        scale={[ 1, 1, 1 ]}
       >
         <cylinderGeometry
           attach="geometry"
-          args={[0.005, 0.005, pinchWidth * 2, 32]}
+          args={[ 0.005, 0.005, pinchWidth * 2, 32 ]}
         />
         <meshBasicMaterial
           color={color || '#ffffff'}
@@ -270,8 +270,8 @@ export function SkeletalGripper(
           opacity={opacity}
         />
       </mesh>
-      <mesh position={[0, 0.02, pinchWidth]} scale={1}>
-        <cylinderGeometry attach="geometry" args={[0.005, 0.005, 0.1, 32]} />
+      <mesh position={[ 0, 0.02, pinchWidth ]} scale={1}>
+        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]} />
         <meshBasicMaterial
           attach="material"
           color={color || '#23aaff'}
@@ -279,8 +279,8 @@ export function SkeletalGripper(
           opacity={opacity}
         />
       </mesh>
-      <mesh position={[0, 0.02, -pinchWidth]} scale={1}>
-        <cylinderGeometry attach="geometry" args={[0.005, 0.005, 0.1, 32]} />
+      <mesh position={[ 0, 0.02, -pinchWidth ]} scale={1}>
+        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]} />
         <meshBasicMaterial
           attach="material"
           color={color || '#ff5656'}
@@ -288,8 +288,8 @@ export function SkeletalGripper(
           opacity={opacity}
         />
       </mesh>
-      <mesh position={[0, 0.09, 0]} rotation={[0, 0, 0]} scale={[0.8, 1, 1]}>
-        <cylinderGeometry attach="geometry" args={[0.01, 0.01, 0.06, 32]} />
+      <mesh position={[ 0, 0.09, 0 ]} rotation={[ 0, 0, 0 ]} scale={[ 0.8, 1, 1 ]}>
+        <cylinderGeometry attach="geometry" args={[ 0.01, 0.01, 0.06, 32 ]} />
         <meshBasicMaterial
           attach="material"
           color={color || 'gray'}
@@ -297,8 +297,8 @@ export function SkeletalGripper(
           opacity={opacity}
         />
       </mesh>
-      <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
-        <sphereGeometry attach="geometry" args={[0.01, 32, 32]} />
+      <mesh position={[ 0, 0, 0 ]} rotation={[ 0, 0, 0 ]}>
+        <sphereGeometry attach="geometry" args={[ 0.01, 32, 32 ]} />
         <meshBasicMaterial
           attach="material"
           color={color || 'green'}
@@ -320,8 +320,8 @@ type MarkerProps = VuerProps<{
 export function Marker({
   anchor, rotation, radius, hoverScale = 3,
 }: MarkerProps) {
-  const [show, setShow] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [ show, setShow ] = useState(false);
+  const [ scale, setScale ] = useState(1);
 
   // use useEvent after upgrading to next react version
   const onClick = (e: ThreeEvent<MouseEvent>) => {
@@ -334,7 +334,7 @@ export function Marker({
   if (!show) {
     return (
       <Sphere
-        args={[radius * scale]}
+        args={[ radius * scale ]}
         position={anchor}
         onClick={onClick}
         onPointerOver={pointerOver}
@@ -358,7 +358,7 @@ export function Marker({
     >
       <Center position={anchor}>
         <Sphere
-          args={[radius * scale]}
+          args={[ radius * scale ]}
           onClick={onClick}
           onPointerOver={pointerOver}
           onPointerOut={pointerOut}

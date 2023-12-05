@@ -23,14 +23,14 @@ type Props = PropsWithChildren<{
 export function Obj({
   src, text, buff, hide, encoding = 'ascii', ...rest
 }: Props) {
-  const [data, setData] = useState<{ scene: unknown } | undefined>();
+  const [ data, setData ] = useState<{ scene: unknown } | undefined>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new OBJLoader();
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
     if (text) setData(loader.parse(text));
     else if (src) loader.load(src, setData);
-  }, [src, hide]);
+  }, [ src, hide ]);
   if (!data) return null;
   return <ObjView data={data} hide={hide} {...rest} />;
 }
@@ -38,14 +38,14 @@ export function Obj({
 export function Pcd({
   src, text, buff, hide, encoding = 'ascii', ...rest
 }: Props) {
-  const [data, setData] = useState<Points>();
+  const [ data, setData ] = useState<Points>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new PCDLoader();
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
     if (text) setData(loader.parse(text, '') as Points);
     else if (src) loader.load(src as string, setData);
-  }, [src, hide]);
+  }, [ src, hide ]);
   if (!data) return null;
   return <PcdView data={data} hide={hide} {...rest} />;
 }
@@ -53,14 +53,14 @@ export function Pcd({
 export function Ply({
   src, text, buff, hide, encoding = 'ascii', ...rest
 }: Props) {
-  const [data, setData] = useState<BufferGeometry>();
+  const [ data, setData ] = useState<BufferGeometry>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new PLYLoader();
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
     if (text) setData(loader.parse(text));
     else if (src) loader.load(src, setData);
-  }, [src, hide]);
+  }, [ src, hide ]);
   if (!data) return null;
   return <PlyView data={data} hide={hide} {...rest} />;
 }
@@ -68,14 +68,14 @@ export function Ply({
 export function Glb({
   src, text, buff, hide, encoding = 'ascii', ...rest
 }: Props) {
-  const [data, setData] = useState<unknown>();
+  const [ data, setData ] = useState<unknown>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new GLTFLoader();
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
     if (text) loader.parse(text, '', setData);
     else if (src) loader.load(src, setData);
-  }, [src, hide]);
+  }, [ src, hide ]);
   if (!data) return null;
   return <GltfView data={data as { scene: unknown }} hide={hide} {...rest} />;
 }
@@ -83,14 +83,14 @@ export function Glb({
 export function Urdf({
   src, text, buff, hide, encoding = 'ascii', jointValues, ...rest
 }: Props) {
-  const [data, setData] = useState<URDFRobot>();
+  const [ data, setData ] = useState<URDFRobot>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new URDFLoader();
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
     if (text) setData(loader.parse(text));
     else if (src) loader.load(src, setData);
-  }, [src, hide]);
+  }, [ src, hide ]);
   if (!data) return null;
   return (
     <UrdfView robot={data} jointValues={jointValues} hide={hide} {...rest} />

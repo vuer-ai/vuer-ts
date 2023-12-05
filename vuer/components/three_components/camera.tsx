@@ -103,7 +103,7 @@ export function Camera(
       cam.updateWorldMatrix(true, true);
       invalidate();
     }
-  }, [ref.current, ...(matrix || [])]);
+  }, [ ref.current, ...(matrix || []) ]);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -112,7 +112,7 @@ export function Camera(
     cam.far = far;
     // @ts-ignore: fov is only available on the PerspectiveCamera.
     cam.fov = fov;
-  }, [ref.current, fov, near, far]);
+  }, [ ref.current, fov, near, far ]);
 
   useFrame((state) => {
     if (!animate) return;
@@ -216,8 +216,8 @@ export function SmoothCamera() {
   const { get, set } = useThree(({ get, set }) => ({ get, set }));
 
   const { type, ...controls } = useControls('Camera Control', {
-    type: { value: 'Perspective', options: ['Perspective', 'Orthographic'] },
-    position: { value: [0, 2, 10], step: 0.1 },
+    type: { value: 'Perspective', options: [ 'Perspective', 'Orthographic' ] },
+    position: { value: [ 0, 2, 10 ], step: 0.1 },
     // prettier-ignore
     near: 0.1,
     far: 100,
@@ -232,7 +232,7 @@ export function SmoothCamera() {
     } else {
       set({ camera: orthoCam.current });
     }
-  }, [get, set, type]);
+  }, [ get, set, type ]);
 
   return (
     <>
@@ -414,7 +414,7 @@ export function KeyboardControls(
         console.log('layoutEffect remove listener');
       };
     }
-  }, [controls, parent, panSpeed, viewHeight]);
+  }, [ controls, parent, panSpeed, viewHeight ]);
 
   return null;
 }
@@ -479,7 +479,7 @@ export function OrbitCamera(
     position,
     near,
     far,
-    initPosition = [-0.5, 0.75, 0.8],
+    initPosition = [ -0.5, 0.75, 0.8 ],
   }: OrbitCameraType,
 ) {
   const controlsRef = useRef() as MutableRefObject<tOrbitControls>;
@@ -493,7 +493,7 @@ export function OrbitCamera(
   //     // @ts-ignore: no time to deal with this right now.
   //     ? queries.camPosition?.split(",").map(Number)
   //     : initPosition;
-  const [controlled, setControls] = useControls('Camera Control', () => ({
+  const [ controlled, setControls ] = useControls('Camera Control', () => ({
     zoom: {
       label: 'Zoom (px)',
       value: Number(queries.zoom) || zoom || 1,
@@ -513,7 +513,7 @@ export function OrbitCamera(
   const { ctype, camInitPosition, ...ctrls } = useControls('Camera Control', {
     ctype: {
       value: 'Perspective',
-      options: ['Perspective', 'Orthographic'],
+      options: [ 'Perspective', 'Orthographic' ],
       label: 'Cam Type',
     },
     camInitPosition: initPosition,
@@ -602,7 +602,7 @@ export function OrbitCamera(
       }
     }
     if (camRef.current) set({ camera: camRef.current } as RootState);
-  }, [ctype]);
+  }, [ ctype ]);
 
   function triggerRender() {
     const defaultCam = controlsRef.current.object;
@@ -691,7 +691,7 @@ export function OrbitCamera(
     ]);
     if (matCache.matrix !== newMat) triggerRender();
     matCache.matrix = newMat;
-  }, [camRef.current, onChange, viewHeight, setControls]);
+  }, [ camRef.current, onChange, viewHeight, setControls ]);
 
   // can probably simplify.
   useLayoutEffect(

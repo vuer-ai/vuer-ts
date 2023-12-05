@@ -31,7 +31,7 @@ export function FileComponent() {
     (acceptedFiles: string | unknown[]) => {
       if (acceptedFiles.length) onUpdate(acceptedFiles[0]);
     },
-    [onUpdate],
+    [ onUpdate ],
   );
 
   const clear = useCallback(
@@ -39,7 +39,7 @@ export function FileComponent() {
       e.stopPropagation();
       onUpdate(undefined);
     },
-    [onUpdate],
+    [ onUpdate ],
   );
 
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({

@@ -77,7 +77,7 @@ export function Slider({
   _key: key, value: defaultValue, children, ...props
 }: VuerControlProps) {
   const { sendMsg } = useContext(SocketContext);
-  const [value, setValue] = useState<number>(defaultValue || 0);
+  const [ value, setValue ] = useState<number>(defaultValue || 0);
   return (
     <>
       <input
@@ -150,7 +150,7 @@ export function Input(
     ...props
   }: InputProps,
 ) {
-  const [value, setValue] = useState(_value);
+  const [ value, setValue ] = useState(_value);
   const { sendMsg } = useContext(SocketContext);
   const onChange = useMemo<ChangeEventHandler<HTMLTextAreaElement>>(() => ({ target }) => {
     setValue(target.value);
@@ -211,7 +211,7 @@ type ImageUploadProps = VuerProps<{ label: string }>;
 
 export function ImageUpload({ _key: key, label }: ImageUploadProps) {
   const { sendMsg } = useContext(SocketContext);
-  const [file, setFile] = useState<Blob | null>(null);
+  const [ file, setFile ] = useState<Blob | null>(null);
   const onChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     // @ts-expect-error: not sure how to fix this;
     (e: ChangeEvent<HTMLInputElement>) => { setFile(e.target.files[0]); }, []);

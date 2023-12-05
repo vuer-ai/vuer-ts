@@ -73,7 +73,7 @@ export function Render(
   const { uplink } = useContext(SocketContext) as SocketContextType;
 
   // eslint-disable-next-line prefer-const
-  [controls, setLeva] = useControls(
+  [ controls, setLeva ] = useControls(
     // _key ? `Render-${_key}` : "Render",
     'Render',
     () => ({
@@ -115,10 +115,10 @@ export function Render(
         },
       }),
     }),
-    [layers],
+    [ layers ],
   );
   const _settings = useMemo(() => Object.entries(settings || {})
-    .reduce((acc, [key, value]) => ({ ...acc, [key]: buttonHelper(key, value, uplink.publish) }), {}), [settings]);
+    .reduce((acc, [ key, value ]) => ({ ...acc, [key]: buttonHelper(key, value, uplink.publish) }), {}), [ settings ]);
 
   const l = useMemo<ReactElement[]>(() => {
     const keyVals = children.map((c: ReactElement) => [
@@ -128,11 +128,11 @@ export function Render(
     return Object.fromEntries(keyVals);
   }, []);
 
-  const layerSelect = useControls('Render.Layers', l, [layers]) as { [key: string]: boolean };
+  const layerSelect = useControls('Render.Layers', l, [ layers ]) as { [key: string]: boolean };
   const selectChildren = useMemo<ReactElement[]>(
     // @ts-ignore: something is wrong
     () => children.filter((c: ReactElement) => layerSelect[c.key]),
-    [layerSelect],
+    [ layerSelect ],
   );
 
   const renderSettings = useControls('Render.more․․․', _settings, {
@@ -156,7 +156,7 @@ export function Render(
         },
       },
     }));
-  }, [selectChildren, uplink, renderSettings, controls]);
+  }, [ selectChildren, uplink, renderSettings, controls ]);
 
   return (
     <>
@@ -212,18 +212,18 @@ export function RenderLayer(
     folderOptions,
   }: RenderLayerProps,
 ) {
-  const [rgbURI, setRGB] = useState<Blob | string>();
-  const [alphaURI, setAlphaMap] = useState<Blob | string>();
+  const [ rgbURI, setRGB ] = useState<Blob | string>();
+  const [ alphaURI, setAlphaMap ] = useState<Blob | string>();
   const { uplink, downlink } = useContext(SocketContext) as SocketContextType;
   const setting_cache: { [key: string]: unknown } = useMemo(
     () => Object.entries(settings || {}).reduce(
-      (acc, [key, value]) => ({
+      (acc, [ key, value ]) => ({
         ...acc,
         [key]: buttonHelper(key, value as ButtonProps, uplink.publish),
       }),
       {},
     ),
-    [settings, uplink.publish],
+    [ settings, uplink.publish ],
   );
 
   const renderParams = useControls(title, setting_cache, folderOptions, [
@@ -248,7 +248,7 @@ export function RenderLayer(
         }),
       channel,
     );
-  }, [uplink, renderParams]);
+  }, [ uplink, renderParams ]);
 
   const control = useControls(
     `${title}.more․․․`,
@@ -282,9 +282,9 @@ export function RenderLayer(
         setAlphaMap(uri);
       }
     },
-    [renderParams.useAlpha],
+    [ renderParams.useAlpha ],
   );
-  useLayoutEffect(() => downlink.subscribe('RENDER', onMessage), [downlink]);
+  useLayoutEffect(() => downlink.subscribe('RENDER', onMessage), [ downlink ]);
 
   return (
     <>

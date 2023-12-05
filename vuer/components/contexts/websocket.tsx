@@ -26,10 +26,10 @@ type wsQueries = {
   ws?: string;
 };
 export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebSocketProviderProps) {
-  const [isConnected, setIsConnected] = useStateRef(false);
-  const [connectWS, setConnectWS] = useState(true);
-  const [reconnect, allowReconnect] = useState(true);
-  const [, , shouldReconnect] = useStateRef(true);
+  const [ isConnected, setIsConnected ] = useStateRef(false);
+  const [ connectWS, setConnectWS ] = useState(true);
+  const [ reconnect, allowReconnect ] = useState(true);
+  const [ , , shouldReconnect ] = useStateRef(true);
 
   const queries = useMemo<wsQueries>(() => queryString.parse(document.location.search), []);
   const uplink = useMemo<Store<ClientEvent>>(() => new Store(), []);
@@ -68,7 +68,7 @@ export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebS
         downlink.publish(event);
       });
     },
-    [socketURI],
+    [ socketURI ],
   );
 
   function onOpen() {
@@ -123,10 +123,10 @@ export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebS
       const message = pack(event);
       if (event) sendMessage(message);
     },
-    [readyState],
+    [ readyState ],
   );
 
-  useEffect(() => uplink.subscribe('*', sendMsg), [sendMsg, uplink]);
+  useEffect(() => uplink.subscribe('*', sendMsg), [ sendMsg, uplink ]);
 
   return (
     <SocketContext.Provider value={{ sendMsg, uplink, downlink } as SocketContextType}>

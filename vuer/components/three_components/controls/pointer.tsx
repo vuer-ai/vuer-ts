@@ -133,10 +133,10 @@ export function Pointer(
       parent.current?.removeEventListener('mousemove', moveHandle);
       parent.current?.removeEventListener('click', clickHandle);
     };
-  }, [thres, onClick, disable]);
+  }, [ thres, onClick, disable ]);
 
   return (
-    <ThreeSphere ref={ref} args={[thres]}>
+    <ThreeSphere ref={ref} args={[ thres ]}>
       {/* basicMaterial does not require lighting */}
       <meshBasicMaterial color={color} opacity={1} transparent />
     </ThreeSphere>

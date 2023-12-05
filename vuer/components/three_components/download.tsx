@@ -17,7 +17,7 @@ export function Download({ _key: key }: VuerProps) {
       uri.replace('image/png', 'image/octet-stream'),
     );
     link.click();
-  }, [sendMsg]);
+  }, [ sendMsg ]);
   useControls({
     'Take Screenshot': button(callback, { disabled: false }),
   }, []);

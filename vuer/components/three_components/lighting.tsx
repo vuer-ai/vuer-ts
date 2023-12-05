@@ -127,7 +127,7 @@ export function PointLight(
     <group>
       <pointLight key={_key} ref={lightRef} {...controls} {...rest} />
       <Sphere
-        args={[0.1, 32, 32]}
+        args={[ 0.1, 32, 32 ]}
         position={rest.position}
         // @ts-ignore: todo: fix this.
         emissive={color || 'white'}

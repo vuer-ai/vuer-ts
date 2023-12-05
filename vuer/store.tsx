@@ -10,8 +10,8 @@ export interface SceneStoreType {
 
 // export const SceneContext = React.createContext("Scene");
 export const useSceneStore = create<SceneStoreType>((set) => ({
-  position: [0, 0, 0],
-  rotation: [0, 0, 0, 'XYZ'],
-  scale: [1, 1, 1],
+  position: [ 0, 0, 0 ],
+  rotation: [ 0, 0, 0, 'XYZ' ],
+  scale: [ 1, 1, 1 ],
   update: (value: object) => { set((state: object) => ({ ...state, ...value })); },
 }));

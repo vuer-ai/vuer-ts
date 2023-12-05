@@ -33,7 +33,7 @@ export function PointCloud(
     rotation: rotation && new Euler(...rotation),
     vertices: half2float(vertices),
     colors: colors && Float32Array.from(colors, (octet) => octet / 0xff),
-  }), [vertices, colors]);
+  }), [ vertices, colors ]);
 
   return (
     <points

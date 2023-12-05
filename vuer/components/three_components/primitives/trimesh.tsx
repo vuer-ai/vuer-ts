@@ -23,8 +23,8 @@ type GeoCache = {
 
 export function TriMesh(
   {
-    position = [0, 0, 0],
-    rotation = [0, 0, 0],
+    position = [ 0, 0, 0 ],
+    rotation = [ 0, 0, 0 ],
     vertices,
     faces,
     colors,
@@ -43,7 +43,7 @@ export function TriMesh(
       faces: new Uint32Array(faces.buffer.slice(faces.byteOffset), 0, byteRatio * faces.byteLength),
       colors: colors && Float32Array.from(colors, (octet) => octet / 0xff),
     };
-  }, [vertices, faces, colors]);
+  }, [ vertices, faces, colors ]);
 
   const MType = `mesh${
     materialType.charAt(0).toUpperCase()

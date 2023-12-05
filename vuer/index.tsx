@@ -57,21 +57,21 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
   }, []);
   const collapseMenu = useMemo<boolean>(
     () => queries.collapseMenu === 'true',
-    [queries.collapseMenu],
+    [ queries.collapseMenu ],
   );
 
   // // for server-side rendering
   // if (typeof window === "undefined") return <div>threejs view server-side rendering</div>;
 
-  const [scene, setScene, sceneRef] = useStateRef<SceneType>({
+  const [ scene, setScene, sceneRef ] = useStateRef<SceneType>({
     children: [],
     htmlChildren: [],
     rawChildren: [],
     backgroundChildren: [],
   });
 
-  const [menu, setMenu] = useState({});
-  const { response } = useFetch(queries.scene, [queries.scene]);
+  const [ menu, setMenu ] = useState({});
+  const { response } = useFetch(queries.scene, [ queries.scene ]);
 
   useEffect(() => {
     // do not change the scene using Fetch unless queries.scene is set.
@@ -100,7 +100,7 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
     if (typeof _scene.children === 'undefined') _scene = { children: _scene };
     setScene(_scene);
     setMenu(list2menu(_scene.children, false));
-  }, [queries.scene, response.data]);
+  }, [ queries.scene, response.data ]);
 
   useControls(
     () => ({
@@ -135,7 +135,7 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
         { collapsed: true, order: -2 },
       ),
     }),
-    [menu],
+    [ menu ],
   );
 
   const onMessage = useCallback(
@@ -232,7 +232,7 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
       zIndex: 10,
       ...(style || {}),
     }),
-    [style],
+    [ style ],
   );
 
   return (

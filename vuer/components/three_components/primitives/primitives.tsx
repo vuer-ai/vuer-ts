@@ -35,8 +35,8 @@ export function Primitive(
     ...rest
   }: { geometry: string } & PrimitiveProps,
 ) {
-  const [materialParams, setMaterial] = useState({});
-  const [textures, setTexture] = useState({});
+  const [ materialParams, setMaterial ] = useState({});
+  const [ textures, setTexture ] = useState({});
   const textureMaps = useLoader(TextureLoader, Object.values(textures) as string[] || []);
 
   useEffect(() => {
@@ -49,10 +49,10 @@ export function Primitive(
         setMaterial((store) => ({ ...store, [k]: value }));
       }
     }
-  }, [rest]);
+  }, [ rest ]);
 
   const tMaps = Object.fromEntries(
-    Object.keys(textures).map((key, i) => [key, textureMaps[i]]),
+    Object.keys(textures).map((key, i) => [ key, textureMaps[i] ]),
   );
 
   // todo: use hide as a higher-level component, to avoid running all of the hooks.
@@ -68,7 +68,7 @@ export function Primitive(
           type={materialType}
           displacementMap={displacementMap}
           normalMap={normalMap}
-          normalScale={[1, 1]}
+          normalScale={[ 1, 1 ]}
           displacementScale={1}
           {...tMaps}
           {...materialParams}
@@ -154,7 +154,7 @@ export function Sphere(
     _ref,
     _key,
     // hide,
-    args = [1],
+    args = [ 1 ],
     color = 'white',
     materialType = 'basic',
     ...params
@@ -172,14 +172,14 @@ export function Sphere(
       },
       color: { value: color, optional: true },
     },
-    [...args],
+    [ ...args ],
   );
   return (
     <Primitive
       ref={_ref}
       geometry="sphereGeometry"
       materialType={materialType}
-      args={[controls.radius, ...args.slice(1)]}
+      args={[ controls.radius, ...args.slice(1) ]}
       color={controls.color || color}
       {...params}
     />

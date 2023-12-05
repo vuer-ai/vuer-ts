@@ -62,13 +62,13 @@ export function Pivot(
     scale = 0.4,
     lineWidth = 1.0,
     matrix,
-    position = [0, 0, 0],
+    position = [ 0, 0, 0 ],
     // @ts-ignore: type mismatch
-    rotation = [0, 0, 0],
+    rotation = [ 0, 0, 0 ],
     ...rest
   }: PivotProps,
 ) {
-  const [state, setState] = useState({});
+  const [ state, setState ] = useState({});
   const ref = useRef() as MutableRefObject<Object3D>;
   const { sendMsg } = useContext(SocketContext) as SocketContextType;
 
@@ -92,7 +92,7 @@ export function Pivot(
       pivot.updateMatrix();
       invalidate();
     }
-  }, [ref.current]);
+  }, [ ref.current ]);
 
   function onDrag(
     local: Matrix4,
@@ -185,8 +185,8 @@ export function Pivot(
 // }
 
 function addThree(
-  [x1, y1, z1]: [number, number, number] = [0, 0, 0],
-  [x2, y2, z2]: [number, number, number] = [0, 0, 0],
+  [ x1, y1, z1 ]: [number, number, number] = [ 0, 0, 0 ],
+  [ x2, y2, z2 ]: [number, number, number] = [ 0, 0, 0 ],
 ): [number, number, number] {
   return [
     x1 + x2,
@@ -243,7 +243,7 @@ export function PivotXR(
     <SqueezeRayGrab onSqueezeEnd={onSqueezeEnd} bigChildren={children}>
       <HandleBox
         ref={ref}
-        size={[scale, scale, scale]}
+        size={[ scale, scale, scale ]}
         rotation={rotation}
         position={addThree(position, offset) as rVector3}
       />
@@ -270,7 +270,7 @@ export function Movable(
     annotations,
     scale = 0.4,
     lineWidth = 0.5,
-    handleOffset = [0, 0, 0],
+    handleOffset = [ 0, 0, 0 ],
     hide,
     ...props
   }: MovableType,

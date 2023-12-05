@@ -30,7 +30,7 @@ export function BBox(
   }: BBoxProps,
 ) {
   // const scale = 2
-  const dimension: number[] = [max.x - min.x, max.y - min.y, max.z - min.z];
+  const dimension: number[] = [ max.x - min.x, max.y - min.y, max.z - min.z ];
   const position: number[] = [
     min.x + dimension[0] / 2,
     min.y + dimension[1] / 2,

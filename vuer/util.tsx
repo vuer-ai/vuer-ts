@@ -1,7 +1,7 @@
 export function findByKey(node, key: string, extra: string[] = []) {
   if (node.key === key) return node;
 
-  const all = ['children', ...extra];
+  const all = [ 'children', ...extra ];
 
   for (const attr of all) {
     if (node[attr]) {
@@ -16,7 +16,7 @@ export function findByKey(node, key: string, extra: string[] = []) {
 // todo: add find parent by key
 // todo: remove element from parent
 export function removeByKey(node, key?: string, extra: string[] = []): boolean {
-  const all = ['children', ...extra];
+  const all = [ 'children', ...extra ];
 
   for (const attr of all) {
     if (node[attr]) {

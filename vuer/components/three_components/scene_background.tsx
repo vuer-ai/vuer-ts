@@ -9,7 +9,7 @@ interface BackgroundImageParams {
 export function SceneBackground({ src }: BackgroundImageParams) {
   const { scene } = useThree();
   const loader: TextureLoader = useMemo(() => new TextureLoader(), []);
-  const [rgbTexture, setRGB] = useState<Texture | undefined>();
+  const [ rgbTexture, setRGB ] = useState<Texture | undefined>();
 
   const is_empty = typeof src === 'string' && src?.length === 0;
 
@@ -17,7 +17,7 @@ export function SceneBackground({ src }: BackgroundImageParams) {
     if (!src || is_empty) setRGB(undefined);
     if (typeof src === 'string') loader.load(src, setRGB);
     else {
-      const blob: ImageBitmapSource = new Blob([src] as BlobPart[], { type: 'image' });
+      const blob: ImageBitmapSource = new Blob([ src ] as BlobPart[], { type: 'image' });
       const texture = new Texture();
       createImageBitmap(blob, { imageOrientation: 'flipY' }).then((imageBitmap) => {
         texture.image = imageBitmap;
@@ -25,12 +25,12 @@ export function SceneBackground({ src }: BackgroundImageParams) {
         setRGB(texture);
       });
     }
-  }, [src]);
+  }, [ src ]);
 
   useEffect(() => {
     if (!rgbTexture) return;
     scene.background = rgbTexture;
-  }, [rgbTexture, rgbTexture?.needsUpdate]);
+  }, [ rgbTexture, rgbTexture?.needsUpdate ]);
 
   return null;
 }

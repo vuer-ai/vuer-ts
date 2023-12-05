@@ -44,7 +44,7 @@ export function HeightMaterial(
     type = 'standard',
     normalMap,
     displacementMap,
-    normalScale = [1, 1],
+    normalScale = [ 1, 1 ],
     displacementScale = 1,
     ...rest
   }: HeightMaterialProps,
@@ -64,7 +64,7 @@ export function HeightMaterial(
     const m = new Uint8ClampedArray(4 * width * height);
     m.fill(255);
     return m;
-  }, [width, height]);
+  }, [ width, height ]);
 
   const computedNormal = useMemo<null | Texture & { flipY: boolean }>(
     (): null | DataTexture => {
@@ -76,7 +76,7 @@ export function HeightMaterial(
       texture.colorSpace = NoColorSpace;
       return texture;
     },
-    [normalMap, width, height],
+    [ normalMap, width, height ],
   );
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export function HeightMaterial(
     computedNormal.image = { data: normalData, width, height };
     computedNormal.colorSpace = NoColorSpace;
     computedNormal.needsUpdate = true;
-  }, [normalMap, displacementTexture.image, width, height]);
+  }, [ normalMap, displacementTexture.image, width, height ]);
 
   // prettier-ignore
   const folderName = `${_key} Height Map`;
@@ -106,7 +106,7 @@ export function HeightMaterial(
         options: { min: 0, step: 0.01 },
       },
     },
-    [displacementMap, displacementScale, normalMap, normalScale],
+    [ displacementMap, displacementScale, normalMap, normalScale ],
   );
 
   const props = {};

@@ -12,7 +12,7 @@ export function AutoScroll({ _key: key, children, ...props }: VuerProps) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [children, scrollToBottom]);
+  }, [ children, scrollToBottom ]);
 
   return (
     <div key={key} {...props}>

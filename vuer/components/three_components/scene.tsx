@@ -80,7 +80,7 @@ export default function ThreeScene(
         },
       } as ClientEvent);
     },
-    [sendMsg, uplink],
+    [ sendMsg, uplink ],
   );
 
   const divStyle = useMemo(
@@ -93,7 +93,7 @@ export default function ThreeScene(
         margin: '5px 5px 5px 5px',
       }),
     }),
-    [style],
+    [ style ],
   );
 
   // style="width: 80%; height: 100%; position: absolute; z-index: 10;"
@@ -132,9 +132,9 @@ export default function ThreeScene(
               onChange={onCameraMove}
               panSpeed={1}
             />
-            <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+            <GizmoHelper alignment="bottom-right" margin={[ 80, 80 ]}>
               <GizmoViewport
-                axisColors={['#9d4b4b', '#2f7f4f', '#3b5b9d']}
+                axisColors={[ '#9d4b4b', '#2f7f4f', '#3b5b9d' ]}
                 labelColor="white"
               />
             </GizmoHelper>
