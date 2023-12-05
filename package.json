@@ -1,9 +1,11 @@
 {
   "name": "@vuer-ai/vuer",
   "author": "Ge Yang",
-  "version": "0.0.0-rc3-3dgs-2",
+  "version": "0.0.0-rc3-3dgs-3",
   "private": false,
-  "files": ["vuer"],
+  "files": [
+    "vuer"
+  ],
   "main": "dist/vuer.cjs.js",
   "types": "dist/vuer.d.ts",
   "scripts": {
