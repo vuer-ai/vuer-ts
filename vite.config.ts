@@ -20,11 +20,11 @@ export default defineConfig({
     lib: {
       name: '@vuer-ai/vuer',
       entry: {
-        "demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),
         "index": path.resolve(__dirname, "./vuer/index.tsx"),
-        "store": path.resolve(__dirname, "./vuer/store.tsx"),
-        "util": path.resolve(__dirname, "./vuer/util.tsx"),
-        "interfaces": path.resolve(__dirname, "./vuer/interfaces.tsx"),
+        "demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),
+        // "store": path.resolve(__dirname, "./vuer/store.tsx"),
+        // "util": path.resolve(__dirname, "./vuer/util.tsx"),
+        // "interfaces": path.resolve(__dirname, "./vuer/interfaces.tsx"),
       },
       formats: ['cjs'],
       // fileName: (format) => `vuer.${format}.js`,
@@ -35,7 +35,7 @@ export default defineConfig({
         'react', 'react-dom', 'styled-components',
       ],
       output: {
-        // preserveModules: true,
+        preserveModules: true,
         inlineDynamicImports: false,
         globals: {
           react: 'React',
