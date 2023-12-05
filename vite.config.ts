@@ -19,9 +19,15 @@ export default defineConfig({
     minify: false, // <-- this is the important part
     lib: {
       name: '@vuer-ai/vuer',
-      entry: path.resolve(__dirname, 'vuer/index.tsx'),
+      entry: {
+        "demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),
+        "index": path.resolve(__dirname, "./vuer/index.tsx"),
+        "store": path.resolve(__dirname, "./vuer/store.tsx"),
+        "util": path.resolve(__dirname, "./vuer/util.tsx"),
+        "interfaces": path.resolve(__dirname, "./vuer/interfaces.tsx"),
+      },
       formats: ['cjs'],
-      fileName: (format) => `vuer.${format}.js`,
+      // fileName: (format) => `vuer.${format}.js`,
     },
     rollupOptions: {
       // These are the libraries that we do not want to include in our bundle.

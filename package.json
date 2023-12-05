@@ -8,6 +8,10 @@
   ],
   "main": "dist/vuer.cjs.js",
   "types": "dist/vuer.d.ts",
+  "exports": {
+    ".": "./dist/vuer.cjs.js",
+    "demos/3dfs_demo": "./dist/demos/3dfs_demo.js"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
