@@ -3,7 +3,9 @@
   "author": "Ge Yang",
   "version": "0.0.0-rc3-3dgs-2",
   "private": false,
-  "main": "vuer/index.tsx",
+  "files": ["vuer"],
+  "main": "dist/vuer.cjs.js",
+  "types": "dist/vuer.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
