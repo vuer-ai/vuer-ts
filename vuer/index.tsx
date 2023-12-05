@@ -1,19 +1,20 @@
-import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  PropsWithChildren, useCallback, useEffect, useMemo, useState,
+} from 'react';
 import queryString from 'query-string';
-import { document } from './_lib/_browser-monads';
-import ThreeScene from './_components/_three_components/_scene';
-import { Hydrate } from './_components/_index';
 import { folder, Leva, useControls } from 'leva';
 import useFetch from 'use-http';
 import yaml from 'js-yaml';
-import { list2menu } from './_components/_three_components/_leva_helper';
-import { addNode, findByKey, removeByKey } from './_util';
-import { WebSocketProvider } from './_components/_contexts/_websocket';
-import { parseArray } from './_components/_three_components/_utils';
+import useStateRef from 'react-usestateref';
+import { document } from './lib/browser-monads';
+import ThreeScene from './components/three_components/scene.tsx';
+import { Hydrate } from './components';
+import { list2menu } from './components/three_components/leva_helper.tsx';
+import { addNode, findByKey, removeByKey } from './util.tsx';
+import { WebSocketProvider } from './components/contexts/websocket.tsx';
+import { parseArray } from './components/three_components/utils.tsx';
 
-
-import { ServerEvent } from './_interfaces';
-import { useStateRef } from './_lib/react-useStateRef.ts';
+import { ServerEvent } from './interfaces.tsx';
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the
@@ -21,15 +22,13 @@ export interface Node {
   key?: string;
   tag: string;
   children?: Node[] | string[] | null;
-  [key: string];
+  [key: string]: unknown;
 }
 
 function makeProps(props?) {
   return (data: Node[]) => {
     const children = (data || [])
-      .map(({ key, ...child }: Node) => {
-        return <Hydrate key={key} _key={key} {...props} {...child} />;
-      });
+      .map(({ key, ...child }: Node) => <Hydrate key={key} _key={key} {...props} {...child} />);
     return { children };
   };
 }
@@ -48,8 +47,7 @@ interface SceneType {
   backgroundChildren: Node[];
 }
 
-export default function Vuer({ style, children: _, ..._props }: PropsWithChildren<unknown>) {
-
+export default function ({ style, children: _, ..._props }: PropsWithChildren<{ style }>) {
   const queries = useMemo<QueryParams>(() => {
     const parsed = queryString.parse(document.location.search);
     if (typeof parsed.collapseMenu === 'string') parsed.collapseMenu = parsed.collapseMenu.toLowerCase();
@@ -57,8 +55,10 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
     parsed.initCameraPosition = parseArray(parsed.initCameraPosition);
     return parsed;
   }, []);
-  const collapseMenu = useMemo<boolean>(() => queries.collapseMenu === 'true',
-    [queries.collapseMenu]);
+  const collapseMenu = useMemo<boolean>(
+    () => queries.collapseMenu === 'true',
+    [queries.collapseMenu],
+  );
 
   // // for server-side rendering
   // if (typeof window === "undefined") return <div>threejs view server-side rendering</div>;
@@ -79,12 +79,12 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
 
     // @ts-expect-error: fixme
     const scene_uri: string = queries.scene.toLowerCase();
-    let __scene;
-    if (!response || !response.ok) __scene = { children: [] };
+    let _scene;
+    if (!response || !response.ok) _scene = { children: [] };
     else if (scene_uri.endsWith('.json')) {
-      __scene = response.data;
+      _scene = response.data;
     } else if (scene_uri.endsWith('.yml') || scene_uri.endsWith('.yaml')) {
-      __scene = yaml.load(response.data);
+      _scene = yaml.load(response.data);
     } else if (queries.scene) {
       // try {
       //   const jsonStr = atob(queries.scene);
@@ -95,49 +95,46 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
       // }
       console.log('not implemented');
     } else {
-      __scene = { children: [] };
+      _scene = { children: [] };
     }
-    if (typeof __scene.children === 'undefined')
-      __scene = { children: __scene };
-    setScene(__scene);
-    setMenu(list2menu(__scene.children, false));
+    if (typeof _scene.children === 'undefined') _scene = { children: _scene };
+    setScene(_scene);
+    setMenu(list2menu(_scene.children, false));
   }, [queries.scene, response.data]);
 
   useControls(
-    function () {
-      return {
-        'Camera Control': folder(
-          {
-            show_cameras: { value: false, label: 'Show Cameras' },
-          },
-          { collapsed: true },
-        ),
-        // "Take Screenshot": button(() => {}, {disabled: true}),
-        Scene: folder({}),
-        Render: folder(
-          {
-            // showRender: { value: false, label: "Show Rendering" },
-          },
-          { collapsed: true },
-        ),
-        'Scene.Options': folder(
-          {
-            // show_this: false,
-            // showNodes: { value: true, label: "Show Nodes" },
-            // pointSize: {
-            //   value: queries.pointSize ? parseFloat(queries.pointlSize) : 1.5,
-            //   min: 0.1,
-            //   max: 100,
-            //   step: 0.1,
-            //   pad: 1,
-            //   label: "PC Point Size",
-            // },
-            ...menu,
-          },
-          { collapsed: true, order: -2 },
-        ),
-      };
-    },
+    () => ({
+      'Camera Control': folder(
+        {
+          show_cameras: { value: false, label: 'Show Cameras' },
+        },
+        { collapsed: true },
+      ),
+      // "Take Screenshot": button(() => {}, {disabled: true}),
+      Scene: folder({}),
+      Render: folder(
+        {
+          // showRender: { value: false, label: "Show Rendering" },
+        },
+        { collapsed: true },
+      ),
+      'Scene.Options': folder(
+        {
+          // show_this: false,
+          // showNodes: { value: true, label: "Show Nodes" },
+          // pointSize: {
+          //   value: queries.pointSize ? parseFloat(queries.pointlSize) : 1.5,
+          //   min: 0.1,
+          //   max: 100,
+          //   step: 0.1,
+          //   pad: 1,
+          //   label: "PC Point Size",
+          // },
+          ...menu,
+        },
+        { collapsed: true, order: -2 },
+      ),
+    }),
     [menu],
   );
 
@@ -239,28 +236,28 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
   );
 
   return (
-        // <div style={{ overflow: "hidden" }}>
-        <WebSocketProvider onMessage={onMessage}>
-            <ThreeScene
-                backgroundChildren={backgroundChildren}
-                style={sceneStyle}
-                rawChildren={rawChildren}
-                htmlChildren={htmlChildren}
-                {...rest}
-            >
-                {children}
-            </ThreeScene>
-            <Leva
-                theme={{
-                  sizes: {
-                    rootWidth: '380px',
-                    controlWidth: '200px',
-                    numberInputMinWidth: '56px',
-                  },
-                }}
-                collapsed={collapseMenu}
-            />
-        </WebSocketProvider>
-        // </div>
+  // <div style={{ overflow: "hidden" }}>
+    <WebSocketProvider onMessage={onMessage}>
+      <ThreeScene
+        backgroundChildren={backgroundChildren}
+        style={sceneStyle}
+        rawChildren={rawChildren}
+        htmlChildren={htmlChildren}
+        {...rest}
+      >
+        {children}
+      </ThreeScene>
+      <Leva
+        theme={{
+          sizes: {
+            rootWidth: '380px',
+            controlWidth: '200px',
+            numberInputMinWidth: '56px',
+          },
+        }}
+        collapsed={collapseMenu}
+      />
+    </WebSocketProvider>
+  // </div>
   );
 }

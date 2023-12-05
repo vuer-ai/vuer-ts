@@ -8,54 +8,54 @@ vueree vuer
 ├── README.md
 ├── _components
 │   ├── _chat
-│   │   └── _autoscroll.tsx
-│   ├── _components.tsx
+│   │   └── autoscroll.tsx
+│   ├── components.tsx
 │   ├── _contexts
-│   │   └── _websocket.tsx
-│   ├── _file_drop.tsx
-│   ├── _index.tsx
+│   │   └── websocket.tsx
+│   ├── file_drop.tsx
+│   ├── index.tsx
 │   ├── _leva_components
 │   ├── _markdown
-│   │   └── _markdown.tsx
+│   │   └── markdown.tsx
 │   ├── _nerf_components
-│   │   └── _view.tsx
-│   ├── _store.tsx
+│   │   └── view.tsx
+│   ├── store.tsx
 │   └── _three_components
-│       ├── _camera.tsx
-│       ├── _camera_view.tsx
-│       ├── _color.tsx
-│       ├── _components.tsx
+│       ├── camera.tsx
+│       ├── camera_view.tsx
+│       ├── color.tsx
+│       ├── components.tsx
 │       ├── _controls
-│       │   ├── _gamepad.tsx
-│       │   ├── _hands.tsx
-│       │   ├── _movables.tsx
-│       │   ├── _pointer.tsx
-│       │   └── _utils.tsx
-│       ├── _data_loaders.tsx
-│       ├── _download.tsx
-│       ├── _frustum.tsx
-│       ├── _grid.tsx
-│       ├── _group.tsx
-│       ├── _index.tsx
-│       ├── _legends.tsx
-│       ├── _leva_helper.tsx
-│       ├── _lighting.tsx
-│       ├── _number_types.tsx
+│       │   ├── gamepad.tsx
+│       │   ├── hands.tsx
+│       │   ├── movables.tsx
+│       │   ├── pointer.tsx
+│       │   └── utils.tsx
+│       ├── data_loaders.tsx
+│       ├── download.tsx
+│       ├── frustum.tsx
+│       ├── grid.tsx
+│       ├── group.tsx
+│       ├── index.tsx
+│       ├── legends.tsx
+│       ├── leva_helper.tsx
+│       ├── lighting.tsx
+│       ├── number_types.tsx
 │       ├── _primitives
-│       │   ├── _bbox.tsx
-│       │   ├── _half2float.tsx
-│       │   ├── _height_map_materials.tsx
-│       │   ├── _normal_map_utils.tsx
-│       │   ├── _pointclound.tsx
-│       │   ├── _primitives.tsx
-│       │   └── _trimesh.tsx
-│       ├── _image_background.tsx
-│       ├── _scene_background.tsx
-│       ├── _scene.tsx
-│       └── _utils.tsx
+│       │   ├── bbox.tsx
+│       │   ├── half2float.tsx
+│       │   ├── height_map_materials.tsx
+│       │   ├── normal_map_utils.tsx
+│       │   ├── pointclound.tsx
+│       │   ├── primitives.tsx
+│       │   └── trimesh.tsx
+│       ├── image_background.tsx
+│       ├── scene_background.tsx
+│       ├── scene.tsx
+│       └── utils.tsx
 ├── _constants
 │   └── _colormaps.tsx
-├── _interfaces.tsx
+├── interfaces.tsx
 ├── _lib
 │   ├── _browser-monads
 │   │   └── index.tsx
@@ -64,8 +64,8 @@ vueree vuer
 │       ├── StyledFile.tsx
 │       ├── file-props.tsx
 │       └── index.tsx
-├── _store.tsx
-├── _util.tsx
+├── store.tsx
+├── util.tsx
 └── index.tsx
 
 14 directories, 48 files

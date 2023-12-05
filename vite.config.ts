@@ -26,10 +26,10 @@ export default defineConfig({
       output: {
         globals: {
           react: 'React',
-          "react-dom": 'ReactDOM',
-          "styled-components": 'styled',
+          'react-dom': 'ReactDOM',
+          'styled-components': 'styled',
         },
       },
     },
   },
-} satisfies UserConfig) ;
+} satisfies UserConfig);
