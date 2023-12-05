@@ -13,7 +13,7 @@ import { parseArray } from './_components/_three_components/_utils';
 
 
 import { ServerEvent } from './_interfaces';
-import {useStateRef} from "./_lib/react-useStateRef.ts";
+import { useStateRef } from './_lib/react-useStateRef.ts';
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the
@@ -21,10 +21,10 @@ export interface Node {
   key?: string;
   tag: string;
   children?: Node[] | string[] | null;
-  [key: string]: any;
+  [key: string];
 }
 
-function makeProps(props?: any) {
+function makeProps(props?) {
   return (data: Node[]) => {
     const children = (data || [])
       .map(({ key, ...child }: Node) => {
@@ -48,12 +48,12 @@ interface SceneType {
   backgroundChildren: Node[];
 }
 
-export default function Vuer({ style, children: _, ..._props }: PropsWithChildren<any>) {
+export default function Vuer({ style, children: _, ..._props }: PropsWithChildren<unknown>) {
 
   const queries = useMemo<QueryParams>(() => {
     const parsed = queryString.parse(document.location.search);
     if (typeof parsed.collapseMenu === 'string') parsed.collapseMenu = parsed.collapseMenu.toLowerCase();
-    // @ts-expect-error
+    // @ts-expect-error: initCameraPosition is a number[]
     parsed.initCameraPosition = parseArray(parsed.initCameraPosition);
     return parsed;
   }, []);
@@ -77,7 +77,7 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
     // do not change the scene using Fetch unless queries.scene is set.
     if (!queries.scene) return;
 
-    // @ts-expect-error
+    // @ts-expect-error: fixme
     const scene_uri: string = queries.scene.toLowerCase();
     let __scene;
     if (!response || !response.ok) __scene = { children: [] };
@@ -103,31 +103,7 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
     setMenu(list2menu(__scene.children, false));
   }, [queries.scene, response.data]);
 
-  const [
-    {
-      // "Socket URI": socketURI,
-      // enableMarker,
-      // markerRadius,
-      // markerAverage,
-      // progressive,
-      // renderHeight,
-      // useAlpha,
-      // channel,
-      // heatmap,
-      // heatmapColormap,
-      // showMask,
-      // shade,
-      // alphaThreshold,
-      // shadeColor,
-      // query,
-      // negativeQueries,
-      // normalize,
-      // gain,
-      // clip,
-      // temperature,
-      // colormap,
-    },
-  ] = useControls(
+  useControls(
     function () {
       return {
         'Camera Control': folder(
@@ -212,6 +188,7 @@ export default function Vuer({ style, children: _, ..._props }: PropsWithChildre
         console.log('is dirty?', dirty, scene.children);
         if (dirty) setScene({ ...sceneRef.current });
       } else {
+        // print here
       }
     },
     [],

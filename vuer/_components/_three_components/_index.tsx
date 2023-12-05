@@ -3,7 +3,7 @@ import {PropsWithChildren} from "react";
 
 type SceneProps = PropsWithChildren<{
     _key: string,
-    [key: string]: any
+    [key: string]
 }>;
 
 export function Scene({_key, ...rest}: SceneProps) {

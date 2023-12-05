@@ -277,10 +277,8 @@ export function Movable(
     }: MovableType
 ) {
     // hide movable leads to pass-through
-    if (hide) {
-        return <>{children}</>;
-    }
     const {isPresenting} = useXR();
+    if (hide) return <>{children}</>;
     if (isPresenting) {
         return (
             <PivotXR

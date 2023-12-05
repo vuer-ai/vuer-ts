@@ -37,12 +37,12 @@ extend({
 
 type ThreeProps = PropsWithChildren<{
     _key?: string;
-    canvasRef?: any;
+    canvasRef?;
     className?: string;
-    style?: any;
-    backgroundChildren?: any | any[];
-    rawChildren?: any | any[];
-    htmlChildren?: any | any[];
+    style?;
+    backgroundChildren? : unknown | unknown[];
+    rawChildren? : unknown | unknown[];
+    htmlChildren? : unknown | unknown[];
 }>;
 
 export default function ThreeScene(

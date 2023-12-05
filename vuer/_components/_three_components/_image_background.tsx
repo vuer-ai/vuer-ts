@@ -120,8 +120,8 @@ export function ImageBackground(
     }, [alphaSrc]);
 
     useEffect(() => {
-        if (!!rgbTexture) interpolateTexture(rgbTexture, interpolate);
-        if (!!alphaTexture) interpolateTexture(alphaTexture, interpolate);
+        if (rgbTexture) interpolateTexture(rgbTexture, interpolate);
+        if (alphaTexture) interpolateTexture(alphaTexture, interpolate);
     }, [rgbTexture, alphaTexture, interpolate]);
 
     const image: HTMLImageElement = rgbTexture?.image;

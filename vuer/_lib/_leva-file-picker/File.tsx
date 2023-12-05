@@ -1,9 +1,9 @@
-import {useCallback} from "react";
-import * as levaPlugin from "leva/plugin";
-import * as dropzone from "react-dropzone";
-import {DropZone, FileContainer, Instructions, Remove} from "./StyledFile";
+import { useCallback } from 'react';
+import * as levaPlugin from 'leva/plugin';
+import * as dropzone from 'react-dropzone';
+import { DropZone, FileContainer, Instructions, Remove } from './StyledFile';
 
-const {useDropzone} = dropzone;
+const { useDropzone } = dropzone;
 
 /**note:
  import { styled, useInputContext, Components, createPlugin }
@@ -18,48 +18,48 @@ const {useDropzone} = dropzone;
  import pkg from 'leva/plugin/dist/leva-plugin.esm.js';
  const { styled, useInputContext, Components, createPlugin } = pkg;
  */
-const {Components, useInputContext} = levaPlugin;
+const { Components, useInputContext } = levaPlugin;
 
 export function FileComponent() {
-    const {label, value, onUpdate, disabled} = useInputContext<any>();
+  const { label, value, onUpdate, disabled } = useInputContext<unknown>();
 
-    const onDrop = useCallback(
-        (acceptedFiles: string | any[]) => {
-            if (acceptedFiles.length) onUpdate(acceptedFiles[0]);
-        },
-        [onUpdate]
-    );
+  const onDrop = useCallback(
+    (acceptedFiles: string | unknown[]) => {
+      if (acceptedFiles.length) onUpdate(acceptedFiles[0]);
+    },
+    [onUpdate],
+  );
 
-    const clear = useCallback(
-        (e: { stopPropagation: () => void }) => {
-            e.stopPropagation();
-            onUpdate(undefined);
-        },
-        [onUpdate]
-    );
+  const clear = useCallback(
+    (e: { stopPropagation: () => void }) => {
+      e.stopPropagation();
+      onUpdate(undefined);
+    },
+    [onUpdate],
+  );
 
-    const {getRootProps, getInputProps, isDragAccept} = useDropzone({
-        maxFiles: 1,
-        onDrop,
-        disabled,
-    });
+  const { getRootProps, getInputProps, isDragAccept } = useDropzone({
+    maxFiles: 1,
+    onDrop,
+    disabled,
+  });
 
-    const {Label, Row} = Components;
-    return (
-        <Row input>
-            <Label>{label}</Label>
-            <FileContainer fullwidth={!!value}>
-                {value && <div>{value?.name}</div>}
-                {value && <Remove onClick={clear} disabled={!value}/>}
-                {!value && (
-                    <DropZone {...(getRootProps({isDragAccept}) as any)}>
-                        <input {...getInputProps()} />
-                        <Instructions>
-                            {isDragAccept ? "drop file" : "click or drop"}
-                        </Instructions>
-                    </DropZone>
-                )}
-            </FileContainer>
-        </Row>
-    );
+  const { Label, Row } = Components;
+  return (
+    <Row input>
+      <Label>{label}</Label>
+      <FileContainer fullwidth={!!value}>
+        {value && <div>{value?.name}</div>}
+        {value && <Remove onClick={clear} disabled={!value}/>}
+        {!value && (
+            <DropZone {...(getRootProps({ isDragAccept }))}>
+                <input {...getInputProps()} />
+                <Instructions>
+                    {isDragAccept ? 'drop file' : 'click or drop'}
+                </Instructions>
+            </DropZone>
+        )}
+      </FileContainer>
+    </Row>
+  );
 }

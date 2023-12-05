@@ -13,11 +13,11 @@ type Props = PropsWithChildren<{
     buff?: ArrayBuffer;
     hide?: boolean;
     encoding?: string;
-    [key: string]: any;
+    [key: string];
 }>;
 
 export function Obj({src, text, buff, hide, encoding = "ascii", ...rest}: Props) {
-    const [data, setData] = useState<any>();
+    const [data, setData] = useState<{ scene: unknown } | undefined>();
     useEffect(() => {
         if (!data && hide) return;
         const loader = new OBJLoader();
@@ -56,7 +56,7 @@ export function Ply({src, text, buff, hide, encoding = "ascii", ...rest}: Props)
 }
 
 export function Glb({src, text, buff, hide, encoding = "ascii", ...rest}: Props) {
-    const [data, setData] = useState<any>();
+    const [data, setData] = useState<unknown>();
     useEffect(() => {
         if (!data && hide) return;
         const loader = new GLTFLoader();
@@ -65,7 +65,7 @@ export function Glb({src, text, buff, hide, encoding = "ascii", ...rest}: Props)
         else if (src) loader.load(src, setData);
     }, [src, hide]);
     if (!data) return null;
-    return <GltfView data={data} hide={hide} {...rest} />;
+    return <GltfView data={data as { scene: unknown }} hide={hide} {...rest} />;
 }
 
 export function Urdf({src, text, buff, hide, encoding = "ascii", jointValues, ...rest}: Props) {

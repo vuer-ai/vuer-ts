@@ -7,7 +7,7 @@ type HydrateProps = {
     tag: string;
     className: string;
     children?: Node[] | string[] | undefined | null;
-    [key: string]: any;
+    [key: string];
 };
 
 export function Hydrate(

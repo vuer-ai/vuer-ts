@@ -9,14 +9,14 @@ import {HeightMaterial} from "./_height_map_materials";
 type PrimitiveProps = {
     _ref?: Ref<Mesh>;
     _key?: string;
-    sendMsg?: any;
-    children?: any;
+    sendMsg?;
+    children?;
     hide?: boolean;
-    args?: any[];
+    args?: number[];
     materialType?: "basic" | "standard" | "phong" | "lambert";
-    material?: any;
-    outlines?: any;
-    [key: string]: any;
+    material?;
+    outlines?;
+    [key: string];
 }
 
 export function Primitive(
@@ -61,7 +61,6 @@ export function Primitive(
 
     return (
         <mesh ref={_ref} key={_key} {...rest}>
-            {/* @ts-expect-error */}
             <Geometry attach="geometry" args={args}/>
             <Suspense>
                 <HeightMaterial
@@ -145,10 +144,10 @@ export function Shape(params: PrimitiveProps) {
 type SphereProps = {
     _ref?: Ref<Mesh>;
     _key?: string;
-    args?: any[];
+    args?: number[];
     color?: string;
     materialType?: "basic" | "standard" | "phong" | "lambert";
-    [key: string]: any;
+    [key: string];
 }
 
 export function Sphere(

@@ -14,8 +14,8 @@
 import {folder} from "leva";
 
 
-export function list2menu(nodes: Node[], expand: boolean): any {
-    const menu: any = {};
+export function list2menu(nodes: Node[], expand: boolean) {
+    const menu = {};
     nodes.forEach((node: Node) => {
         // @ts-ignore: not even used anymore, can just remove.
         const {label, color, threshold, hide, ...rest} = node;

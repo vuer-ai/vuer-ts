@@ -5,4 +5,4 @@ import {isNothing, Nothing} from 'nothing-mock';
 export const window = typeof globalThis.window !== 'undefined' ? globalThis.window : Nothing;
 export const document = typeof window.document !== 'undefined' ? window.document : Nothing;
 export const navigator = typeof window.navigator !== 'undefined' ? window.navigator : Nothing;
-export const exists = (variable: any) => !isNothing(variable);
+export const exists = (variable) => !isNothing(variable);

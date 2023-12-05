@@ -131,7 +131,7 @@ export function PlyView(
 // </points>
 
 // GLB is a binary container format of GLTF.
-export function GltfView({data, _ref, ...rest}: VuerProps<{ data: { scene: any } }>) {
+export function GltfView({data, _ref, ...rest}: VuerProps<{ data: { scene } }>) {
     return <primitive ref={_ref} object={data.scene} {...rest} />;
 }
 
@@ -140,7 +140,7 @@ export function UrdfView(
         robot, _ref, jointValues = {}, ...rest
     }: VuerProps<{
         robot: URDFRobot;
-        jointValues: any;
+        jointValues;
     }, Group>
 ) {
     useEffect(

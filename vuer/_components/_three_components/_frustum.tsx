@@ -78,7 +78,7 @@ export function Frustum(
 ) {
     const cache = useMemo(
         () => ({
-            raw: null as any,
+            raw: null,
             matrix: new Matrix4(),
             position: new Vector3(0, 0, 0),
             rotation: new Euler(0, 0, 0),

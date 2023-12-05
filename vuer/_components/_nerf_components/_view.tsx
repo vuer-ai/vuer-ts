@@ -28,7 +28,7 @@ function buttonHelper(
     // the type: key is used to indicate that this is a button object.
     {type, etype, ...options}: ButtonProps,
     sendMsg: (e: ClientEvent) => void
-): ButtonInput | any {
+): ButtonInput | { type: string } & ButtonSettings {
     if (type === "BUTTON") return button(() => sendMsg({key, etype} as ClientEvent), options);
     return {type, ...options};
 }
@@ -64,7 +64,7 @@ export function Render(
         children = [],
     }: RenderProps
 ) {
-    let controls: any, setLeva: (state: any) => void;
+    let controls, setLeva: (state) => void;
     const context = useMemo<{ layers: Set<ReactElement> }>(
         () => ({layers: new Set()}),
         []
@@ -277,13 +277,13 @@ export function RenderLayer(
 
             if (channel in data) {
                 // allow local rendering params over-ride.
-                let uri = data[renderParams.channel || channel];
+                const uri = data[renderParams.channel || channel];
                 if (!uri) return;
                 setRGB(uri);
             }
             if (alphaChannel in data) {
                 // allow local rendering params over-ride.
-                let uri = data[renderParams.alphaChannel || alphaChannel];
+                const uri = data[renderParams.alphaChannel || alphaChannel];
                 if (!uri) return;
                 setAlphaMap(uri);
             }

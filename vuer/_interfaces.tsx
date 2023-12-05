@@ -4,7 +4,7 @@ export type VuerProps<P = unknown, E = undefined> = P & {
   _key?: string;
   _ref?: MutableRefObject<E>;
   children?: ReactNode | undefined
-  [key: string]: any;
+  [key: string];
 };
 
 export interface EventType {
@@ -13,9 +13,9 @@ export interface EventType {
 
 export interface ClientEvent extends EventType {
   key?: string;
-  value?: string | number | number[] | any | Record<string, any>;
+  value?: string | number | number[] | unknown | Record<string, unknown>;
 }
 
 export interface ServerEvent extends EventType {
-  data: string | number | number[] | any | Record<string, any>;
+  data: string | number | number[] | unknown | Record<string, unknown>;
 }

@@ -1,71 +1,64 @@
-import uuid4 from "uuid4";
-import {EventType} from "../_interfaces";
+import uuid4 from 'uuid4';
+import { EventType } from '../_interfaces';
 
 export type ReducerType<E extends EventType> = (event: E) => E;
 export type HandlerType<E extends EventType> = (event: E) => void;
 
-export type reducersType<E extends EventType> = {
-    [eventType: string]: {
-        [uuid: string]: ReducerType<E>;
-    };
-}
-export type handlersType<E extends EventType> = {
-    [eventType: string]: {
-        [uuid: string]: HandlerType<E>;
-    };
-}
+export type reducersType<E extends EventType> = Record<string, Record<string, ReducerType<E>>>;
+export type handlersType<E extends EventType> = Record<string, Record<string, HandlerType<E>>>;
 
 export class Store<E extends EventType> {
-    reducers: reducersType<E>;
-    subscribers: handlersType<E>;
+  reducers: reducersType<E>;
 
-    constructor() {
-        this.reducers = {};
-        this.subscribers = {};
+  subscribers: handlersType<E>;
+
+  constructor() {
+    this.reducers = {};
+    this.subscribers = {};
+  }
+
+  addReducer(eventType: string, reducer: ReducerType<E>, id?: string) {
+    const uuid = id || uuid4();
+    if (!this.reducers[eventType]) {
+      this.reducers[eventType] = {};
+    }
+    this.reducers[eventType][uuid] = reducer;
+    return () => {
+      delete this.reducers[eventType][uuid];
+    };
+  }
+
+  subscribe(eventType: string, handler: HandlerType<E>, id?: string) {
+    const uuid = id || uuid4();
+    if (!this.subscribers[eventType]) {
+      this.subscribers[eventType] = {};
+    }
+    this.subscribers[eventType][uuid] = handler;
+    return () => {
+      delete this.subscribers[eventType][uuid];
+    };
+  }
+
+  publish(event: E): E {
+    const eventType = event.etype;
+
+    const reducers = this.reducers[eventType] || {};
+    for (const id in reducers) {
+      const reducer = this.reducers[eventType][id];
+      event = reducer(event);
     }
 
-    addReducer(eventType: string, reducer: ReducerType<E>, id?: string) {
-        const uuid = id || uuid4();
-        if (!this.reducers[eventType]) {
-            this.reducers[eventType] = {};
-        }
-        this.reducers[eventType][uuid] = reducer;
-        return () => {
-            delete this.reducers[eventType][uuid];
-        };
+    const subs = this.subscribers[eventType] || {};
+    for (const id in subs) {
+      const handler = this.subscribers[eventType][id];
+      setTimeout(() => { handler(event); }, 0);
     }
 
-    subscribe(eventType: string, handler: HandlerType<E>, id?: string) {
-        const uuid = id || uuid4();
-        if (!this.subscribers[eventType]) {
-            this.subscribers[eventType] = {};
-        }
-        this.subscribers[eventType][uuid] = handler;
-        return () => {
-            delete this.subscribers[eventType][uuid];
-        };
+    const multicast = this.subscribers['*'] || {};
+    for (const id in multicast) {
+      const handler = multicast[id];
+      setTimeout(() => { handler(event ); }, 0);
     }
-
-    publish(event: E): E {
-        const eventType = event.etype;
-
-        const reducers = this.reducers[eventType] || {};
-        for (const id in reducers) {
-            const reducer = this.reducers[eventType][id];
-            event = reducer(event);
-        }
-
-        const subs = this.subscribers[eventType] || {};
-        for (const id in subs) {
-            const handler = this.subscribers[eventType][id];
-            setTimeout(() => handler(event), 0);
-        }
-
-        const multicast = this.subscribers["*"] || {};
-        for (const id in multicast) {
-            const handler = multicast[id];
-            setTimeout(() => handler(event as E), 0);
-        }
-        return event;
-    }
+    return event;
+  }
 }

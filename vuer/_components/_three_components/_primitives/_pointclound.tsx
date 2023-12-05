@@ -1,4 +1,4 @@
-import {PropsWithChildren, Ref, useMemo} from "react"; // eslint-disable-next-line react/no-unknown-property
+import {PropsWithChildren, Ref, useMemo} from "react";
 import {half2float} from "./_half2float";
 import {Euler, Points, Vector3} from "three";
 

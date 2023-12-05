@@ -1,32 +1,23 @@
 module.exports = {
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: [
-      './tsconfig.json',
-      './tsconfig.node.json'
-    ],
-    tsconfigRootDir: __dirname
-  },
-  plugins: [
-    "import",
-    "react",
-  ],
+  root: true,
+  env: { browser: true, es2020: true },
   extends: [
-    "airbnb-typescript",
-    // "eslint:recommended", // ESLint's inbuilt "recommended" config
-    "plugin:react/recommended",
-    // "plugin:@typescript-eslint/recommended-type-checked",
-    "plugin:@typescript-eslint/strict-type-checked",
-    "plugin:@typescript-eslint/stylistic-type-checked",
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react-hooks/recommended',
   ],
-  settings: {
-    react: {
-      pragma: 'React',
-      version: "detect"
-    }
-  },
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react-refresh'],
   rules: {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
-  }
+    'react-refresh/only-export-components': [
+      'warn',
+      { allowConstantExport: true },
+    ],
+    "@typescript-eslint/no-unused-vars": "off",
+    '@typescript-eslint/ban-ts-comment': [
+      'error',
+      {'ts-ignore': 'allow-with-description'},
+    ],
+  },
 }

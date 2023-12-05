@@ -1,4 +1,4 @@
-export function findByKey(node: any, key: string, extra: string[] = []): any {
+export function findByKey(node, key: string, extra: string[] = []) {
   if (node.key === key) return node;
 
   const all = ['children', ...extra];
@@ -15,7 +15,7 @@ export function findByKey(node: any, key: string, extra: string[] = []): any {
 
 // todo: add find parent by key
 // todo: remove element from parent
-export function removeByKey(node: any, key?: string, extra: string[] = []) {
+export function removeByKey(node, key?: string, extra: string[] = []) {
   const all = ['children', ...extra];
 
   for (const attr of all) {
@@ -33,7 +33,7 @@ export function removeByKey(node: any, key?: string, extra: string[] = []) {
   }
 }
 
-export function addNode(scene: any, element: any, parentKey?: string): true | undefined {
+export function addNode(scene, element, parentKey?: string): true | undefined {
   const parent = parentKey ? findByKey(scene, parentKey) : scene;
   if (parent) {
     if (!parent.children) parent.children = [];

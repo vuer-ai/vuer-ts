@@ -82,8 +82,6 @@ export function TriMesh(
                 />
             </bufferGeometry>
             <MType
-
-                // @ts-expect-error
                 attach="material"
                 wireframe={wireframe}
                 //only use vertex colors if it is provided.

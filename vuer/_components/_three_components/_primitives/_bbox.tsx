@@ -37,9 +37,9 @@ export function BBox(
         min.z + dimension[2] / 2,
     ];
     return (
-        // @ts-ignore
+        // @ts-ignore: fixme
         <mesh position={position} {..._}>
-            {/* @ts-ignore */}
+            {/* @ts-ignore: fixme */}
             <boxGeometry args={dimension}/>
             {/*to enable transparency, so that objects behind gets a render pass.*/}
             <meshBasicMaterial transparent depthWrite={false} opacity={0}/>
