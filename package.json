@@ -4,10 +4,11 @@
   "version": "0.0.0-rc3-3dgs-8",
   "private": false,
   "files": [
+    "vuer",
     "dist"
   ],
-  "main": "dist/vuer/index.js",
-  "types": "dist/vuer/index.d.ts",
+  "main": "dist/vuer.js",
+  "types": "dist/vuer/vuer.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

@@ -11,7 +11,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { Html } from '@react-three/drei';
+import { Html, Splat } from '@react-three/drei';
 import { imageToBase64 } from '../util';
 import { Scene } from './three_components';
 import { SocketContext } from './contexts/websocket';
@@ -305,6 +305,7 @@ export const comp_list: CompList = {
   CameraView,
   Camera,
   Html,
+  Splat,
   BBox,
   Render,
   RenderLayer,
