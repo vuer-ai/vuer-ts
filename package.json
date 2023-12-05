@@ -4,7 +4,7 @@
   "version": "0.0.0-rc3-3dgs-3",
   "private": false,
   "files": [
-    "vuer"
+    "dist"
   ],
   "main": "dist/vuer.cjs.js",
   "types": "dist/vuer.d.ts",
