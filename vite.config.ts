@@ -18,7 +18,7 @@ export default defineConfig({
     cssCodeSplit: true,
     minify: false, // <-- this is the important part
     lib: {
-      name: '@vuer-ai/vuer',
+      name: 'Vuer',
       entry: {
         "index": path.resolve(__dirname, "./vuer/index.tsx"),
         "demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),

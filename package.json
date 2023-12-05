@@ -6,10 +6,10 @@
   "files": [
     "dist"
   ],
-  "main": "dist/vuer.cjs.js",
-  "types": "dist/vuer.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/vuer.cjs.js",
+    ".": "./dist/index.js",
     "./demos/3dfs_demo": "./dist/demos/3dfs_demo.js"
   },
   "scripts": {
