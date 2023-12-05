@@ -16,7 +16,7 @@ const dylanebert = 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main
 
 export default function App() {
   const { root , checkpoint } = useControls({
-    root: { value: 'default', options: [ 'default', 'physics', 'alphahash', 'truck' ] }
+    root: { value: 'default', options: [ 'default', 'physics', 'alphahash', 'truck' ] },
     checkpoint: { value: cakewalk, label: "Checkpoint" }
   })
   return (
