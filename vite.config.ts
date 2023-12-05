@@ -27,7 +27,7 @@ export default defineConfig({
       //   // "util": path.resolve(__dirname, "./vuer/util.tsx"),
       //   // "interfaces": path.resolve(__dirname, "./vuer/interfaces.tsx"),
       // },
-      formats: ['cjs'],
+      formats: ['es'],
       // fileName: (format) => `vuer.${format}.js`,
     },
     rollupOptions: {
@@ -37,7 +37,7 @@ export default defineConfig({
       ],
       output: {
         // preserveModules: true,
-        inlineDynamicImports: false,
+        // inlineDynamicImports: false,
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',

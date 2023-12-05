@@ -7,8 +7,15 @@
     "vuer",
     "dist"
   ],
-  "main": "dist/vuer.js",
+  "main": "dist/vuer.mjs",
   "types": "dist/vuer/vuer.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/vuer.mjs",
+      "require": "./dist/vuer.mjs",
+      "types": "./dist/vuer/vuer.d.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
