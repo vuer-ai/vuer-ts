@@ -2,6 +2,7 @@
 import { defineConfig, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
+import mdPlugin from 'vite-plugin-markdown';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
@@ -10,6 +11,7 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
     }),
+    mdPlugin(),
   ],
   root: "vuer",
   build: {
@@ -20,15 +22,8 @@ export default defineConfig({
     lib: {
       name: 'Vuer',
       entry: path.resolve(__dirname, './vuer/index.tsx'),
-      // entry: {
-      //   // "vuer/index": path.resolve(__dirname, "./vuer/index.tsx"),
-      //   // "vuer/demos/3dfs_demo": path.resolve(__dirname, "./vuer/demos/3dfs_demo.tsx"),
-      //   // "store": path.resolve(__dirname, "./vuer/store.tsx"),
-      //   // "util": path.resolve(__dirname, "./vuer/util.tsx"),
-      //   // "interfaces": path.resolve(__dirname, "./vuer/interfaces.tsx"),
-      // },
-      formats: ['es'],
-      // fileName: (format) => `vuer.${format}.js`,
+      formats: [ 'es', 'cjs' ],
+      fileName: (format) => `vuer.${format}.js`,
     },
     rollupOptions: {
       // These are the libraries that we do not want to include in our bundle.
@@ -41,7 +36,7 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          'styled-components': 'styled',
+          'styled-components': 'styled'
         },
       },
     },

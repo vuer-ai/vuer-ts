@@ -15,6 +15,7 @@ import { Html, Splat } from '@react-three/drei';
 import { imageToBase64 } from '../util';
 import { Scene } from './three_components';
 import { SocketContext } from './contexts/websocket';
+import { Splats } from './gaussian_splatting';
 import {
   Glb, Obj, Pcd, Ply, Urdf,
 } from './three_components/data_loaders';
@@ -88,7 +89,9 @@ export function Slider({
           sendMsg({ etype: 'SET', key, value });
         }}
         // @ts-expect-error: not sure how to fix
-        onChange={({ target }: ChangeEvent<HTMLInputElement>) => { setValue(target.value as number); }}
+        onChange={({ target }: ChangeEvent<HTMLInputElement>) => {
+          setValue(target.value as number);
+        }}
         {...props}
       />
       <span>{value}</span>
@@ -186,7 +189,7 @@ export function Input(
       <textarea
         placeholder={
           placeholder
-              || `"${defaultValue}" [ press ➡ for default, ⏎ to submit ]`
+          || `"${defaultValue}" [ press ➡ for default, ⏎ to submit ]`
         }
         value={value}
         onChange={onChange}
@@ -214,14 +217,16 @@ export function ImageUpload({ _key: key, label }: ImageUploadProps) {
   const [ file, setFile ] = useState<Blob | null>(null);
   const onChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     // @ts-expect-error: not sure how to fix this;
-    (e: ChangeEvent<HTMLInputElement>) => { setFile(e.target.files[0]); }, []);
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setFile(e.target.files[0]);
+    }, []);
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         if (file) {
           imageToBase64(file).then((base64) => {
-          // chop off the data:image/png;base64, part
+            // chop off the data:image/png;base64, part
             const value = base64.slice(22);
             sendMsg({ etype: 'UPLOAD', key, value });
           });
@@ -232,8 +237,8 @@ export function ImageUpload({ _key: key, label }: ImageUploadProps) {
         {label}
         {' '}
       </label>
-      <input type="file" onChange={onChange} />
-      <input type="submit" value="Submit" />
+      <input type="file" onChange={onChange}/>
+      <input type="submit" value="Submit"/>
     </form>
   );
 }
@@ -306,6 +311,7 @@ export const comp_list: CompList = {
   Camera,
   Html,
   Splat,
+  Splats,
   BBox,
   Render,
   RenderLayer,

@@ -7,15 +7,8 @@
     "vuer",
     "dist"
   ],
-  "main": "dist/vuer.mjs",
-  "types": "dist/vuer/vuer.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/vuer.mjs",
-      "require": "./dist/vuer.mjs",
-      "types": "./dist/vuer/vuer.d.ts"
-    }
-  },
+  "main": "vuer/index.tsx",
+  "module": "vuer/index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -24,6 +17,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lumaai/luma-web": "^0.1.14",
     "@petamoriken/float16": "^3.8.4",
     "@react-three/drei": "^9.90.0",
     "@react-three/fiber": "^8.15.10",
@@ -35,6 +29,7 @@
     "cross-fetch": "^3.1.5",
     "js-yaml": "^4.1.0",
     "leva": "^0.9.35",
+    "lil-gui": "^0.19.1",
     "lodash.throttle": "^4.1.1",
     "msgpackr": "^1.9.9",
     "node-fetch": "^3.3.1",
@@ -48,6 +43,7 @@
     "react-markdown": "^9.0.0",
     "react-remark": "^2.1.0",
     "react-streaming": "^0.3.9",
+    "react-syntax-highlighter": "^15.5.0",
     "react-use-websocket": "^4.5.0",
     "react-usestateref": "^1.0.8",
     "rehype-raw": "^7.0.0",
@@ -85,6 +81,7 @@
     "vike": "^0.4.148",
     "vike-react": "^0.3.5",
     "vite": "^4.5.1",
-    "vite-plugin-dts": "^3.6.3"
+    "vite-plugin-dts": "^3.6.3",
+    "vite-plugin-markdown": "^2.1.0"
   }
 }
