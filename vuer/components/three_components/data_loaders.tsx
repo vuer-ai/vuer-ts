@@ -1,12 +1,8 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
-import {
-  GLTFLoader, OBJLoader, PCDLoader, PLYLoader,
-} from 'three-stdlib';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
-import { BufferGeometry, Points } from 'three'; // todo: pass reference
-import {
-  GltfView, ObjView, PcdView, PlyView, UrdfView,
-} from './components.tsx';
+import { BufferGeometry, LoadingManager, Object3D, Points } from 'three'; // todo: pass reference
+import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components.tsx';
 
 // todo: pass reference
 // todo: change src to src
@@ -80,17 +76,66 @@ export function Glb({
   return <GltfView data={data as { scene: unknown }} hide={hide} {...rest} />;
 }
 
+type URDFProps = Props & {
+  fetchOptions?;
+  workingPath?: string;
+  parseVisual?: boolean;
+  parseCollision?: boolean;
+  packages?: string | { [key: string]: string } | ((targetPkg: string) => string);
+}
+
 export function Urdf({
-  src, text, buff, hide, encoding = 'ascii', jointValues, ...rest
-}: Props) {
+  src, text, buff, hide, encoding = 'ascii',
+  jointValues,
+  workingPath,
+  fetchOptions,
+  parseVisual,
+  parseCollision,
+  packages,
+  ...rest
+}: URDFProps) {
   const [ data, setData ] = useState<URDFRobot>();
+  const loader: URDFLoader = useMemo(() => {
+    const _loader = new URDFLoader();
+    if (!!workingPath) _loader.workingPath = workingPath;
+    if (!!fetchOptions) _loader.fetchOptions = fetchOptions;
+    if (!!parseVisual) _loader.parseVisual = parseVisual;
+    if (!!parseCollision) _loader.parseCollision = parseCollision;
+    if (!!packages && packages.length) _loader.packages = packages;
+
+    _loader.loadMeshCb = function (
+      path: string,
+      manager: LoadingManager,
+      onLoad: (mesh: Object3D, err?: Error) => void
+    ) {
+      if (typeof path !== "string") return;
+      const onError = (err) => onLoad(undefined, err);
+      if (path.endsWith(".obj")) new OBJLoader(manager).load(path, onLoad, undefined, onError);
+      else if (path.endsWith(".glb")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
+      else if (path.endsWith(".pcd")) new PCDLoader(manager).load(path, onLoad, undefined, onError);
+      // else if (path.endsWith(".ply")) new PLYLoader(manager).load(path, onLoad, undefined, onError);
+    }
+    return _loader;
+  }, [
+    jointValues,
+    workingPath,
+    fetchOptions,
+    parseVisual,
+    parseCollision,
+    packages,
+  ]);
+
   useEffect(() => {
     if (!data && hide) return;
-    const loader = new URDFLoader();
+
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
+
+    console.log(text, src)
+
     if (text) setData(loader.parse(text));
     else if (src) loader.load(src, setData);
-  }, [ src, hide ]);
+
+  }, [ loader, src, hide ]);
   if (!data) return null;
   return (
     <UrdfView robot={data} jointValues={jointValues} hide={hide} {...rest} />
