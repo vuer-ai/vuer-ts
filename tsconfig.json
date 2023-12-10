@@ -5,6 +5,7 @@
     "rootDir": "./",
     "target": "ES2020",
     "useDefineForClassFields": true,
+    "esModuleInterop": true,
     "lib": [
       "ES2020",
       "DOM",
@@ -25,11 +26,12 @@
     "noFallthroughCasesInSwitch": true
   },
   "main": "vuer/index.cm.js",
-  "include": [
-//    "vuer"
-//    "vite.config.ts"
+  "include": [],
+  "exclude": [
+    "./node_modules",
+    "tsconfig.ts",
+    "tsconfig.node.ts"
   ],
-  "exclude": ["./node_modules", "tsconfig.ts", "tsconfig.node.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"
