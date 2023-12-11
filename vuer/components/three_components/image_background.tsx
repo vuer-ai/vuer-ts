@@ -1,19 +1,16 @@
-import {
-  useEffect, useMemo, useRef, useState,
-} from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, } from 'react';
+import { useThree } from '@react-three/fiber';
 import {
   LinearFilter,
-  Mesh,
   MeshBasicMaterial,
   NearestFilter,
   OrthographicCamera,
   PerspectiveCamera,
   Texture,
   TextureLoader,
-  Vector3,
 } from 'three';
-import { Plane } from '@react-three/drei';
+import ImagePlane, { ImagePlaneProps } from "./image_plane";
+import ImageSphere, { ImageSphereProps } from "./image_sphere";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -26,67 +23,45 @@ function interpolateTexture(texture: Texture, interpolate: boolean) {
   }
 }
 
-type ImageBackgroundProps = {
+export type ImageBackgroundProps = {
   src?: string | Blob;
   alphaSrc?: string | Blob;
-  distanceToCamera?: number;
+  depthSrc?: string | Blob;
   interpolate?: boolean;
   opacity?: number;
-  fixed?: boolean | undefined;
-};
+  [key: string]: unknown;
+} & ImageSphereProps & ImagePlaneProps;
 
 export function ImageBackground(
   {
     src,
     alphaSrc,
-    distanceToCamera = 10,
+    depthSrc,
     interpolate = false,
-    opacity = 1.0,
-    fixed = false,
+    // distanceToCamera = 10,
+    // opacity = 1.0,
+    // fixed = false,
+    // side = 0,
+    // wireframe = false,
+    // material = {},
+    ...rest
   }: ImageBackgroundProps,
 ) {
-  const planeRef = useRef<Mesh>(null);
-  const matRef = useRef<MeshBasicMaterial>(null);
-
+  const matRef = useRef<MeshBasicMaterial>();
   const { camera }: { camera: PerspectiveCamera | OrthographicCamera } = useThree();
-
-  useFrame(() => {
-    if (!planeRef.current) return;
-    // if (!src || !depthSrc) return;
-    if (!src) return;
-    if (fixed) return;
-    const plane = planeRef.current;
-    // note: only works with perspective camera
-    let h: number;
-    let w: number;
-    if (camera.type === 'PerspectiveCamera') {
-      const c = camera as PerspectiveCamera;
-      h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
-      w = c.aspect * h;
-      plane.scale.set(w, h, 1);
-    } else if (camera.type === 'OrthographicCamera') {
-      // handle Orthographic Camera
-      const c = camera as OrthographicCamera;
-      h = (c.top - c.bottom) / camera.zoom;
-      w = (c.right - c.left) / camera.zoom;
-      plane.scale.set(w, h, 1);
-    } else {
-      console.warn('Unsupported camera type', camera.type);
-    }
-    const dirVec = new Vector3(0, 0, -1)
-      .applyEuler(camera.rotation)
-      .normalize();
-    plane.position
-      .copy(camera.position)
-      .addScaledVector(dirVec, distanceToCamera);
-    plane.lookAt(camera.position);
-  });
 
   const [ rgbTexture, setRGB ] = useState<Texture>();
   const [ alphaTexture, setAlpha ] = useState<Texture>();
+  const [ depthTexture, setDepth ] = useState<Texture>();
+
   const loader = useMemo(() => new TextureLoader(), []);
 
-  useEffect(() => {
+  const blobOpts: unknown = useMemo(() => {
+    if (depthTexture && camera.type === "PerspectiveCamera") return {};
+    return { imageOrientation: 'flipY' };
+  }, [ camera.type, depthTexture ]);
+
+  useLayoutEffect(() => {
     if (!src) {
       setRGB(undefined);
     } else if (typeof src === 'string') {
@@ -94,55 +69,63 @@ export function ImageBackground(
     } else {
       const blob: ImageBitmapSource = new Blob([ src ], { type: 'image' });
       const texture = new Texture();
-      createImageBitmap(blob, { imageOrientation: 'flipY' }).then((imageBitmap) => {
+      createImageBitmap(blob, blobOpts).then((imageBitmap) => {
         texture.image = imageBitmap;
         texture.needsUpdate = true;
         if (matRef.current) matRef.current.needsUpdate = true;
         setRGB(texture);
       });
     }
-  }, [ src ]);
+  }, [ src, blobOpts ]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!alphaSrc) {
       setAlpha(undefined);
     } else if (typeof alphaSrc === 'string') {
-      loader.load(alphaSrc, setRGB);
+      loader.load(alphaSrc, setAlpha);
     } else {
       const blob: ImageBitmapSource = new Blob([ alphaSrc ], { type: 'image' });
       const texture = new Texture();
-      createImageBitmap(blob, { imageOrientation: 'flipY' }).then((imageBitmap) => {
+      createImageBitmap(blob, blobOpts).then((imageBitmap) => {
         texture.image = imageBitmap;
         texture.needsUpdate = true;
         if (matRef.current) matRef.current.needsUpdate = true;
         setAlpha(texture);
       });
     }
-  }, [ alphaSrc ]);
+  }, [ alphaSrc, blobOpts ]);
+
+  useLayoutEffect(() => {
+    if (!depthSrc) {
+      setDepth(undefined);
+    } else if (typeof depthSrc === 'string') {
+      loader.load(depthSrc, setDepth);
+    } else {
+      const blob: ImageBitmapSource = new Blob([ depthSrc ], { type: 'image' });
+      const texture = new Texture();
+      createImageBitmap(blob, blobOpts).then((imageBitmap) => {
+        texture.image = imageBitmap;
+        texture.needsUpdate = true;
+        if (matRef.current) matRef.current.needsUpdate = true;
+        setDepth(texture);
+      });
+    }
+  }, [ depthSrc, blobOpts ]);
 
   useEffect(() => {
     if (rgbTexture) interpolateTexture(rgbTexture, interpolate);
     if (alphaTexture) interpolateTexture(alphaTexture, interpolate);
-  }, [ rgbTexture, alphaTexture, interpolate ]);
+    if (depthTexture) interpolateTexture(depthTexture, interpolate);
+  }, [ rgbTexture, alphaTexture, depthTexture, interpolate ]);
 
-  const image: HTMLImageElement = rgbTexture?.image;
-  console.log('image', image?.width, image?.height);
+  const img = (depthTexture || rgbTexture)?.image;
 
-  return (
-    <Plane
-      ref={planeRef}
-      args={[ 1, 1, image?.width, image?.height ]}
-      scale={[ 1, 1, 1 ]}
-    >
-      <meshBasicMaterial
-        ref={matRef}
-        attach="material"
-        map={rgbTexture}
-        // map={rt}
-        // alphaMap={alphaTexture}
-        transparent
-        opacity={opacity}
-      />
-    </Plane>
-  );
+  if (!depthTexture) {
+    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} {...rest}/>;
+  } else if (camera.type === 'OrthographicCamera') {
+    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...rest}/>;
+  } else if (camera.type === 'PerspectiveCamera') {
+    return <ImageSphere matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...rest}/>;
+  }
+  return null;
 }
