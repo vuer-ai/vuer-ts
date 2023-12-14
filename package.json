@@ -1,13 +1,13 @@
 {
   "name": "@vuer-ai/vuer",
   "author": "Ge Yang",
-  "version": "0.0.0-rc5",
+  "version": "0.0.0-rc5-2",
   "private": false,
   "files": [
     "vuer",
     "dist"
   ],
-  "main": "vuer/index.tsx",
+  "main": "dist/vuer.cjs.js",
   "module": "dist/vuer.es.js",
   "scripts": {
     "dev": "vite",
