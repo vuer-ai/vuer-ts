@@ -53,7 +53,7 @@
     "urdf-loader": "^0.12.1",
     "use-http": "^1.0.28",
     "uuid4": "^2.0.3",
-    "zustand": "^4.4.6"
+    "zustand": "^4.4.7"
   },
   "peerDependencies": {
     "@types/react": ">=18.2.0",

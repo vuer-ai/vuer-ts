@@ -1,8 +1,6 @@
-import {
-  PropsWithChildren, useCallback, useEffect, useMemo, useState,
-} from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState, } from 'react';
 import queryString from 'query-string';
-import { folder, Leva, useControls } from 'leva';
+import { button, folder, Leva, useControls } from 'leva';
 import useFetch from 'use-http';
 import yaml from 'js-yaml';
 import useStateRef from 'react-usestateref';
@@ -13,8 +11,10 @@ import { list2menu } from './components/three_components/leva_helper.tsx';
 import { addNode, findByKey, removeByKey } from './util.tsx';
 import { WebSocketProvider } from './components/contexts/websocket.tsx';
 import { parseArray } from './components/three_components/utils.tsx';
+import { Buffer } from "buffer";
 
 import { ServerEvent } from './interfaces.tsx';
+import { pack, unpack } from "msgpackr";
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the
@@ -22,6 +22,7 @@ export interface Node {
   key?: string;
   tag: string;
   children?: Node[] | string[] | null;
+
   [key: string]: unknown;
 }
 
@@ -47,7 +48,25 @@ interface SceneType {
   backgroundChildren: Node[];
 }
 
-export default function ({ style, children: _, ..._props }: PropsWithChildren<{ style }>) {
+// const { showError } = useContext(AppContext);
+// showError("The scene content likely contain large amount of data. Please use ")
+
+type VuerRootProps = PropsWithChildren<{
+  style?;
+}>;
+
+const AppContext = createContext({
+  showError: (msg: string) => {
+    console.error(msg);
+  },
+  showModal: (msg: string) => {
+    console.log(msg);
+  }
+});
+
+export const AppProvider = AppContext.Provider;
+
+export default function VuerRoot({ style, children: _, ..._props }: VuerRootProps) {
   const queries = useMemo<QueryParams>(() => {
     const parsed = queryString.parse(document.location.search);
     if (typeof parsed.collapseMenu === 'string') parsed.collapseMenu = parsed.collapseMenu.toLowerCase();
@@ -60,6 +79,8 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
     [ queries.collapseMenu ],
   );
 
+  const { showError } = useContext(AppContext)
+
   // // for server-side rendering
   // if (typeof window === "undefined") return <div>threejs view server-side rendering</div>;
 
@@ -71,7 +92,7 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
   });
 
   const [ menu, setMenu ] = useState({});
-  const { response } = useFetch(queries.scene, [ queries.scene ]);
+  const { response } = useFetch(queries.scene, []);
 
   useEffect(() => {
     // do not change the scene using Fetch unless queries.scene is set.
@@ -80,19 +101,18 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
     // @ts-expect-error: fixme
     const scene_uri: string = queries.scene.toLowerCase();
     let _scene;
-    if (!response || !response.ok) _scene = { children: [] };
-    else if (scene_uri.endsWith('.json')) {
+    if (scene_uri.endsWith('.json')) {
       _scene = response.data;
     } else if (scene_uri.endsWith('.yml') || scene_uri.endsWith('.yaml')) {
       _scene = yaml.load(response.data);
     } else if (queries.scene) {
-      // try {
-      //   const jsonStr = atob(queries.scene);
-      //   __scene = JSON.parse(jsonStr)
-      // } catch (e) {
-      //   console.log("Failed to parse scene", e);
-      //   __scene = {children: []};
-      // }
+      try {
+        const b = new Buffer(queries.scene, "base64");
+        _scene = unpack(b);
+      } catch (e) {
+        console.log("Failed to parse scene", e);
+        _scene = { children: [] };
+      }
       console.log('not implemented');
     } else {
       _scene = { children: [] };
@@ -110,7 +130,17 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
         },
         { collapsed: true },
       ),
-      // "Take Screenshot": button(() => {}, {disabled: true}),
+      "Share": button(() => {
+        const sceneStr = pack(scene);
+        if (sceneStr.length > 5000) {
+          return showError("The scene likely contains a large amount of data. To share, please replace geometry data with an URI.");
+        }
+        const chars = String.fromCharCode.apply(null, sceneStr)
+        const scene64b = btoa(chars);
+        const url = new URL(document.location.href);
+        url.searchParams.set('scene', scene64b);
+        document.location.href = url.toString();
+      }, { label: "Share Scene" }),
       Scene: folder({}),
       Render: folder(
         {
@@ -120,22 +150,12 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
       ),
       'Scene.Options': folder(
         {
-          // show_this: false,
-          // showNodes: { value: true, label: "Show Nodes" },
-          // pointSize: {
-          //   value: queries.pointSize ? parseFloat(queries.pointlSize) : 1.5,
-          //   min: 0.1,
-          //   max: 100,
-          //   step: 0.1,
-          //   pad: 1,
-          //   label: "PC Point Size",
-          // },
           ...menu,
         },
         { collapsed: true, order: -2 },
       ),
     }),
-    [ menu ],
+    [ menu, scene ],
   );
 
   const onMessage = useCallback(
@@ -143,8 +163,6 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
       if (etype === 'SET') {
         // the top level is a dummy node
         setScene(data as SceneType);
-        // } else if (etype === "SET_LEVA") {
-        //   setCustomLeva(data);
       } else if (etype === 'ADD') {
         // the API need to be updated, so are the rest of the API.
         const { nodes, to: parentKey } = data;
@@ -200,11 +218,6 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
   } = scene;
 
   const rest = {
-    // markerRadius,
-    // markerAverage,
-    // enableMarker,
-    // background,
-    // sendMsg,
     initCameraPosition: queries.initCameraPosition,
     ..._props,
     // add the scene params here to allow programmatic override
@@ -236,7 +249,7 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
   );
 
   return (
-  // <div style={{ overflow: "hidden" }}>
+    // <div style={{ overflow: "hidden" }}>
     <WebSocketProvider onMessage={onMessage}>
       <ThreeScene
         backgroundChildren={backgroundChildren}
@@ -258,6 +271,6 @@ export default function ({ style, children: _, ..._props }: PropsWithChildren<{ 
         collapsed={collapseMenu}
       />
     </WebSocketProvider>
-  // </div>
+    // </div>
   );
 }

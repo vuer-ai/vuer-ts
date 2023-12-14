@@ -1,4 +1,4 @@
-import {
+import React, {
   ChangeEvent,
   ChangeEventHandler,
   Component,
@@ -15,10 +15,7 @@ import { Html, Splat } from '@react-three/drei';
 import { imageToBase64 } from '../util';
 import { Scene } from './three_components';
 import { SocketContext } from './contexts/websocket';
-import { Splats } from './gaussian_splatting';
-import {
-  Glb, Obj, Pcd, Ply, Urdf,
-} from './three_components/data_loaders';
+import { Glb, Obj, Pcd, Ply, Urdf, } from './three_components/data_loaders';
 import {
   Box,
   Capsule,
@@ -47,9 +44,7 @@ import { Movable, Pivot } from './three_components/controls/movables.tsx';
 import { Camera } from './three_components/camera.tsx';
 import { BBox } from './three_components/primitives/bbox.tsx';
 import { CameraView } from './three_components/camera_view.tsx';
-import {
-  AmbientLight, DirectionalLight, PointLight, SpotLight,
-} from './three_components/lighting.tsx';
+import { AmbientLight, DirectionalLight, PointLight, SpotLight, } from './three_components/lighting.tsx';
 import { Frustum } from './three_components/frustum.tsx';
 import { Render, RenderLayer } from './nerf_components/view.tsx';
 import { Markdown } from './markdown/markdown.tsx';
@@ -254,7 +249,7 @@ export function Text({ _key: key, text, ...props }: TextProps) {
 }
 
 // prettier-ignore
-type CompList = Record<string, FC | Component | unknown>;
+type CompList = Record<string, FC | Component | Promise<Component>>;
 export const comp_list: CompList = {
   Slider,
   Input,
@@ -311,7 +306,7 @@ export const comp_list: CompList = {
   Camera,
   Html,
   Splat,
-  Splats,
+  Splats: React.lazy(() => import( './gaussian_splatting' )) as Promise<Component>,
   BBox,
   Render,
   RenderLayer,

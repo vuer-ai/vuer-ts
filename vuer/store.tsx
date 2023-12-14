@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import  create from 'zustand';
 import { Euler, Vector3 } from '@react-three/fiber';
 
 export interface SceneStoreType {

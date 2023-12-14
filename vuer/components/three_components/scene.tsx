@@ -1,11 +1,7 @@
-import {
-  PropsWithChildren, useCallback, useContext, useMemo, useRef,
-} from 'react';
+import React, { PropsWithChildren, Suspense, useCallback, useContext, useMemo, useRef, } from 'react';
 import { Canvas, extend } from '@react-three/fiber';
-import {
-  Controllers, Hands, VRButton, XR,
-} from '@react-three/xr';
-import { GizmoHelper, GizmoViewport } from '@react-three/drei';
+import { Controllers, Hands, VRButton, XR, } from '@react-three/xr';
+import { GizmoHelper, GizmoViewport, Html } from '@react-three/drei';
 import { SSAOPass, UnrealBloomPass } from 'three-stdlib';
 // import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import { BufferGeometry, Mesh } from 'three';
@@ -43,9 +39,9 @@ type ThreeProps = PropsWithChildren<{
   canvasRef?;
   className?: string;
   style?;
-  backgroundChildren? : unknown | unknown[];
-  rawChildren? : unknown | unknown[];
-  htmlChildren? : unknown | unknown[];
+  backgroundChildren?: unknown | unknown[];
+  rawChildren?: unknown | unknown[];
+  htmlChildren?: unknown | unknown[];
 }>;
 
 export default function ThreeScene(
@@ -96,11 +92,10 @@ export default function ThreeScene(
     [ style ],
   );
 
-  // style="width: 80%; height: 100%; position: absolute; z-index: 10;"
   return (
     <>
       <div style={divStyle} className={className}>
-        <VRButton />
+        <VRButton/>
         <Canvas
           ref={canvasRef}
           shadows
@@ -110,28 +105,30 @@ export default function ThreeScene(
           // why set it to 1: https://stackoverflow.com/a/32936969/1560241
           tabIndex={1}
         >
-          <BackgroundColor />
           <XR>
             {queries.debug || queries.perf ? (
-              <Perf position="top-left" />
+              <Perf position="top-left"/>
             ) : null}
             {/* <FileDrop/> */}
-            <Download />
-            <Hands />
-            <Controllers />
+            <Hands/>
+            <Controllers/>
             <PointerControl
               parent={canvasRef}
               parentKey={key}
             />
-            <Grid />
+            <Grid/>
             {backgroundChildren}
-            <SceneGroup>{children}</SceneGroup>
+            <Suspense >
+              <SceneGroup>{children}</SceneGroup>
+            </Suspense>
             {rawChildren}
             <OrbitCamera
               parent={canvasRef}
               onChange={onCameraMove}
               panSpeed={1}
             />
+            <BackgroundColor/>
+            <Download/>
             <GizmoHelper alignment="bottom-right" margin={[ 80, 80 ]}>
               <GizmoViewport
                 axisColors={[ '#9d4b4b', '#2f7f4f', '#3b5b9d' ]}
@@ -140,12 +137,6 @@ export default function ThreeScene(
             </GizmoHelper>
           </XR>
         </Canvas>
-        {/* <Leva */}
-        {/*  isRoot */}
-        {/*  left={10} */}
-        {/*  collapsed={queries.collapseMenu === "true"} */}
-        {/*  style={{ zIndex: 10000000 }} */}
-        {/* /> */}
       </div>
       {htmlChildren}
     </>

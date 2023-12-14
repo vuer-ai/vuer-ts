@@ -5,7 +5,7 @@ import { SocketContext, SocketContextType } from '../contexts/websocket.tsx';
 import { VuerProps } from '../../interfaces.tsx';
 
 export function Download({ _key: key }: VuerProps) {
-  const { sendMsg } : SocketContextType = useContext(SocketContext);
+  const { sendMsg }: SocketContextType = useContext(SocketContext);
   const { gl } = useThree();
   const callback = useCallback(() => {
     const uri = gl.domElement.toDataURL('image/png');
@@ -19,7 +19,7 @@ export function Download({ _key: key }: VuerProps) {
     link.click();
   }, [ sendMsg ]);
   useControls({
-    'Take Screenshot': button(callback, { disabled: false }),
+    'Take Screenshot': button(callback, { disabled: false })
   }, []);
 
   return null;

@@ -1,7 +1,7 @@
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, } from 'three-stdlib';
+import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
-import { BufferGeometry, LoadingManager, Object3D, Points } from 'three'; // todo: pass reference
+import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components.tsx';
 
 // todo: pass reference
@@ -111,6 +111,8 @@ export function Urdf({
       if (typeof path !== "string") return;
       const onError = (err) => onLoad(undefined, err);
       if (path.endsWith(".obj")) new OBJLoader(manager).load(path, onLoad, undefined, onError);
+      else if (path.endsWith(".stl")) new STLLoader(manager).load(path, (o) => onLoad(
+        new Mesh(o, new MeshStandardMaterial())), undefined, onError);
       else if (path.endsWith(".glb")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
       else if (path.endsWith(".pcd")) new PCDLoader(manager).load(path, onLoad, undefined, onError);
       // else if (path.endsWith(".ply")) new PLYLoader(manager).load(path, onLoad, undefined, onError);
