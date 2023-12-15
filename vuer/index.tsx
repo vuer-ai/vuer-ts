@@ -12,7 +12,6 @@ import { addNode, findByKey, removeByKey } from './util.tsx';
 import { WebSocketProvider } from './components/contexts/websocket.tsx';
 import { parseArray } from './components/three_components/utils.tsx';
 import { Buffer } from "buffer";
-
 import { ServerEvent } from './interfaces.tsx';
 import { pack, unpack } from "msgpackr";
 
@@ -53,20 +52,24 @@ interface SceneType {
 
 type VuerRootProps = PropsWithChildren<{
   style?;
+  up: [ number, number, number ];
 }>;
 
-const AppContext = createContext({
-  showError: (msg: string) => {
-    console.error(msg);
-  },
+export const AppContext = createContext({
+  showError: (msg: string) => console.error(msg),
+  showInfo: (msg: string) => console.info(msg),
+  showSuccess: (msg: string) => console.log(msg),
+  showWarning: (msg: string) => console.warn(msg),
   showModal: (msg: string) => {
     console.log(msg);
   }
 });
 
+
 export const AppProvider = AppContext.Provider;
 
 export default function VuerRoot({ style, children: _, ..._props }: VuerRootProps) {
+
   const queries = useMemo<QueryParams>(() => {
     const parsed = queryString.parse(document.location.search);
     if (typeof parsed.collapseMenu === 'string') parsed.collapseMenu = parsed.collapseMenu.toLowerCase();
@@ -117,7 +120,7 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     } else {
       _scene = { children: [] };
     }
-    if (typeof _scene.children === 'undefined') _scene = { children: _scene };
+    // if (typeof _scene.children === 'undefined') _scene = { children: _scene };
     setScene(_scene);
     setMenu(list2menu(_scene.children, false));
   }, [ queries.scene, response.data ]);
@@ -132,8 +135,8 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
       ),
       "Share": button(() => {
         const sceneStr = pack(scene);
-        if (sceneStr.length > 5000) {
-          return showError("The scene likely contains a large amount of data. To share, please replace geometry data with an URI.");
+        if (sceneStr.length > 10_000) {
+          return showError("The scene likely contains a large amount of data. To share, please replace geometry data with an URI. Length is" + sceneStr.length + " bytes.")
         }
         const chars = String.fromCharCode.apply(null, sceneStr)
         const scene64b = btoa(chars);
@@ -162,6 +165,7 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     ({ etype, data }: ServerEvent) => {
       if (etype === 'SET') {
         // the top level is a dummy node
+        console.log('set scene', data);
         setScene(data as SceneType);
       } else if (etype === 'ADD') {
         // the API need to be updated, so are the rest of the API.
@@ -216,9 +220,13 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     backgroundChildren: sceneBackgroundChildren,
     ..._scene
   } = scene;
+  console.log(_props, scene);
 
+  // very problematic
   const rest = {
+    // todo: deprecate
     initCameraPosition: queries.initCameraPosition,
+    // up: [ 0, 0, 1 ],
     ..._props,
     // add the scene params here to allow programmatic override
     ..._scene,
@@ -249,13 +257,12 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
   );
 
   return (
-    // <div style={{ overflow: "hidden" }}>
     <WebSocketProvider onMessage={onMessage}>
       <ThreeScene
         backgroundChildren={backgroundChildren}
-        style={sceneStyle}
-        rawChildren={rawChildren}
         htmlChildren={htmlChildren}
+        rawChildren={rawChildren}
+        style={sceneStyle}
         {...rest}
       >
         {children}
@@ -271,6 +278,5 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
         collapsed={collapseMenu}
       />
     </WebSocketProvider>
-    // </div>
   );
 }

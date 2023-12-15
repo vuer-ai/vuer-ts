@@ -7,7 +7,7 @@ import {
 import {
   CameraHelper as CH,
   Euler,
-  Matrix4,
+  Matrix4, Object3D,
   OrthographicCamera as tOrthographicCamera,
   PerspectiveCamera as tPerspectiveCamera,
   Quaternion,
@@ -487,6 +487,12 @@ export function OrbitCamera(
   const camRef = useRef() as MutableRefObject<tOrthographicCamera | tPerspectiveCamera>;
   const orthoRef = useRef() as MutableRefObject<tOrthographicCamera>;
   const perspRef = useRef() as MutableRefObject<tPerspectiveCamera>;
+
+  useLayoutEffect(() => {
+    console.log(Object3D.DEFAULT_UP);
+    orthoRef.current.up.copy(Object3D.DEFAULT_UP);
+    perspRef.current.up.copy(Object3D.DEFAULT_UP);
+  }, [ Object3D.DEFAULT_UP ]);
 
   const queries = useMemo(() => queryString.parse(document.location.search), []) as OrbitCameraQueryType;
   // const initialPosition = queries.camPosition

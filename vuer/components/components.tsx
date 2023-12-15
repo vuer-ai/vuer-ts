@@ -56,6 +56,7 @@ import { Hands } from './three_components/controls/hands.tsx';
 import { VuerProps } from '../interfaces.tsx';
 import { SceneBackground } from './three_components/scene_background.tsx';
 import { ImageBackground } from './three_components/image_background.tsx';
+import { CoordsMarker } from "./three_components/primitives/CoordsMarker";
 
 type VuerControlProps = VuerProps<{ value: never }>;
 
@@ -272,6 +273,7 @@ export const comp_list: CompList = {
   Urdf,
   Gripper,
   SkeletalGripper,
+  CoordsMarker,
   Pivot,
   Movable,
   Gamepad,
