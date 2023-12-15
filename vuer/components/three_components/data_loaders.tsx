@@ -1,8 +1,9 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components.tsx';
+import { AppContext } from "../../index";
 
 // todo: pass reference
 // todo: change src to src
@@ -95,6 +96,7 @@ export function Urdf({
   ...rest
 }: URDFProps) {
   const [ data, setData ] = useState<URDFRobot>();
+  const { showError, showInfo } = useContext(AppContext);
   const loader: URDFLoader = useMemo(() => {
     const _loader = new URDFLoader();
     if (!!workingPath) _loader.workingPath = workingPath;
@@ -109,13 +111,17 @@ export function Urdf({
       onLoad: (mesh: Object3D, err?: Error) => void
     ) {
       if (typeof path !== "string") return;
-      const onError = (err) => onLoad(undefined, err);
+      const onError = (err) => {
+        showError(`Failed to load mesh: ${path}`);
+        onLoad(undefined, err);
+      }
       if (path.endsWith(".obj")) new OBJLoader(manager).load(path, onLoad, undefined, onError);
       else if (path.endsWith(".stl")) new STLLoader(manager).load(path, (o) => onLoad(
         new Mesh(o, new MeshStandardMaterial())), undefined, onError);
       else if (path.endsWith(".glb")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
+      else if (path.endsWith(".gltf")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
       else if (path.endsWith(".pcd")) new PCDLoader(manager).load(path, onLoad, undefined, onError);
-      // else if (path.endsWith(".ply")) new PLYLoader(manager).load(path, onLoad, undefined, onError);
+      else showInfo(`Unknown mesh type: ${path}`)
     }
     return _loader;
   }, [

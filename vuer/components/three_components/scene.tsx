@@ -1,10 +1,10 @@
-import React, { PropsWithChildren, Suspense, useCallback, useContext, useMemo, useRef, } from 'react';
+import React, { PropsWithChildren, Suspense, useCallback, useContext, useEffect, useMemo, useRef, } from 'react';
 import { Canvas, extend } from '@react-three/fiber';
 import { Controllers, Hands, VRButton, XR, } from '@react-three/xr';
-import { GizmoHelper, GizmoViewport, Html } from '@react-three/drei';
+import { GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { SSAOPass, UnrealBloomPass } from 'three-stdlib';
 // import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
-import { BufferGeometry, Mesh } from 'three';
+import { BufferGeometry, Mesh, Object3D, Vector3 } from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
@@ -39,6 +39,7 @@ type ThreeProps = PropsWithChildren<{
   canvasRef?;
   className?: string;
   style?;
+  up?: [ number, number, number ];
   backgroundChildren?: unknown | unknown[];
   rawChildren?: unknown | unknown[];
   htmlChildren?: unknown | unknown[];
@@ -55,12 +56,18 @@ export default function ThreeScene(
     // these are not transformed.
     rawChildren,
     htmlChildren,
+    up = null,
   }: ThreeProps,
 ) {
   const ref = useRef<HTMLCanvasElement>();
   const canvasRef = _canvasRef || ref;
   const { sendMsg, uplink } = useContext(SocketContext) as SocketContextType;
   const queries = useMemo<ParsedQuery>(() => queryString.parse(document.location.search), []);
+
+  useEffect(() => {
+    if (!up) return;
+    Object3D.DEFAULT_UP.copy(new Vector3(...up));
+  }, [ up ])
 
   const onCameraMove = useCallback(
     (camera: CameraLike) => {
@@ -118,7 +125,7 @@ export default function ThreeScene(
             />
             <Grid/>
             {backgroundChildren}
-            <Suspense >
+            <Suspense>
               <SceneGroup>{children}</SceneGroup>
             </Suspense>
             {rawChildren}
