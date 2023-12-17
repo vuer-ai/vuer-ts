@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { MeshProps } from '@react-three/fiber';
-import { half2float } from './half2float.tsx';
+import { half2float } from './half2float';
 
 enum Side { front, back, double }
 

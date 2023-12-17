@@ -9,7 +9,7 @@ import {
 } from '@react-three/fiber';
 import { Sphere as ThreeSphere } from '@react-three/drei';
 import { useControls } from 'leva';
-import { SocketContext, SocketContextType } from '../../contexts/websocket.tsx';
+import { SocketContext, SocketContextType } from '../../contexts/websocket';
 
 function getPosition(
   camera: Camera,

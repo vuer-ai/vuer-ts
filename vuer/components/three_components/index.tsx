@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import ThreeScene from './scene.tsx';
+import ThreeScene from './scene';
 
 type SceneProps = PropsWithChildren<{
   _key: string,

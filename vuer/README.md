@@ -208,7 +208,7 @@ type LumaShaderHooks = {
 
 Luma splats can be used with [React Three Fiber](https://docs.pmnd.rs/), a React renderer for Three.js. To do so, we need to extend R3F to include the `LumaSplatsThree` class. This is done by calling `extend` with the class and a name (in this case `LumaSplats` which will be used as the component name). If using TypeScript, we also need to declare the component type.
 
-**[DemoReactThreeFiber.tsx](./src/DemoReactThreeFiber.tsx)**
+**[DemoReactThreeFiber](./src/DemoReactThreeFiber)**
 ```typescript
 import { Object3DNode, extend } from '@react-three/fiber';
 import { LumaSplatsThree } from 'luma-web';

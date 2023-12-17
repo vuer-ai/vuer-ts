@@ -6,10 +6,10 @@ import { button, useControls } from 'leva';
 import useStateRef from 'react-usestateref';
 import queryString from 'query-string';
 import { pack, unpack } from 'msgpackr';
-import { Store } from '../store.tsx';
+import { Store } from '../store';
 import { document } from '../../lib/browser-monads';
 
-import { ClientEvent, ServerEvent } from '../../interfaces.tsx';
+import { ClientEvent, ServerEvent } from '../../interfaces';
 
 export type msgFn = (event: ClientEvent) => void;
 export type SocketContextType = {

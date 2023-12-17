@@ -5,14 +5,14 @@ import useFetch from 'use-http';
 import yaml from 'js-yaml';
 import useStateRef from 'react-usestateref';
 import { document } from './lib/browser-monads';
-import ThreeScene from './components/three_components/scene.tsx';
+import ThreeScene from './components/three_components/scene';
 import { Hydrate } from './components';
-import { list2menu } from './components/three_components/leva_helper.tsx';
-import { addNode, findByKey, removeByKey } from './util.tsx';
-import { WebSocketProvider } from './components/contexts/websocket.tsx';
-import { parseArray } from './components/three_components/utils.tsx';
+import { list2menu } from './components/three_components/leva_helper';
+import { addNode, findByKey, removeByKey } from './util';
+import { WebSocketProvider } from './components/contexts/websocket';
+import { parseArray } from './components/three_components/utils';
 import { Buffer } from "buffer";
-import { ServerEvent } from './interfaces.tsx';
+import { ServerEvent } from './interfaces';
 import { pack, unpack } from "msgpackr";
 
 // The dataloader component hides the list of children from the outer scope.
@@ -136,7 +136,8 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
       "Share": button(() => {
         const sceneStr = pack(scene);
         if (sceneStr.length > 10_000) {
-          return showError("The scene likely contains a large amount of data. To share, please replace geometry data with an URI. Length is" + sceneStr.length + " bytes.")
+          return showError(`The scene likely contains a large amount of data. To share, please replace 
+          geometry data with an URI. Length is ${sceneStr.length} bytes.`)
         }
         const chars = String.fromCharCode.apply(null, sceneStr)
         const scene64b = btoa(chars);
@@ -220,7 +221,6 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     backgroundChildren: sceneBackgroundChildren,
     ..._scene
   } = scene;
-  console.log(_props, scene);
 
   // very problematic
   const rest = {

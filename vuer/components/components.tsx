@@ -38,24 +38,24 @@ import {
   TorusKnot,
   Tube,
   Wireframe,
-} from './three_components/primitives/primitives.tsx';
-import { Gripper, SkeletalGripper } from './three_components/components.tsx';
-import { Movable, Pivot } from './three_components/controls/movables.tsx';
-import { Camera } from './three_components/camera.tsx';
-import { BBox } from './three_components/primitives/bbox.tsx';
-import { CameraView } from './three_components/camera_view.tsx';
-import { AmbientLight, DirectionalLight, PointLight, SpotLight, } from './three_components/lighting.tsx';
-import { Frustum } from './three_components/frustum.tsx';
-import { Render, RenderLayer } from './nerf_components/view.tsx';
-import { Markdown } from './markdown/markdown.tsx';
-import { AutoScroll } from './chat/autoscroll.tsx';
-import { PointCloud } from './three_components/primitives/pointclound.tsx';
-import { TriMesh } from './three_components/primitives/trimesh.tsx';
-import { Gamepad } from './three_components/controls/gamepad.tsx';
-import { Hands } from './three_components/controls/hands.tsx';
-import { VuerProps } from '../interfaces.tsx';
-import { SceneBackground } from './three_components/scene_background.tsx';
-import { ImageBackground } from './three_components/image_background.tsx';
+} from './three_components/primitives/primitives';
+import { Gripper, SkeletalGripper } from './three_components/components';
+import { Movable, Pivot } from './three_components/controls/movables';
+import { Camera } from './three_components/camera';
+import { BBox } from './three_components/primitives/bbox';
+import { CameraView } from './three_components/camera_view/camera_view';
+import { AmbientLight, DirectionalLight, PointLight, SpotLight, } from './three_components/lighting';
+import { Frustum } from './three_components/frustum';
+import { Render, RenderLayer } from './nerf_components/view';
+import { Markdown } from './markdown/markdown';
+import { AutoScroll } from './chat/autoscroll';
+import { PointCloud } from './three_components/primitives/pointclound';
+import { TriMesh } from './three_components/primitives/trimesh';
+import { Gamepad } from './three_components/controls/gamepad';
+import { Hands } from './three_components/controls/hands';
+import { VuerProps } from '../interfaces';
+import { SceneBackground } from './three_components/scene_background';
+import { ImageBackground } from './three_components/image_background';
 import { CoordsMarker } from "./three_components/primitives/CoordsMarker";
 
 type VuerControlProps = VuerProps<{ value: never }>;

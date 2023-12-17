@@ -7,7 +7,7 @@ import { useControls } from 'leva';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import { TextureImageData } from 'three/src/textures/types';
-import { height2normal } from './normal_map_utils.tsx';
+import { height2normal } from './normal_map_utils';
 
 // export function SimpleMaterial({_key, displacementMap, normalMap, ...rest}) {
 //     const dM = useLoader(TextureLoader, displacementMap);

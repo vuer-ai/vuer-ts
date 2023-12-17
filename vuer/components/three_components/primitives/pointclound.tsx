@@ -1,6 +1,6 @@
 import { PropsWithChildren, Ref, useMemo } from 'react';
 import { Euler, Points, Vector3 } from 'three';
-import { half2float } from './half2float.tsx';
+import { half2float } from './half2float';
 
 type PointCloudProps = PropsWithChildren<{
   _key?: string;

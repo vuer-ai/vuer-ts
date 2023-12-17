@@ -5,7 +5,7 @@ import {
   ColorRepresentation, Euler, Group, Matrix4, Object3D, Quaternion, Vector3,
 } from 'three';
 import { Line, Sphere } from '@react-three/drei';
-import { VuerProps } from '../../interfaces.tsx';
+import { VuerProps } from '../../interfaces';
 
 function equals(aArr: number[], bArr: number[]) {
   for (let i = 0; i < aArr.length; i++) {

@@ -5,7 +5,7 @@ import { Mesh, TextureLoader } from 'three';
 import { useLoader } from '@react-three/fiber';
 import { Outlines } from '@react-three/drei';
 import { useControls } from 'leva';
-import { HeightMaterial } from './height_map_materials.tsx';
+import { HeightMaterial } from './height_map_materials';
 
 type PrimitiveProps = {
   _ref?: Ref<Mesh>;

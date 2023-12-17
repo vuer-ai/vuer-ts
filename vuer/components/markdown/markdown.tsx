@@ -5,7 +5,7 @@ import {
 import rehypeRaw from 'rehype-raw';
 import { Remark } from 'react-remark';
 import { RemarkRehypeOptions } from 'react-markdown/lib';
-import { VuerProps } from '../../interfaces.tsx';
+import { VuerProps } from '../../interfaces';
 // @ts-ignore: not sure why this errors
 
 type MarkdownProps = VuerProps<{

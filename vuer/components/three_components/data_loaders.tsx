@@ -2,7 +2,7 @@ import { PropsWithChildren, useContext, useEffect, useMemo, useState } from 'rea
 import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
-import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components.tsx';
+import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
 import { AppContext } from "../../index";
 
 // todo: pass reference

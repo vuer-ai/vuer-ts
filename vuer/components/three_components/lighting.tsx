@@ -12,7 +12,7 @@ import {
   SpotLightHelper,
 } from 'three';
 import { PointLightProps } from '@react-three/fiber';
-import { VuerProps } from '../../interfaces.tsx';
+import { VuerProps } from '../../interfaces';
 
 type LightProps<TL> = VuerProps<{
   color: Color | undefined;

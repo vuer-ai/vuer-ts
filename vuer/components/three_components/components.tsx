@@ -5,7 +5,7 @@ import {
 } from 'three';
 import { URDFRobot } from 'urdf-loader';
 import { ThreeEvent } from '@react-three/fiber';
-import { VuerProps } from '../../interfaces.tsx';
+import { VuerProps } from '../../interfaces';
 
 type ObjProps = VuerProps<{
   data?: Points<BufferGeometry>;
