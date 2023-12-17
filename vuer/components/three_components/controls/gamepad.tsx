@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useGamepads } from 'react-gamepads';
-import { SocketContext, SocketContextType } from '../../contexts/websocket.tsx';
-import { VuerProps } from '../../../interfaces.tsx';
+import { SocketContext, SocketContextType } from '../../contexts/websocket';
+import { VuerProps } from '../../../interfaces';
 
 export function Gamepad({ _key: key, children }: VuerProps) {
   const { sendMsg } = useContext(SocketContext) as SocketContextType;

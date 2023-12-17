@@ -7,8 +7,7 @@
     "vuer",
     "dist"
   ],
-  "main": "dist/vuer.cjs.js",
-  "module": "dist/vuer.es.js",
+  "main": "vuer/index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

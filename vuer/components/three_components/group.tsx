@@ -4,12 +4,12 @@ import {
 import { useControls } from 'leva';
 import queryString, { ParsedQuery } from 'query-string';
 import { Euler, Vector3 } from '@react-three/fiber';
-import { SocketContext, SocketContextType } from '../contexts/websocket.tsx';
+import { SocketContext, SocketContextType } from '../contexts/websocket';
 import { document } from '../../lib/browser-monads';
-import { SceneStoreType, useSceneStore } from '../../store.tsx';
+import { SceneStoreType, useSceneStore } from '../../store';
 
-import { ClientEvent } from '../../interfaces.tsx';
-import { Sim3, SO3, V3 } from './number_types.tsx';
+import { ClientEvent } from '../../interfaces';
+import { Sim3, SO3, V3 } from './number_types';
 
 export function deg2rad(rotation: SO3): SO3 {
   return {

@@ -5,7 +5,7 @@ import { useControls } from 'leva';
 import { pluginFile } from '../lib/leva-file-picker';
 import {
   Glb, Obj, Pcd, Ply, Urdf,
-} from './three_components/data_loaders.tsx';
+} from './three_components/data_loaders';
 
 export function FileDrop() {
   const [ buffer, setBuffer ] = useState(null);

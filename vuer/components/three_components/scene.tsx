@@ -8,16 +8,16 @@ import { BufferGeometry, Mesh, Object3D, Vector3 } from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
-import { CameraLike, OrbitCamera } from './camera.tsx';
-import { Download } from './download.tsx';
+import { CameraLike, OrbitCamera } from './camera';
+import { Download } from './download';
 // import {FileDrop} from "../_file_drop";
-import { Grid } from './grid.tsx';
-import { PointerControl } from './controls/pointer.tsx';
-import { SceneGroup } from './group.tsx';
-import { SocketContext, SocketContextType } from '../contexts/websocket.tsx';
-import { BackgroundColor } from './color.tsx';
+import { Grid } from './grid';
+import { PointerControl } from './controls/pointer';
+import { SceneGroup } from './group';
+import { SocketContext, SocketContextType } from '../contexts/websocket';
+import { BackgroundColor } from './color';
 import { document } from '../../lib/browser-monads';
-import { ClientEvent } from '../../interfaces.tsx';
+import { ClientEvent } from '../../interfaces';
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -43,6 +43,7 @@ type ThreeProps = PropsWithChildren<{
   backgroundChildren?: unknown | unknown[];
   rawChildren?: unknown | unknown[];
   htmlChildren?: unknown | unknown[];
+  grid?: boolean;
 }>;
 
 export default function ThreeScene(
@@ -57,11 +58,12 @@ export default function ThreeScene(
     rawChildren,
     htmlChildren,
     up = null,
+    grid = false,
   }: ThreeProps,
 ) {
   const ref = useRef<HTMLCanvasElement>();
   const canvasRef = _canvasRef || ref;
-  const { sendMsg, uplink } = useContext(SocketContext) as SocketContextType;
+  const { sendMsg, uplink, downlink } = useContext(SocketContext) as SocketContextType;
   const queries = useMemo<ParsedQuery>(() => queryString.parse(document.location.search), []);
 
   useEffect(() => {
@@ -86,6 +88,11 @@ export default function ThreeScene(
     [ sendMsg, uplink ],
   );
 
+  // useEffect(() => {
+  //   downlink.subscribe('GRAB_REDNER', (event: ClientEvent) => {
+  //   }
+  // }, [])
+
   const divStyle = useMemo(
     () => ({
       overflow: 'hidden',
@@ -106,7 +113,7 @@ export default function ThreeScene(
         <Canvas
           ref={canvasRef}
           shadows
-          // preserve buffer needed for download
+          // preserve buffer needed for download and grab image data
           gl={{ antialias: true, preserveDrawingBuffer: true }}
           frameloop="demand"
           // why set it to 1: https://stackoverflow.com/a/32936969/1560241
@@ -123,7 +130,7 @@ export default function ThreeScene(
               parent={canvasRef}
               parentKey={key}
             />
-            <Grid/>
+            {grid ? <Grid/> : null}
             {backgroundChildren}
             <Suspense>
               <SceneGroup>{children}</SceneGroup>

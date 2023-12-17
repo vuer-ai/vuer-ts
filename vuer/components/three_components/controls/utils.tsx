@@ -1,15 +1,14 @@
-import {
-  ForwardedRef, forwardRef, MutableRefObject, ReactNode, useMemo, useRef,
-} from 'react';
+import { ForwardedRef, forwardRef, MutableRefObject, ReactNode, useMemo, useRef, } from 'react';
 import { Interactive, XRController, XRInteractionEvent } from '@react-three/xr';
 import { useFrame } from '@react-three/fiber';
 
 import { Group, Matrix4 } from 'three';
-import { VuerProps } from '../../../interfaces.tsx';
+import { VuerProps } from '../../../interfaces';
 
 type SqueezeRayGrabProps = VuerProps<{
   onSqueezeStart?: (e?: XRInteractionEvent) => void;
   onSqueezeEnd?: (e?: XRInteractionEvent) => void;
+  onMove?: (e?: { world: Matrix4; local: Matrix4 }) => void;
   onSelect?: (e?: XRInteractionEvent) => void;
   bigChildren?: ReactNode | ReactNode[];
   [key: string]: unknown;
@@ -18,6 +17,7 @@ type SqueezeRayGrabProps = VuerProps<{
 export const SqueezeRayGrab = forwardRef((
   {
     onSqueezeStart,
+    onMove,
     onSqueezeEnd,
     onSelect,
     children,
@@ -35,6 +35,7 @@ export const SqueezeRayGrab = forwardRef((
   useFrame(() => {
     const controller = grabbingController.current;
     if (!groupRef.current || !controller) return null;
+
     const group = groupRef.current;
 
     group.applyMatrix4(previousTransform);
@@ -42,6 +43,9 @@ export const SqueezeRayGrab = forwardRef((
     group.updateMatrixWorld();
 
     previousTransform.copy(controller.matrixWorld).invert();
+
+    onMove?.({ world: controller.matrixWorld, local: controller.matrix });
+
   });
 
   return (
@@ -61,10 +65,10 @@ export const SqueezeRayGrab = forwardRef((
           }
           onSqueezeEnd?.(e);
         }}
-        {...rest}
         onSelect={(e) => {
           onSelect?.(e);
         }}
+        {...rest}
       >
         {children}
       </Interactive>

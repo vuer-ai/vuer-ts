@@ -1,9 +1,5 @@
-import {
-  MutableRefObject, useContext, useLayoutEffect, useMemo, useRef,
-} from 'react';
-import {
-  OrthographicCamera, PerspectiveCamera, Plane, useFBO,
-} from '@react-three/drei';
+import React, { MutableRefObject, useContext, useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
+import { OrthographicCamera, PerspectiveCamera, Plane, useFBO, } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
   Group,
@@ -15,15 +11,19 @@ import {
   PlaneGeometry,
   Vector3,
 } from 'three';
-import { SocketContext, SocketContextType } from '../contexts/websocket.tsx';
-import { Frustum } from './frustum.tsx';
-import { VuerProps } from '../../interfaces.tsx';
+import { SocketContext, SocketContextType } from '../../contexts/websocket';
+import { Frustum } from '../frustum';
+import { VuerProps } from '../../../interfaces';
+import { Movable } from "../controls/movables";
+import { useControls } from "leva";
+import CanvasWorker from "./canvas_worker?worker";
 
 type CameraViewProps = VuerProps<{
   hide?: boolean;
   width?: number;
   height?: number;
-  matrix?: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+  matrix?: [ number, number, number, number, number, number, number, number, number, number, number, number, number,
+    number, number, number ];
   fov?: number;
   top?: number;
   bottom?: number;
@@ -35,6 +35,9 @@ type CameraViewProps = VuerProps<{
   showFrustum?: boolean;
   stream?: null | 'frame' | 'time';
   // dpr?: number;
+  fps?: number;
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
 }>;
 
 export function CameraView(
@@ -59,6 +62,8 @@ export function CameraView(
     ctype = 'perspective',
     showFrustum = true,
     stream = null, // one of [null, 'frame', 'time']
+    fps = 30,
+    quality = 1,
     // dpr = window.devicePixelRatio || 1,
     ...rest
   }: CameraViewProps,
@@ -66,8 +71,13 @@ export function CameraView(
   const cameraRef = useRef() as MutableRefObject<tPerspectiveCamera | tOrthographicCamera>;
   const planeRef = useRef() as MutableRefObject<Mesh<PlaneGeometry>>;
   const frustum = useRef() as MutableRefObject<Group>;
+  const frustumHandle = useRef() as MutableRefObject<Mesh>
 
-  const { size, camera } = useThree() as {
+  const timingCache = useMemo(() => ({
+    sinceLastFrame: 0,
+  }), []);
+
+  const { render, size, camera } = useThree() as {
     size: { width: number, height: number }, camera: tPerspectiveCamera
   };
 
@@ -77,9 +87,25 @@ export function CameraView(
 
   const m = useMemo(() => new Matrix4(), []);
   const offset = useMemo(() => new Vector3(), []);
-  const { sendMsg } = useContext(SocketContext) as SocketContextType;
+  const { sendMsg, downlink } = useContext(SocketContext) as SocketContextType;
+  const pixelBuffer = useMemo(() => new Uint8Array(width * height * ratio * 4),
+    [ width, height, ratio ]);
 
-  useFrame(({ gl, scene }) => {
+  const { _fov } = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
+    _fov: {
+      value: fov,
+      min: 0,
+      max: 180
+    }
+  }, [ fov ]);
+
+  const worker = useMemo(() => new CanvasWorker(), []);
+
+  const sinceLastFrame = useRef({});
+
+  useFrame(({ gl, scene }, delta) => {
+    timingCache.sinceLastFrame += delta;
+
     if (!cameraRef.current) return;
     if (!planeRef.current) return;
 
@@ -90,10 +116,16 @@ export function CameraView(
     cameraRef.current.aspect = aspect;
     cameraRef.current.updateProjectionMatrix();
 
-    // write to the framebuffer.
+    cameraRef.current.matrixAutoUpdate = false
+
+    if (frustumHandle.current) {
+      cameraRef.current.matrix.copy(frustumHandle.current.matrix);
+    }
+
+    // write to the framebuffer so that we can use it as a texture for the HUD.
+    // note: we might move this to a dedicated canvas component.
     plane.visible = false;
     if (frustum.current) frustum.current.visible = false;
-    // gl.setSize(planeRef.current.width, planeRef.current.h);
     gl.setRenderTarget(fbo);
     gl.render(scene, cameraRef.current);
     gl.setRenderTarget(null);
@@ -103,9 +135,10 @@ export function CameraView(
 
     const ctx = gl.getContext();
 
-    if (stream === 'frame') {
+    if (timingCache.sinceLastFrame > (1 / fps) && stream === 'frame') {
+      timingCache.sinceLastFrame = 0;
       // read from webgl context to array buffer.
-      const pixelBuffer = new Uint8Array(width * height * ratio * 4);
+      const rgbArrayBuffer = new Uint8Array(width * height * ratio * 4);
       ctx.readPixels(
         0,
         0,
@@ -113,27 +146,26 @@ export function CameraView(
         height * dpr,
         ctx.RGBA,
         ctx.UNSIGNED_BYTE,
-        pixelBuffer,
+        rgbArrayBuffer,
       );
 
-      // if (dpr !== realDPR) {
-      //   const logicRatio = (realDPR / dpr) ** 2;
-      //   pixelBuffer = Uint8Array.from(pixelBuffer.filter((v, i) => [0, 4, 8, 12].indexOf(i % 16) > -1 ));
-      // }
-
-      // add png encoding
-      setTimeout(() => {
-        sendMsg({
+      // this might have race conditions.
+      worker.postMessage({ rgba: rgbArrayBuffer.buffer, width, height, dpr, quality }, [ rgbArrayBuffer.buffer ]);
+      worker.onmessage = ({ data: { jpg: array } }) => {
+        const payload = {
           etype: 'RENDER',
           key,
           value: {
             dpr,
+            delta: sinceLastFrame,
             width,
             height,
-            frame: pixelBuffer,
+            frame: new Uint8Array(array),
           },
-        });
-      }, 0);
+        }
+        sendMsg(payload);
+      };
+
     }
 
     const vAspect = size.width / size.height;
@@ -192,14 +224,16 @@ export function CameraView(
     m.set(...matrix);
     m.decompose(cam.position, cam.quaternion, cam.scale);
     cam.rotation.setFromQuaternion(cam.quaternion);
-    cam.updateProjectionMatrix();
+    cam.updateMatrix()
   }, [ matrix, cameraRef.current ]);
 
   if (hide) return null;
   return (
     <>
       {showFrustum ? (
-        <Frustum _ref={frustum} fov={fov} showFocalPlane={false} {...rest} />
+        <Movable _ref={frustumHandle} {...rest}>
+          <Frustum _ref={frustum} fov={_fov} showFocalPlane={false}/>
+        </Movable>
       ) : null}
       <Plane
         ref={planeRef}
@@ -207,10 +241,10 @@ export function CameraView(
         args={[ 1, 1, width, height ]}
         renderOrder={1}
       >
-        <meshBasicMaterial attach="material" map={fbo.texture} />
+        <meshBasicMaterial attach="material" map={fbo.texture}/>
       </Plane>
       {ctype === 'perspective' ? (
-        <PerspectiveCamera ref={cameraRef as MutableRefObject<tPerspectiveCamera>} fov={fov} {...rest} />
+        <PerspectiveCamera ref={cameraRef as MutableRefObject<tPerspectiveCamera>} fov={_fov} {...rest} />
       ) : null}
       {ctype === 'orthographic' ? (
         <OrthographicCamera

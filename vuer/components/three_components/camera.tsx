@@ -22,8 +22,8 @@ import {
 import { useControls } from 'leva';
 import queryString from 'query-string';
 import { document } from '../../lib/browser-monads';
-import { SocketContext, SocketContextType } from '../contexts/websocket.tsx';
-import { VuerProps } from '../../interfaces.tsx'; // import {Line} from "./_primitives";
+import { SocketContext, SocketContextType } from '../contexts/websocket';
+import { VuerProps } from '../../interfaces'; // import {Line} from "./_primitives";
 // import {Line} from "./_primitives";
 
 const CAMERA_TYPES = {

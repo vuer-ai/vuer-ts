@@ -1,8 +1,8 @@
 import { useCallback, useContext } from 'react';
 import { useThree } from '@react-three/fiber';
 import { button, useControls } from 'leva';
-import { SocketContext, SocketContextType } from '../contexts/websocket.tsx';
-import { VuerProps } from '../../interfaces.tsx';
+import { SocketContext, SocketContextType } from '../contexts/websocket';
+import { VuerProps } from '../../interfaces';
 
 export function Download({ _key: key }: VuerProps) {
   const { sendMsg }: SocketContextType = useContext(SocketContext);

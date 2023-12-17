@@ -10,7 +10,12 @@ interface GridQueries {
   grid?: string;
 }
 
-export function Grid({ far = null, levaPrefix = 'Scene.' }): JSX.Element {
+interface GridProps {
+  far?: number;
+  levaPrefix?: string;
+}
+
+export function Grid({ far = null, levaPrefix = 'Scene.' }: GridProps): JSX.Element {
   const q = useMemo<GridQueries>(
     () => queryString.parse(document.location.search),
     [],
