@@ -140,7 +140,7 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
         }
         const chars = String.fromCharCode.apply(null, sceneStr)
         const scene64b = btoa(chars);
-        const url = new URL(document.location.href);
+        const url = new URL(document.location);
         url.searchParams.set('scene', scene64b);
         document.location.href = url.toString();
       }, { label: "Share Scene" }),

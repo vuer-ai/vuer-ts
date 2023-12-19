@@ -19,7 +19,6 @@ const preferredTheme = () => window?.matchMedia?.('(prefers-color-scheme:dark)')
 export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: BackgroundColorProps) {
   const queries = useMemo(() => queryString.parse(document.location.search), [ document.location.search ]) as BackgroundQueries;
   const bgColor = useMemo<string>((): string | undefined => {
-    console.log("bgColor", queries);
 
     let dark, light;
     if (queries.background) {
