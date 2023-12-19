@@ -18,6 +18,7 @@ import { SocketContext, SocketContextType } from '../contexts/websocket';
 import { BackgroundColor } from './color';
 import { document } from '../../lib/browser-monads';
 import { ClientEvent } from '../../interfaces';
+import GrabRender from "./camera_view/GrabRender";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -126,6 +127,7 @@ export default function ThreeScene(
             {/* <FileDrop/> */}
             <Hands/>
             <Controllers/>
+            <GrabRender canvasRef={canvasRef}/>
             <PointerControl
               parent={canvasRef}
               parentKey={key}

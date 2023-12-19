@@ -10,13 +10,13 @@ import {
   PerspectiveCamera as tPerspectiveCamera,
   PlaneGeometry,
   Vector3,
+  WebGLRenderer,
 } from 'three';
 import { SocketContext, SocketContextType } from '../../contexts/websocket';
 import { Frustum } from '../frustum';
 import { VuerProps } from '../../../interfaces';
 import { Movable } from "../controls/movables";
 import { useControls } from "leva";
-import CanvasWorker from "./canvas_worker?worker";
 
 type CameraViewProps = VuerProps<{
   hide?: boolean;
@@ -34,10 +34,12 @@ type CameraViewProps = VuerProps<{
   ctype?: 'perspective' | 'orthographic';
   showFrustum?: boolean;
   stream?: null | 'frame' | 'time';
-  // dpr?: number;
+  downsample?: number;
   fps?: number;
+  quality?: number;
   position?: [ number, number, number ];
   rotation?: [ number, number, number ];
+  monitor?: boolean;
 }>;
 
 export function CameraView(
@@ -57,14 +59,15 @@ export function CameraView(
     left = -1,
     right = 1,
     // used for positioning of the view
-    origin = 'bottom-left', // "bottom-left" | "top-left" | "bottom-right" | "top-right"
+    origin = 'top-left', // "bottom-left" | "top-left" | "bottom-right" | "top-right"
     distanceToCamera = 0.5,
     ctype = 'perspective',
     showFrustum = true,
     stream = null, // one of [null, 'frame', 'time']
     fps = 30,
+    downsample = 2,
     quality = 1,
-    // dpr = window.devicePixelRatio || 1,
+    monitor = true,
     ...rest
   }: CameraViewProps,
 ) {
@@ -77,19 +80,25 @@ export function CameraView(
     sinceLastFrame: 0,
   }), []);
 
-  const { render, size, camera } = useThree() as {
+  const { size, camera } = useThree() as {
     size: { width: number, height: number }, camera: tPerspectiveCamera
   };
-
   const dpr = window.devicePixelRatio || 1;
-  const ratio = dpr ** 2;
-  const fbo = useFBO(width * dpr, height * dpr);
+  // the output buffer size does not depend on this resolution.
+  const fbo = useFBO(width * dpr, height * dpr,);
+  const renderer = useMemo(() => {
+    const r = new WebGLRenderer({
+      canvas: new OffscreenCanvas(width / downsample, height / downsample),
+      antialias: true, precision: 'highp', preserveDrawingBuffer: true,
+      depth: true,
+    });
+    r.setPixelRatio(dpr)
+    return r;
+  }, [ width, height, dpr ]);
 
   const m = useMemo(() => new Matrix4(), []);
   const offset = useMemo(() => new Vector3(), []);
-  const { sendMsg, downlink } = useContext(SocketContext) as SocketContextType;
-  const pixelBuffer = useMemo(() => new Uint8Array(width * height * ratio * 4),
-    [ width, height, ratio ]);
+  const { sendMsg } = useContext(SocketContext) as SocketContextType;
 
   const { _fov } = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
     _fov: {
@@ -99,7 +108,6 @@ export function CameraView(
     }
   }, [ fov ]);
 
-  const worker = useMemo(() => new CanvasWorker(), []);
 
   const sinceLastFrame = useRef({});
 
@@ -107,107 +115,109 @@ export function CameraView(
     timingCache.sinceLastFrame += delta;
 
     if (!cameraRef.current) return;
-    if (!planeRef.current) return;
 
-    const plane = planeRef.current;
     const aspect = width / height;
 
     // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
     cameraRef.current.aspect = aspect;
     cameraRef.current.updateProjectionMatrix();
 
-    cameraRef.current.matrixAutoUpdate = false
-
     if (frustumHandle.current) {
+      cameraRef.current.matrixAutoUpdate = false
       cameraRef.current.matrix.copy(frustumHandle.current.matrix);
     }
 
-    // write to the framebuffer so that we can use it as a texture for the HUD.
-    // note: we might move this to a dedicated canvas component.
-    plane.visible = false;
-    if (frustum.current) frustum.current.visible = false;
-    gl.setRenderTarget(fbo);
-    gl.render(scene, cameraRef.current);
-    gl.setRenderTarget(null);
-    fbo.texture.colorSpace = NoColorSpace;
-    plane.visible = true;
-    if (frustum.current) frustum.current.visible = true;
-
-    const ctx = gl.getContext();
-
     if (timingCache.sinceLastFrame > (1 / fps) && stream === 'frame') {
       timingCache.sinceLastFrame = 0;
-      // read from webgl context to array buffer.
-      const rgbArrayBuffer = new Uint8Array(width * height * ratio * 4);
-      ctx.readPixels(
-        0,
-        0,
-        width * dpr,
-        height * dpr,
-        ctx.RGBA,
-        ctx.UNSIGNED_BYTE,
-        rgbArrayBuffer,
-      );
 
-      // this might have race conditions.
-      worker.postMessage({ rgba: rgbArrayBuffer.buffer, width, height, dpr, quality }, [ rgbArrayBuffer.buffer ]);
-      worker.onmessage = ({ data: { jpg: array } }) => {
-        const payload = {
-          etype: 'RENDER',
-          key,
-          value: {
-            dpr,
-            delta: sinceLastFrame,
-            width,
-            height,
-            frame: new Uint8Array(array),
-          },
-        }
-        sendMsg(payload);
-      };
+      const ctx = renderer.getContext();
+      let w = renderer.domElement.width;
+      let h = renderer.domElement.height;
+
+      if (planeRef?.current) planeRef.current.visible = false;
+      if (frustum?.current) frustum.current.visible = false;
+      renderer.render(scene, cameraRef.current);
+
+      const rgbArrayBuffer = new Uint8Array(w * h * 4);
+      ctx.readPixels(0, 0, w, h, ctx.RGBA, ctx.UNSIGNED_BYTE, rgbArrayBuffer);
+      // @ts-ignore: this is okay.
+      const canvas = renderer.domElement as OffscreenCanvas;
+      canvas.convertToBlob({ quality, type: "image/jpeg" }).then((blob) => {
+        blob.arrayBuffer().then((array: ArrayBuffer) => {
+          const payload = {
+            etype: 'CAMERA_VIEW',
+            key,
+            value: {
+              dpr,
+              delta: sinceLastFrame,
+              width,
+              height,
+              frame: new Uint8Array(array),
+            },
+          }
+          sendMsg(payload);
+        })
+      })
+    }
+
+    if (!!monitor && planeRef?.current) {
+      const plane = planeRef.current;
+
+      plane.visible = false;
+      if (frustum.current) frustum.current.visible = false;
+      gl.setRenderTarget(fbo);
+      gl.render(scene, cameraRef.current);
+      gl.setRenderTarget(null);
+      fbo.texture.colorSpace = NoColorSpace;
+      plane.visible = true;
+      if (frustum.current) frustum.current.visible = true;
+
+      const vAspect = size.width / size.height;
+      const dirVec = new Vector3(0, 0, -1).applyEuler(camera.rotation);
+      // prettier-ignore
+      let polarity;
+      switch (origin) {
+      case 'bottom-left':
+        polarity = [ -1, -1 ];
+        break;
+      case 'bottom-right':
+        polarity = [ 1, -1 ];
+        break;
+      case 'top-left':
+        polarity = [ -1, 1 ];
+        break;
+      case 'top-right':
+        polarity = [ 1, 1 ];
+        break;
+      }
+      // prettier-ignore
+      const horizontal = Math.tan((camera.fov / 360) * Math.PI);
+      offset
+        .set(
+          polarity[0] * (1 - width / size.width) * vAspect * horizontal,
+          polarity[1] * (1 - height / size.height) * horizontal,
+          0,
+        )
+        .applyEuler(camera.rotation);
+
+      const h = 2 * horizontal * distanceToCamera;
+      const w = aspect * h;
+      const scale = height / size.height;
+
+      plane.scale.set(w * scale, h * scale, 1);
+      // plane.scale.set(w * scale, h * scale, 1);
+      // do the pointing first to make align with image plane
+      plane.position
+        .copy(camera.position)
+        .addScaledVector(dirVec, distanceToCamera);
+      plane.lookAt(camera.position);
+      plane.position.addScaledVector(offset, distanceToCamera);
 
     }
 
-    const vAspect = size.width / size.height;
-    const dirVec = new Vector3(0, 0, -1).applyEuler(camera.rotation);
-    // prettier-ignore
-    let polarity;
-    switch (origin) {
-    case 'bottom-left':
-      polarity = [ -1, -1 ];
-      break;
-    case 'bottom-right':
-      polarity = [ 1, -1 ];
-      break;
-    case 'top-left':
-      polarity = [ -1, 1 ];
-      break;
-    case 'top-right':
-      polarity = [ 1, 1 ];
-      break;
-    }
-    // prettier-ignore
-    const horizontal = Math.tan((camera.fov / 360) * Math.PI);
-    offset
-      .set(
-        polarity[0] * (1 - width / size.width) * vAspect * horizontal,
-        polarity[1] * (1 - height / size.height) * horizontal,
-        0,
-      )
-      .applyEuler(camera.rotation);
+    if (planeRef?.current) planeRef.current.visible = true;
+    if (frustum?.current) frustum.current.visible = true;
 
-    const h = 2 * horizontal * distanceToCamera;
-    const w = aspect * h;
-    const scale = height / size.height;
-
-    plane.scale.set(w * scale, h * scale, 1);
-    // plane.scale.set(w * scale, h * scale, 1);
-    // do the pointing first to make align with image plane
-    plane.position
-      .copy(camera.position)
-      .addScaledVector(dirVec, distanceToCamera);
-    plane.lookAt(camera.position);
-    plane.position.addScaledVector(offset, distanceToCamera);
   }, 1);
 
   useLayoutEffect(() => {
@@ -235,14 +245,16 @@ export function CameraView(
           <Frustum _ref={frustum} fov={_fov} showFocalPlane={false}/>
         </Movable>
       ) : null}
-      <Plane
-        ref={planeRef}
-        key="rgb" // ref={} // args={[1, 1]}
-        args={[ 1, 1, width, height ]}
-        renderOrder={1}
-      >
-        <meshBasicMaterial attach="material" map={fbo.texture}/>
-      </Plane>
+      {monitor ?
+        <Plane
+          ref={planeRef}
+          key="rgb" // ref={} // args={[1, 1]}
+          args={[ 1, 1, width, height ]}
+          renderOrder={1}
+        >
+          <meshBasicMaterial attach="material" map={fbo.texture}/>
+        </Plane>
+        : null}
       {ctype === 'perspective' ? (
         <PerspectiveCamera ref={cameraRef as MutableRefObject<tPerspectiveCamera>} fov={_fov} {...rest} />
       ) : null}

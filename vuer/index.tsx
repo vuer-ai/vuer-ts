@@ -166,17 +166,14 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     ({ etype, data }: ServerEvent) => {
       if (etype === 'SET') {
         // the top level is a dummy node
-        console.log('set scene', data);
         setScene(data as SceneType);
       } else if (etype === 'ADD') {
         // the API need to be updated, so are the rest of the API.
         const { nodes, to: parentKey } = data;
         let dirty;
-        console.log('before adding', scene.children);
         for (const node of nodes) {
           dirty = dirty || addNode(sceneRef.current, node, parentKey);
         }
-        console.log('is dirty?', dirty, scene.children);
         if (dirty) setScene({ ...sceneRef.current });
       } else if (etype === 'UPDATE') {
         let dirty = false;
@@ -201,11 +198,9 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
       } else if (etype === 'REMOVE') {
         const { keys } = data;
         let dirty;
-        console.log('before adding', scene.children);
         for (const key of keys) {
           dirty = dirty || removeByKey(sceneRef.current, key);
         }
-        console.log('is dirty?', dirty, scene.children);
         if (dirty) setScene({ ...sceneRef.current });
       } else {
         // print here

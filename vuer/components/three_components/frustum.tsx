@@ -1,9 +1,5 @@
-import {
-  MutableRefObject, useLayoutEffect, useMemo, useRef,
-} from 'react';
-import {
-  ColorRepresentation, Euler, Group, Matrix4, Object3D, Quaternion, Vector3,
-} from 'three';
+import { MutableRefObject, useLayoutEffect, useMemo, useRef, } from 'react';
+import { ColorRepresentation, Euler, Group, Matrix4, Object3D, Quaternion, Vector3, } from 'three';
 import { Line, Sphere } from '@react-three/drei';
 import { VuerProps } from '../../interfaces';
 
@@ -15,21 +11,22 @@ function equals(aArr: number[], bArr: number[]) {
 }
 
 type ptList = {
-  [key: string]: Array<[number, number, number]>;
+  [key: string]: Array<[ number, number, number ]>;
 };
 
 type FrustumProps = VuerProps<{
 
-  position?: number[];
-  rotation?: number[];
-  matrix?: number[];
-
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
+  matrix?: [ number, number, number, number, number, number, number, number, number, number, number, number,
+    number, number, number, number ];
   aspect?: number;
   focus?: number;
   fov?: number;
   near?: number;
   far?: number;
   scale?: number;
+  upScale?: number;
   focalLength?: number;
   showUp?: boolean;
   showFrustum?: boolean;
@@ -61,6 +58,7 @@ export function Frustum(
     far = 0.2,
     // only applies to the camera cone, for presentation
     scale = 1,
+    upScale = 1,
 
     focalLength = 0.035,
     showUp = true,
@@ -113,6 +111,7 @@ export function Frustum(
       groupRef.current.position.set(...position);
       // @ts-ignore: don't know how to fix this.
       groupRef.current.rotation.set(...rotation);
+      groupRef.current.updateMatrix();
     }
   }, [ fov, focus, near, far ]);
 
@@ -162,16 +161,11 @@ export function Frustum(
         [ -cx_near, -cy_near, -near ],
       ],
       cone: [
-        [ 0, 0, 0 ],
-        [ -cx_near, -cy_near, -near ],
-        [ 0, 0, 0 ],
-        [ cx_near, -cy_near, -near ],
-        [ 0, 0, 0 ],
-        [ cx_near, cy_near, -near ],
-        [ 0, 0, 0 ],
-        [ -cx_near, cy_near, -near ],
-        [ 0, 0, 0 ],
-        [ -cx_near, -cy_near, -near ],
+        [ 0, 0, 0 ], [ -cx_near, -cy_near, -near ],
+        [ 0, 0, 0 ], [ cx_near, -cy_near, -near ],
+        [ 0, 0, 0 ], [ cx_near, cy_near, -near ],
+        [ 0, 0, 0 ], [ -cx_near, cy_near, -near ],
+        [ 0, 0, 0 ], [ -cx_near, -cy_near, -near ],
       ],
       farPlane: [
         [ -cx_far, -cy_far, -far ],
@@ -209,13 +203,15 @@ export function Frustum(
   return (
     <group
       ref={groupRef as MutableRefObject<Group>}
+      position={position}
+      rotation={rotation}
       key={_key}
     >
       {/* <Sphere key="origin" position={[0, 0, 0]} material-color={colorOrigin} scale={scale * 0.002}/> */}
       {showUp ? (
         <Line
           key="up"
-          scale={scale}
+          scale={scale * upScale}
           points={all_points.up}
           color={colorUp}
           lineWidth={1}
