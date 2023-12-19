@@ -13,6 +13,7 @@ import { WebSocketProvider } from './html_components/contexts/websocket';
 import { parseArray } from './three_components/utils';
 import { ServerEvent } from './interfaces';
 import { pack, unpack } from "msgpackr";
+import { Buffer } from "buffer";
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the

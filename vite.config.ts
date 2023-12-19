@@ -33,7 +33,6 @@ export default defineConfig({
       output: {
         globals: {
           react: 'React',
-          buffer: 'Buffer',
           'react-dom': 'ReactDOM',
           'styled-components': 'styled'
         },
