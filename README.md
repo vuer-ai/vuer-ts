@@ -9,7 +9,7 @@ vueree vuer
 ├── _components
 │   ├── _chat
 │   │   └── autoscroll.tsx
-│   ├── components.tsx
+│   ├── html_components.tsx
 │   ├── _contexts
 │   │   └── websocket.tsx
 │   ├── file_drop.tsx
@@ -24,7 +24,7 @@ vueree vuer
 │       ├── camera.tsx
 │       ├── camera_view.tsx
 │       ├── color.tsx
-│       ├── components.tsx
+│       ├── component_list.tsx
 │       ├── _controls
 │       │   ├── gamepad.tsx
 │       │   ├── hands.tsx

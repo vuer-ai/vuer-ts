@@ -1,8 +1,8 @@
 import { MutableRefObject, useContext, useEffect, useMemo } from "react";
-import { SocketContext, SocketContextType } from "../../contexts/websocket";
-import { ServerRPC } from "../../../interfaces";
 import { useThree } from "@react-three/fiber";
-import { AppContext } from "../../../index";
+import { ServerRPC } from "../../interfaces";
+import { AppContext } from "../../index";
+import { SocketContext, SocketContextType } from "../../html_components/contexts/websocket";
 
 export type GrabRenderEvent = ServerRPC & {
   // this is the UUID of the request.

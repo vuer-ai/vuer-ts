@@ -1,62 +1,17 @@
 import React, {
   ChangeEvent,
   ChangeEventHandler,
-  Component,
-  FC,
   KeyboardEvent,
   KeyboardEventHandler,
   MouseEvent,
   useCallback,
   useContext,
   useMemo,
-  useState,
-} from 'react';
-import { Html, Splat } from '@react-three/drei';
-import { imageToBase64 } from '../util';
-import { Scene } from './three_components';
-import { SocketContext } from './contexts/websocket';
-import { Glb, Obj, Pcd, Ply, Urdf, } from './three_components/data_loaders';
-import {
-  Box,
-  Capsule,
-  Circle,
-  Cone,
-  Cylinder,
-  Dodecahedron,
-  Edges,
-  Extrude,
-  Icosahedron,
-  Lathe,
-  Octahedron,
-  Plane,
-  Polyhedron,
-  Ring,
-  Shape,
-  Sphere,
-  Tetrahedron,
-  Torus,
-  TorusKnot,
-  Tube,
-  Wireframe,
-} from './three_components/primitives/primitives';
-import { Gripper, SkeletalGripper } from './three_components/components';
-import { Movable, Pivot } from './three_components/controls/movables';
-import { Camera } from './three_components/camera';
-import { BBox } from './three_components/primitives/bbox';
-import { CameraView } from './three_components/camera_view/camera_view';
-import { AmbientLight, DirectionalLight, PointLight, SpotLight, } from './three_components/lighting';
-import { Frustum } from './three_components/frustum';
-import { Render, RenderLayer } from './nerf_components/view';
-import { Markdown } from './markdown/markdown';
-import { AutoScroll } from './chat/autoscroll';
-import { PointCloud } from './three_components/primitives/pointclound';
-import { TriMesh } from './three_components/primitives/trimesh';
-import { Gamepad } from './three_components/controls/gamepad';
-import { Hands } from './three_components/controls/hands';
-import { VuerProps } from '../interfaces';
-import { SceneBackground } from './three_components/scene_background';
-import { ImageBackground } from './three_components/image_background';
-import { CoordsMarker } from "./three_components/primitives/CoordsMarker";
+  useState
+} from "react";
+import { SocketContext } from "./contexts/websocket";
+import { VuerProps } from "../interfaces";
+import { imageToBase64 } from "../util";
 
 type VuerControlProps = VuerProps<{ value: never }>;
 
@@ -212,7 +167,7 @@ export function ImageUpload({ _key: key, label }: ImageUploadProps) {
   const { sendMsg } = useContext(SocketContext);
   const [ file, setFile ] = useState<Blob | null>(null);
   const onChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    // @ts-expect-error: not sure how to fix this;
+    // @ts-expect-error: not sure how to fix this
     (e: ChangeEvent<HTMLInputElement>) => {
       setFile(e.target.files[0]);
     }, []);
@@ -248,70 +203,3 @@ type TextProps = VuerProps<{ text: string }>;
 export function Text({ _key: key, text, ...props }: TextProps) {
   return <span {...props}>{text}</span>;
 }
-
-// prettier-ignore
-type CompList = Record<string, FC | Component | Promise<Component>>;
-export const comp_list: CompList = {
-  Slider,
-  Input,
-  Text,
-  Img,
-  Button,
-  ImageUpload,
-  Div,
-  // parts of the three-js scene components, can be written as an extension - Ge
-  SceneBackground,
-  ImageBackground,
-  Scene,
-  Ply,
-  Obj,
-  Pcd,
-  Glb,
-  Gltf: Glb,
-  PointCloud,
-  TriMesh,
-  Urdf,
-  Gripper,
-  SkeletalGripper,
-  CoordsMarker,
-  Pivot,
-  Movable,
-  Gamepad,
-  Hands,
-  Frustum,
-  Box,
-  Capsule,
-  Circle,
-  Cone,
-  Cylinder,
-  Dodecahedron,
-  Edges,
-  Extrude,
-  Icosahedron,
-  Lathe,
-  Octahedron,
-  Plane,
-  Polyhedron,
-  Ring,
-  Shape,
-  Sphere,
-  Tetrahedron,
-  Torus,
-  TorusKnot,
-  Tube,
-  Wireframe,
-  PointLight,
-  DirectionalLight,
-  AmbientLight,
-  SpotLight,
-  CameraView,
-  Camera,
-  Html,
-  Splat,
-  Splats: React.lazy(() => import( './gaussian_splatting' )) as Promise<Component>,
-  BBox,
-  Render,
-  RenderLayer,
-  AutoScroll,
-  Markdown,
-};

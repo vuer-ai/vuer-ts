@@ -3,7 +3,7 @@ import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 't
 import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
-import { AppContext } from "../../index";
+import { AppContext } from "../index";
 
 // todo: pass reference
 // todo: change src to src

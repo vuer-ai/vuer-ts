@@ -7,7 +7,7 @@ import useStateRef from 'react-usestateref';
 import queryString from 'query-string';
 import { pack, unpack } from 'msgpackr';
 import { Store } from '../store';
-import { document } from '../../lib/browser-monads';
+import { document } from '../../third_party/browser-monads';
 
 import { ClientEvent, ServerEvent } from '../../interfaces';
 

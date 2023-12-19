@@ -21,10 +21,9 @@ import {
 } from '@react-three/drei';
 import { useControls } from 'leva';
 import queryString from 'query-string';
-import { document } from '../../lib/browser-monads';
-import { SocketContext, SocketContextType } from '../contexts/websocket';
-import { VuerProps } from '../../interfaces'; // import {Line} from "./_primitives";
-// import {Line} from "./_primitives";
+import { document } from '../third_party/browser-monads';
+import { VuerProps } from "../interfaces";
+import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
 
 const CAMERA_TYPES = {
   PerspectiveCamera,

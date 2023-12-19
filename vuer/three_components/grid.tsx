@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import { Grid as DreiGrid } from '@react-three/drei';
 import { useControls } from 'leva';
 import { useThree } from '@react-three/fiber';
-import { document } from '../../lib/browser-monads';
+import { document } from '../third_party/browser-monads';
 import { Euler, Object3D, Quaternion, Vector3 } from "three";
 
 interface GridQueries {
@@ -13,14 +13,24 @@ interface GridQueries {
 interface GridProps {
   far?: number;
   levaPrefix?: string;
+  show?: boolean;
 }
 
-export function Grid({ far = null, levaPrefix = 'Scene.' }: GridProps): JSX.Element {
+/**
+ * Grid component
+ *
+ * @param far - The far plane of the camera, deliminates the fade distance
+ * @param levaPrefix - The prefix for the leva controls
+ * @param show - Whether to show the grid
+ * */
+export function Grid({ far = null, levaPrefix = 'Scene.', show }: GridProps): Node {
   const q = useMemo<GridQueries>(
     () => queryString.parse(document.location.search),
     [],
   );
   const { camera } = useThree();
+
+  const queryGrid = q.grid ? q.grid.toLowerCase() === 'true' : true;
 
   const {
     showGrid, offset, fadeDistance, ...config
@@ -28,7 +38,7 @@ export function Grid({ far = null, levaPrefix = 'Scene.' }: GridProps): JSX.Elem
     `${levaPrefix}Grid Plane`,
     {
       showGrid: {
-        value: q.grid ? q.grid.toLowerCase() === 'true' : true,
+        value: typeof show === "boolean" ? show : queryGrid,
         label: 'Show Grid',
       },
       offset: 0,

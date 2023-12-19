@@ -12,11 +12,11 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three';
-import { SocketContext, SocketContextType } from '../../contexts/websocket';
 import { Frustum } from '../frustum';
-import { VuerProps } from '../../../interfaces';
 import { Movable } from "../controls/movables";
 import { useControls } from "leva";
+import { VuerProps } from "../../interfaces";
+import { SocketContext, SocketContextType } from "../../html_components/contexts/websocket";
 
 type CameraViewProps = VuerProps<{
   hide?: boolean;
@@ -131,8 +131,8 @@ export function CameraView(
       timingCache.sinceLastFrame = 0;
 
       const ctx = renderer.getContext();
-      let w = renderer.domElement.width;
-      let h = renderer.domElement.height;
+      const w = renderer.domElement.width;
+      const h = renderer.domElement.height;
 
       if (planeRef?.current) planeRef.current.visible = false;
       if (frustum?.current) frustum.current.visible = false;

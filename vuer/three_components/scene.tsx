@@ -3,22 +3,20 @@ import { Canvas, extend } from '@react-three/fiber';
 import { Controllers, Hands, VRButton, XR, } from '@react-three/xr';
 import { GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { SSAOPass, UnrealBloomPass } from 'three-stdlib';
-// import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import { BufferGeometry, Mesh, Object3D, Vector3 } from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
 import { CameraLike, OrbitCamera } from './camera';
 import { Download } from './download';
-// import {FileDrop} from "../_file_drop";
 import { Grid } from './grid';
 import { PointerControl } from './controls/pointer';
 import { SceneGroup } from './group';
-import { SocketContext, SocketContextType } from '../contexts/websocket';
 import { BackgroundColor } from './color';
-import { document } from '../../lib/browser-monads';
-import { ClientEvent } from '../../interfaces';
+import { document } from '../third_party/browser-monads';
 import GrabRender from "./camera_view/GrabRender";
+import { ClientEvent } from "../interfaces";
+import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -59,7 +57,7 @@ export default function ThreeScene(
     rawChildren,
     htmlChildren,
     up = null,
-    grid = false,
+    grid = true,
   }: ThreeProps,
 ) {
   const ref = useRef<HTMLCanvasElement>();
@@ -132,7 +130,7 @@ export default function ThreeScene(
               parent={canvasRef}
               parentKey={key}
             />
-            {grid ? <Grid/> : null}
+            <Grid show={grid}/>
             {backgroundChildren}
             <Suspense>
               <SceneGroup>{children}</SceneGroup>

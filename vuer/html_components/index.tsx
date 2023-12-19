@@ -1,5 +1,5 @@
 import { ElementType } from 'react';
-import { comp_list } from './components';
+import { comp_list } from './component_list';
 import { Node } from '../index';
 
 type HydrateProps = {
@@ -20,18 +20,18 @@ export function Hydrate(
   }: HydrateProps,
 ): JSX.Element {
   const Component = (comp_list[Tag] || Tag) as ElementType;
-  // const {sendMsg} = useContext<SocketContextType>(SocketContext);
 
   const hydratedChildren = (children || []).map((child: Node | string) => {
     if (typeof child === 'string') return child;
     const { key, ..._child } = child;
-    // @ts-ignore: not sure how to fix this;
-    return <Hydrate key={key} _key={key} {..._child} />;
+    const Component = "Hydrate"
+    // @ts-ignore: to avoid type error
+    return <Component key={key} _key={key} {..._child} />;
   });
 
   if (typeof Component === 'string') {
     return (
-    // @ts-ignore: not sure how to fix this;
+      // @ts-ignore: not sure how to fix this;
       <Component key={_key} className={className} {...rest}>
         {hydratedChildren}
       </Component>

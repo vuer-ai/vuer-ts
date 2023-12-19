@@ -4,12 +4,11 @@ import {
 import { useControls } from 'leva';
 import queryString, { ParsedQuery } from 'query-string';
 import { Euler, Vector3 } from '@react-three/fiber';
-import { SocketContext, SocketContextType } from '../contexts/websocket';
-import { document } from '../../lib/browser-monads';
-import { SceneStoreType, useSceneStore } from '../../store';
-
-import { ClientEvent } from '../../interfaces';
+import { document } from '../third_party/browser-monads';
 import { Sim3, SO3, V3 } from './number_types';
+import { SocketContext } from "../html_components/contexts/websocket";
+import { SceneStoreType, useSceneStore } from "../store";
+import { ClientEvent } from "../interfaces";
 
 export function deg2rad(rotation: SO3): SO3 {
   return {
@@ -47,8 +46,15 @@ interface Sim3Queries {
   scale?: string;
 }
 
+/**
+ * SceneGroup component
+ *
+ * @param levaPrefix - The prefix for the leva controls
+ * @param position - The initial position of the scene
+ * @param rotation - The initial rotation of the scene
+ * @param scale - The initial scale of the scene
+ * */
 export function SceneGroup({
-  // sendMsg,
   levaPrefix = 'Scene',
   position: paramPosition,
   rotation: paramRotation,

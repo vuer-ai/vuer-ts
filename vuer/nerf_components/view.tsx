@@ -11,13 +11,13 @@ import {
 import { button, buttonGroup, useControls } from 'leva';
 import { ButtonInput, ButtonSettings } from 'leva/plugin';
 import { ImageBackground } from '../three_components/image_background';
-import { SocketContext, SocketContextType } from '../contexts/websocket';
 import { BBox } from '../three_components/primitives/bbox';
 import {
   GroupSlave, rot2array, scale2array, v3array,
 } from '../three_components/group';
-import { ClientEvent, ServerEvent, VuerProps } from '../../interfaces';
 import { V3 } from '../three_components/number_types';
+import { ClientEvent, ServerEvent, VuerProps } from "../interfaces";
+import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
 
 export const RenderContext = createContext({});
 
