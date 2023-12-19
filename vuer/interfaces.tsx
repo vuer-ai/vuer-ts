@@ -19,3 +19,9 @@ export interface ClientEvent extends EventType {
 export interface ServerEvent extends EventType {
   data: string | number | number[] | unknown | Record<string, unknown>;
 }
+
+// server RPC requests has a uuid so that we know which respond correspond to it.
+export interface ServerRPC extends ServerEvent {
+  uuid: string;
+  rtype: string;
+}

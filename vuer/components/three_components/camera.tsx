@@ -489,7 +489,7 @@ export function OrbitCamera(
   const perspRef = useRef() as MutableRefObject<tPerspectiveCamera>;
 
   useLayoutEffect(() => {
-    console.log(Object3D.DEFAULT_UP);
+    // console.log(Object3D.DEFAULT_UP);
     orthoRef.current.up.copy(Object3D.DEFAULT_UP);
     perspRef.current.up.copy(Object3D.DEFAULT_UP);
   }, [ Object3D.DEFAULT_UP ]);
