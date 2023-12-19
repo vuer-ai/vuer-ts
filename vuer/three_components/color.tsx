@@ -14,20 +14,31 @@ type BackgroundQueries = {
   darkBg?: string;
 }
 
-const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)')
+const preferredTheme = () => window?.matchMedia?.('(prefers-color-scheme:dark)')?.matches ? 'dark' : 'light';
 
 export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: BackgroundColorProps) {
-  const queries = useMemo(() => queryString.parse(document.location.search), []) as BackgroundQueries;
+  const queries = useMemo(() => queryString.parse(document.location.search), [ document.location.search ]) as BackgroundQueries;
   const bgColor = useMemo<string>((): string | undefined => {
+    console.log("bgColor", queries);
+
+    let dark, light;
     if (queries.background) {
-      let dark, light = queries.background.split(',');
-      if (queries.darkBg) dark = queries.darkBg;
-      if (queries.lightBg) light = queries.lightBg;
-      if (isDarkMode()) return `#${dark || light}`;
-      return `#${light || dark}`;
+      [ dark, light ] = queries.background.split(',');
     }
-    if (color) return color;
-  }, [ color ]);
+    if (queries.darkBg) dark = queries.darkBg;
+    if (queries.lightBg) light = queries.lightBg;
+
+    const theme =  preferredTheme();
+
+    let localColor;
+    if (theme === "dark") localColor = dark || light;
+    else if (theme === "light") localColor = light || dark;
+    else console.warn("Unknown theme", theme);
+
+    return localColor ? `#${localColor}` : color;
+
+  }, [ color, document.location.search ]);
+
   const { background } = useControls(
     levaPrefix,
     {
