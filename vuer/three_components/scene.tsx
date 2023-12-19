@@ -33,7 +33,7 @@ extend({
   // TextGeometry,
 });
 
-type ThreeProps = PropsWithChildren<{
+export type SceneProps = PropsWithChildren<{
   _key?: string;
   canvasRef?;
   className?: string;
@@ -45,21 +45,35 @@ type ThreeProps = PropsWithChildren<{
   grid?: boolean;
 }>;
 
-export default function ThreeScene(
-  {
-    _key: key,
-    canvasRef: _canvasRef,
-    className,
-    style,
-    children,
-    backgroundChildren,
-    // these are not transformed.
-    rawChildren,
-    htmlChildren,
-    up = null,
-    grid = true,
-  }: ThreeProps,
-) {
+/**
+ * This is the root component for the 3D scene.
+ *
+ * @param _key - the key of the scene component
+ * @param canvasRef - the reference to the canvas element
+ * @param className - the class name of the scene component
+ * @param style - the style of the scene component
+ * @param children - the children of the scene component
+ * @param backgroundChildren - the children of the scene component that are rendered in the background
+ * @param rawChildren - the children of the scene component that are rendered as is
+ * @param htmlChildren - the children of the scene component that are rendered as html
+ * @param up - the up vector of the scene
+ * @param grid - whether to show the grid
+ *
+ * @returns the scene component
+ */
+export function Scene({
+  _key: key,
+  canvasRef: _canvasRef,
+  className,
+  style,
+  children,
+  backgroundChildren,
+  // these are not transformed.
+  rawChildren,
+  htmlChildren,
+  up = null,
+  grid = true,
+}: SceneProps,) {
   const ref = useRef<HTMLCanvasElement>();
   const canvasRef = _canvasRef || ref;
   const { sendMsg, uplink, downlink } = useContext(SocketContext) as SocketContextType;
@@ -86,11 +100,6 @@ export default function ThreeScene(
     },
     [ sendMsg, uplink ],
   );
-
-  // useEffect(() => {
-  //   downlink.subscribe('GRAB_REDNER', (event: ClientEvent) => {
-  //   }
-  // }, [])
 
   const divStyle = useMemo(
     () => ({

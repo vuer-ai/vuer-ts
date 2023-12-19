@@ -1,6 +1,7 @@
 import React, {
   ChangeEvent,
   ChangeEventHandler,
+  HTMLInputTypeAttribute,
   KeyboardEvent,
   KeyboardEventHandler,
   MouseEvent,
@@ -13,7 +14,7 @@ import { SocketContext } from "./contexts/websocket";
 import { VuerProps } from "../interfaces";
 import { imageToBase64 } from "../util";
 
-type VuerControlProps = VuerProps<{ value: never }>;
+type VuerControlProps<T = unknown> = VuerProps<{ value: never } & T>;
 
 export function Button({ _key: key, value, ...props }: VuerControlProps) {
   const { sendMsg } = useContext(SocketContext);
@@ -24,6 +25,14 @@ export function Button({ _key: key, value, ...props }: VuerControlProps) {
   );
 }
 
+/** Slider Input Component
+ *
+ * @param _key - the key of this input component
+ * @param defaultValue - the default value of this slide
+ * @param children - the children of this input component
+ * @param props - the rest of the props of this input component
+ * @constructor
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function Slider({
   _key: key, value: defaultValue, children, ...props

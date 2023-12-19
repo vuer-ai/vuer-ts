@@ -5,13 +5,12 @@ import useFetch from 'use-http';
 import yaml from 'js-yaml';
 import useStateRef from 'react-usestateref';
 import { document } from './third_party/browser-monads';
-import ThreeScene from './three_components/scene';
+import { Scene } from './three_components/scene';
 import { Hydrate } from './html_components';
 import { list2menu } from './three_components/leva_helper';
 import { addNode, findByKey, removeByKey } from './util';
 import { WebSocketProvider } from './html_components/contexts/websocket';
 import { parseArray } from './three_components/utils';
-import { Buffer } from "buffer";
 import { ServerEvent } from './interfaces';
 import { pack, unpack } from "msgpackr";
 
@@ -219,8 +218,6 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
 
   // very problematic
   const rest = {
-    // todo: deprecate
-    initCameraPosition: queries.initCameraPosition,
     // up: [ 0, 0, 1 ],
     ..._props,
     // add the scene params here to allow programmatic override
@@ -251,9 +248,11 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     [ style ],
   );
 
+  // todo: might want to treat scene as one of the children.
+  // note: finding a way to handle the leva menu will be tricky.
   return (
     <WebSocketProvider onMessage={onMessage}>
-      <ThreeScene
+      <Scene
         backgroundChildren={backgroundChildren}
         htmlChildren={htmlChildren}
         rawChildren={rawChildren}
@@ -261,7 +260,7 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
         {...rest}
       >
         {children}
-      </ThreeScene>
+      </Scene>
       <Leva
         theme={{
           sizes: {

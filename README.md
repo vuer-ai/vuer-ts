@@ -1,4 +1,6 @@
 # Vuer: A 3D Visualization Component Library for NeRFs, Gaussian Splatting, and More
+[![Build Size](https://img.shields.io/bundlephobia/minzip/@vuer-ai/vuer?label=bundle%20size&style=flat&colorA=000000&colorB=000000)](https://bundlephobia.com/result?p=@vuer-ai/vuer)
+[![Version](https://img.shields.io/npm/v/@vuer-ai/vuer?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@vuer-ai/vuer)
 
 This repository contains `vuer-ts`, a react component library for mixed AR and VR tooling for robotics.
 
@@ -24,7 +26,7 @@ vueree vuer
 │       ├── camera.tsx
 │       ├── camera_view.tsx
 │       ├── color.tsx
-│       ├── component_list.tsx
+│       ├── registry.tsx
 │       ├── _controls
 │       │   ├── gamepad.tsx
 │       │   ├── hands.tsx

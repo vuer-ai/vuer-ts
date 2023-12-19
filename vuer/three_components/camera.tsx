@@ -1,13 +1,19 @@
 import {
-  MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef,
+  MutableRefObject,
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
 } from 'react';
-import {
-  invalidate, RootState, useFrame, useThree,
-} from '@react-three/fiber';
+import { invalidate, RootState, useFrame, useThree, } from '@react-three/fiber';
 import {
   CameraHelper as CH,
   Euler,
-  Matrix4, Object3D,
+  Matrix4,
+  Object3D,
   OrthographicCamera as tOrthographicCamera,
   PerspectiveCamera as tPerspectiveCamera,
   Quaternion,
@@ -16,28 +22,19 @@ import {
 
 import { OrbitControls as tOrbitControls } from 'three-stdlib';
 
-import {
-  CubeCamera, Html, OrbitControls, OrthographicCamera, PerspectiveCamera, useHelper,
-} from '@react-three/drei';
+import { CubeCamera, Html, OrbitControls, OrthographicCamera, PerspectiveCamera, useHelper } from '@react-three/drei';
 import { useControls } from 'leva';
 import queryString from 'query-string';
 import { document } from '../third_party/browser-monads';
 import { VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
+import { parseArray } from "./utils";
 
 const CAMERA_TYPES = {
   PerspectiveCamera,
   OrthographicCamera,
   CubeCamera,
 };
-
-// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-// function equals(aArr: number[], bArr: number[]): boolean {
-//     for (let i = 0; i < aArr.length; i++) {
-//         if (aArr[i] !== bArr[i]) return false;
-//     }
-//     return true;
-// }
 
 type Sim3Type = {
   matrix: Matrix4;
@@ -54,8 +51,8 @@ type CameraProps = VuerProps<{
   near?: number;
   far?: number;
   fov?: number;
-  position?: [number, number, number];
-  rotation?: [number, number, number];
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
 }>;
 
 export function Camera(
@@ -163,51 +160,6 @@ export function Camera(
   );
 }
 
-// type  WhenCameraMovesType = {
-//     onMove: (camera: Camera) => void;
-// }
-//
-// export function WhenCameraMoves({onMove}) {
-//     const mat = useMemo(() => new Matrix4());
-//     const throttled = useCallback(
-//         _throttle(
-//             ({camera}) => {
-//                 if (typeof onMove !== "function") return;
-//                 if (mat.equals(camera.matrixWorld)) return;
-//                 const a = mat.toArray();
-//                 const b = camera.matrixWorld.toArray();
-//                 // make a variable for the L1 distance between the two matrices
-//                 const d = a.reduce((acc, v, i) => acc + Math.abs(v - b[i]), 0);
-//                 if (d < 0.0005) return;
-//                 // use copy, because camera matrix is updated in-place.
-//                 mat.copy(camera.matrixWorld);
-//                 // prettier-ignore
-//                 const {
-//                     name, type, far, near, focus,
-//                     aspect, fov,
-//                     up, position, rotation, matrix, matrixWorld, projectionMatrix,
-//                 } = camera;
-//                 // prettier-ignore
-//                 if (!onMove) return;
-//                 onMove({
-//                     type, aspect, far, focus, fov,
-//                     matrix: matrix.elements,
-//                     matrixWorld: matrixWorld.elements,
-//                     name, near,
-//                     position: position.toArray(),
-//                     rotation: rotation.toArray(),
-//                     projectionMatrix: projectionMatrix.elements,
-//                     up,
-//                 });
-//             },
-//             16,
-//             {leading: true, trailing: true}
-//         ),
-//         [onMove]
-//     );
-//     useFrame(throttled, -1);
-// }
-
 // note: experimental-delete
 export function SmoothCamera() {
   const perspectiveCam = useRef() as MutableRefObject<tPerspectiveCamera>;
@@ -276,26 +228,19 @@ function fovToZoom(fov: number, orbit_distance: number, viewHeight: number): num
 
 type KeyboardControlsType = {
   parent: HTMLElement;
-  // control: MutableRefObject<tOrbitControls>;
   controls: tOrbitControls;
   panSpeed?: number;
   viewHeight: number;
-  // fov?: number;
-  // zoom?: number;
-  // left?: number;
-  // right?: number;
-  // top?: number;
-  // bottom?: number;
 };
 
-export function KeyboardControls(
+export function MyKeyboardControls(
   {
     parent,
     controls,
     panSpeed = 0.016,
     viewHeight,
   }: KeyboardControlsType,
-) {
+): ReactElement {
   // const { camera } = useThree();
   useLayoutEffect(() => {
     // React-fiber calls OrbitControls.dispose automatically.
@@ -311,19 +256,6 @@ export function KeyboardControls(
 
         // const ctrl = control.current;
         const camera = controls.object;
-        // todo: Use FOV scale to determine pan speed. Use fraction of FOV.
-        // note: use reference, won't need to regenerate this function
-        // const distance = camera.position.distanceTo(
-        //     ctrl.target
-        // );
-        // let viewHeight: number;
-        // if (fov) {
-        //     viewHeight = (distance * Math.tan((Math.PI * fov) / 360));
-        // } else if (typeof top == 'number' && typeof bottom == 'number') {
-        //     viewHeight = Math.max((top - bottom) / 2);
-        // } else {
-        //     return;
-        // }
         const adjusted: number = panSpeed * viewHeight;
         console.log('view height', viewHeight, 'panSpeed', panSpeed, 'adjusted', adjusted);
         const clipped = Math.max(adjusted, 0.001);
@@ -383,7 +315,6 @@ export function KeyboardControls(
           moved = true;
         }
         if (moved) {
-          // camera.updateProjectionMatrix()
           invalidate();
         }
       };
@@ -397,11 +328,11 @@ export function KeyboardControls(
     if (parent) {
       const el = parent;
       /** Important **
-             to use canvas component as the event target, you need to
-             pass in a tabindex=1 because canvas is not a focusable element
-             on start.
-             See this: https://stackoverflow.com/a/32936969/1560241
-             Setting this in react, on the component parent does not work. */
+       to use canvas component as the event target, you need to
+       pass in a tabindex=1 because canvas is not a focusable element
+       on start.
+       See this: https://stackoverflow.com/a/32936969/1560241
+       Setting this in react, on the component parent does not work. */
       el.tabIndex = 1;
 
       el.addEventListener('keydown', keyDown);
@@ -415,26 +346,15 @@ export function KeyboardControls(
     }
   }, [ controls, parent, panSpeed, viewHeight ]);
 
-  return null;
+  return <></>;
 }
-
-type OrbitCameraType = {
-  parent: MutableRefObject<HTMLDivElement>;
-  onChange?: (camera: CameraLike) => void;
-  panSpeed?: number;
-  fov?: number;
-  zoom?: number;
-  position?: [number, number, number];
-  near?: number;
-  far?: number;
-  initPosition?: [number, number, number];
-};
 
 type OrbitCameraQueryType = {
   panSpeed: string;
   fov: string;
   zoom: string;
   position?: string;
+  rotation?: string;
   near: string;
   far: string;
 };
@@ -466,7 +386,30 @@ export interface PerspectiveCamLike extends BaseCamLike {
   focus: number;
 }
 
+type OrbitCameraType = {
+  parent: MutableRefObject<HTMLDivElement>;
+  onChange?: (camera: CameraLike) => void;
+  panSpeed?: number;
+  fov?: number;
+  zoom?: number;
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
+  near?: number;
+  far?: number;
+  initPosition?: [ number, number, number ];
+  initRotation?: [ number, number, number ];
+};
+
+
 export type CameraLike = OrthographicCamLike | PerspectiveCamLike;
+
+export function deg2rad(deg: number): number {
+  return deg * Math.PI / 180;
+}
+
+export function rad2deg(deg: number): number {
+  return deg * 180 / Math.PI;
+}
 
 export function OrbitCamera(
   {
@@ -476,9 +419,11 @@ export function OrbitCamera(
     fov = 75,
     zoom = 1,
     position,
+    rotation,
     near,
     far,
     initPosition = [ -0.5, 0.75, 0.8 ],
+    initRotation = [ -0.5 * Math.PI, 0, 0 ],
   }: OrbitCameraType,
 ) {
   const controlsRef = useRef() as MutableRefObject<tOrbitControls>;
@@ -493,35 +438,45 @@ export function OrbitCamera(
     perspRef.current.up.copy(Object3D.DEFAULT_UP);
   }, [ Object3D.DEFAULT_UP ]);
 
+
   const queries = useMemo(() => queryString.parse(document.location.search), []) as OrbitCameraQueryType;
-  // const initialPosition = queries.camPosition
-  //     // @ts-ignore: no time to deal with this right now.
-  //     ? queries.camPosition?.split(",").map(Number)
-  //     : initPosition;
-  const [ controlled, setControls ] = useControls('Camera Control', () => ({
-    zoom: {
-      label: 'Zoom (px)',
-      value: Number(queries.zoom) || zoom || 1,
-      // in pixels, no max, because it can get pretty large.
-      step: 0.001,
-      min: 0.001,
-      pad: 4,
-    },
-    fov: {
-      label: 'Fov°',
-      value: Number(queries.fov) || fov || 75,
-      step: 0.1,
-      min: 0.1,
-      max: 220,
-    },
-  }));
-  const { ctype, camInitPosition, ...ctrls } = useControls('Camera Control', {
+
+  const [ controlled, setControls ] = useControls(
+    'Camera Control',
+    () => ({
+      zoom: {
+        label: 'Zoom (px)',
+        value: Number(queries.zoom) || zoom || 1,
+        // in pixels, no max, because it can get pretty large.
+        step: 0.001,
+        min: 0.001,
+        pad: 4,
+      },
+      fov: {
+        label: 'Fov°',
+        value: Number(queries.fov) || fov || 75,
+        step: 0.1,
+        min: 0.1,
+        max: 220,
+      },
+      position: {
+        value: parseArray(queries.position) as [ number, number, number ] || initPosition,
+        step: 0.01,
+        min: -100,
+        max: 100,
+      },
+      rotation: {
+        value: parseArray(queries.rotation, deg2rad) as [ number, number, number ] || initRotation,
+        step: 0.01,
+      },
+    })
+  );
+  const { ctype, ...ctrls } = useControls('Camera Control', {
     ctype: {
       value: 'Perspective',
       options: [ 'Perspective', 'Orthographic' ],
       label: 'Cam Type',
     },
-    camInitPosition: initPosition,
     zoomSpeed: 1.0,
     // perspective
     near: {
@@ -558,20 +513,24 @@ export function OrbitCamera(
   useLayoutEffect(() => {
     if (!set) return;
 
-    let currentPos; let
+    let currentPos, currentRot;
+    let
       orbit_distance;
     if (camRef.current) {
       const { target } = controlsRef.current;
       // @ts-ignore: camRef.current *is* defined
       orbit_distance = camRef.current.position.distanceTo(target);
       currentPos = camRef.current.position;
+      currentRot = camRef.current.rotation;
     } else {
-      currentPos = new Vector3(...camInitPosition);
+      currentPos = new Vector3(...controlled.position);
+      currentRot = new Euler(...controlled.rotation);
     }
     if (ctype === 'Perspective') {
       // @ts-ignore: might be undefined
       const zoom = camRef?.current?.zoom;
       perspRef.current.position.copy(currentPos);
+      perspRef.current.rotation.copy(currentRot);
 
       const curr = camRef.current = perspRef.current as tPerspectiveCamera;
       // place here to avoid rance condition
@@ -586,6 +545,8 @@ export function OrbitCamera(
       // @ts-ignore: might be undefined
       const fov = camRef?.current?.fov;
       orthoRef.current.position.copy(currentPos);
+      perspRef.current.rotation.copy(currentRot);
+
       // @ts-ignore: camRef.current *is* defined
       if (camRef.current?.far) orthoRef.current.far = camRef.current.far;
 
@@ -748,7 +709,7 @@ export function OrbitCamera(
         near={ctrls.near}
         far={ctrls.far}
       />
-      <KeyboardControls
+      <MyKeyboardControls
         parent={parent.current}
         // fov={controlled.fov}
         viewHeight={controlled.zoom}

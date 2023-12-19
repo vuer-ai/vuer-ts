@@ -7,10 +7,25 @@ interface BackgroundColorProps {
   levaPrefix?: string;
   color?: string;
 }
+
+type BackgroundQueries = {
+  background?: string;
+  lightBg?: string;
+  darkBg?: string;
+}
+
+const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)')
+
 export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: BackgroundColorProps) {
-  const queries = useMemo(() => queryString.parse(document.location.search), []);
+  const queries = useMemo(() => queryString.parse(document.location.search), []) as BackgroundQueries;
   const bgColor = useMemo<string>((): string | undefined => {
-    if (queries.background) return `#${queries.background}`;
+    if (queries.background) {
+      let dark, light = queries.background.split(',');
+      if (queries.darkBg) dark = queries.darkBg;
+      if (queries.lightBg) light = queries.lightBg;
+      if (isDarkMode()) return `#${dark || light}`;
+      return `#${light || dark}`;
+    }
     if (color) return color;
   }, [ color ]);
   const { background } = useControls(
@@ -27,7 +42,7 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
   const { uplink } = useContext(SocketContext);
   useEffect(
     () => uplink.addReducer('CAMERA_MOVE', (event) =>
-    // console.log("CAMERA_MOVE-reducer-once", event);
+      // console.log("CAMERA_MOVE-reducer-once", event);
       ({
         ...event,
         value: {
@@ -38,5 +53,5 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
     [ uplink, background ],
   );
 
-  return <color attach="background" args={[ background ]} />;
+  return <color attach="background" args={[ background ]}/>;
 }

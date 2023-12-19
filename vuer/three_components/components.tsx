@@ -127,12 +127,6 @@ export function PlyView(
   );
 }
 
-// <pointsMaterial attach="material" vertexColors size={size} sizeAttenuation={true} opacity={1}/>
-// <points>
-//   <Geometry attach="geometry" {...data}/>
-//   <pointsMaterial sizeAttenuation attach="material" color={color} depthWrite={false} size={size}/>
-// </points>
-
 // GLB is a binary container format of GLTF.
 export function GltfView({ data, _ref, ...rest }: VuerProps<{ data: { scene } }>) {
   return <primitive ref={_ref} object={data.scene} {...rest} />;

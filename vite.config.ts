@@ -31,10 +31,9 @@ export default defineConfig({
         'react', 'react-dom', 'styled-components',
       ],
       output: {
-        // preserveModules: true,
-        // inlineDynamicImports: false,
         globals: {
           react: 'React',
+          buffer: 'Buffer',
           'react-dom': 'ReactDOM',
           'styled-components': 'styled'
         },

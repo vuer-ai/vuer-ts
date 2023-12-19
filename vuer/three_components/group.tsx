@@ -19,6 +19,15 @@ export function deg2rad(rotation: SO3): SO3 {
   } as SO3;
 }
 
+export function rad2deg(rotation: SO3): SO3 {
+  return {
+    x: (rotation.x * 180) / Math.PI,
+    y: (rotation.y * 180) / Math.PI,
+    z: (rotation.z * 180) / Math.PI,
+    order: rotation.order || 'XYZ',
+  } as SO3;
+}
+
 export const v3array = ({ x, y, z }: V3): [number, number, number] => [ x, y, z ];
 export const euler2array = ({
   x, y, z, order = undefined,

@@ -1,5 +1,5 @@
-import { ElementType } from 'react';
-import { comp_list } from './component_list';
+import { ElementType, ReactElement } from 'react';
+import { comp_list } from '../registry';
 import { Node } from '../index';
 
 type HydrateProps = {
@@ -18,15 +18,13 @@ export function Hydrate(
     className,
     ...rest
   }: HydrateProps,
-): JSX.Element {
+): ReactElement {
   const Component = (comp_list[Tag] || Tag) as ElementType;
 
   const hydratedChildren = (children || []).map((child: Node | string) => {
     if (typeof child === 'string') return child;
     const { key, ..._child } = child;
-    const Component = "Hydrate"
-    // @ts-ignore: to avoid type error
-    return <Component key={key} _key={key} {..._child} />;
+    return <Hydrate key={key} _key={key} {..._child} />;
   });
 
   if (typeof Component === 'string') {
