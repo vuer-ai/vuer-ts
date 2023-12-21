@@ -1,4 +1,4 @@
-import { MutableRefObject, RefObject, useContext, useEffect, useRef, } from 'react';
+import { MutableRefObject, RefObject, useContext, useEffect, useLayoutEffect, useRef, } from 'react';
 import { Mesh, Object3D, Raycaster, Vector2, Vector3, } from 'three';
 import { Camera, Intersection, invalidate, useThree, } from '@react-three/fiber';
 import { Sphere as ThreeSphere } from '@react-three/drei';
@@ -93,7 +93,7 @@ export function Pointer(
       const children: Object3D[] = flattenGroups(scene.children).filter(childSelector);
       const pos = getPosition(camera, raycaster, pointer, children, average) as unknown;
       state.pos = pos as Vector3;
-      ref.current.position.set(...pos as [number, number, number]);
+      ref.current.position.set(...pos as [ number, number, number ]);
       /* restart the render loop in on-demand mode */
       invalidate();
     };
@@ -132,17 +132,30 @@ export function Pointer(
   return (
     <ThreeSphere ref={ref} args={[ thres ]}>
       {/* basicMaterial does not require lighting */}
-      <meshBasicMaterial color={color} opacity={1} transparent />
+      <meshBasicMaterial color={color} opacity={1} transparent/>
     </ThreeSphere>
   );
 }
 
 interface PointerControlProps {
   parentKey?: string;
-  parent: RefObject<HTMLElement>;
+  parent?: RefObject<HTMLElement>;
 }
 
-export function PointerControl({ parentKey, parent }: PointerControlProps) {
+export function PointerControls({
+  parentKey,
+  parent,
+}: PointerControlProps) {
+
+  const { gl } = useThree();
+  const localRef = useRef()
+
+  useLayoutEffect(() => {
+    if (!parent) localRef.current = gl.domElement;
+  }, []);
+
+  const ref = parent || localRef;
+
   const { sendMsg } = useContext(SocketContext);
   const {
     enableMarker, markerSize, markerAvg, color,
@@ -167,16 +180,20 @@ export function PointerControl({ parentKey, parent }: PointerControlProps) {
   );
 
   const addMarker = ({
-    position, radius, x, y, ..._rest
+    position,
+    radius,
+    x,
+    y,
+    ..._rest
   }: ClickEvent) => {
     let event;
 
     // Skip if position (Vector3D) contains NaN
     if (
       !position
-            || position.x !== position.x
-            || position.y !== position.y
-            || position.z !== position.z
+      || position.x !== position.x
+      || position.y !== position.y
+      || position.z !== position.z
     ) {
       console.log('Clicked on free space, return as mouse click event.', _rest);
       event = {
@@ -198,7 +215,7 @@ export function PointerControl({ parentKey, parent }: PointerControlProps) {
   };
   return (
     <Pointer
-      parent={parent}
+      parent={ref}
       thres={markerSize / 1000}
       onClick={addMarker}
       average={markerAvg}

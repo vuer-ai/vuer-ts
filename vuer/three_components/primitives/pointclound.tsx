@@ -1,13 +1,13 @@
 import { PropsWithChildren, Ref, useMemo } from 'react';
-import { Euler, Points, Vector3 } from 'three';
+import { Points } from 'three';
 import { half2float } from './half2float';
 
 type PointCloudProps = PropsWithChildren<{
   _key?: string;
   _ref?: Ref<Points>;
   // hide?: boolean;
-  position?: number[];
-  rotation?: number[];
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
   vertices: Uint16Array;
   colors?: Uint8Array;
   size?: number;
@@ -19,8 +19,8 @@ export function PointCloud(
     _ref,
     _key,
     // hide,
-    position,
-    rotation,
+    position = [ 0, 0, 0 ],
+    rotation = [ 0, 0, 0 ],
     vertices,
     colors,
     size = 0.01,
@@ -28,9 +28,11 @@ export function PointCloud(
     ...rest
   }: PointCloudProps,
 ) {
+
   const geometry = useMemo(() => ({
-    position: position && new Vector3(...position),
-    rotation: rotation && new Euler(...rotation),
+    /** note: use this to indicate the time of creation, and update the geometry when it changes.
+     we do this to avoid the GL error. */
+    now: Date.now(),
     vertices: half2float(vertices),
     colors: colors && Float32Array.from(colors, (octet) => octet / 0xff),
   }), [ vertices, colors ]);
@@ -38,8 +40,10 @@ export function PointCloud(
   return (
     <points
       ref={_ref}
-      position={geometry.position}
-      rotation={geometry.rotation}
+      // do this to avoid the GL error.
+      key={_key + geometry.now}
+      position={position}
+      rotation={rotation}
       castShadow
       receiveShadow
       {...rest}
@@ -63,7 +67,7 @@ export function PointCloud(
       <pointsMaterial
         attach="material"
         // only use vertex colors if it is provided.
-        vertexColors
+        vertexColors={colors !== undefined}
         color={color}
         size={size}
       />

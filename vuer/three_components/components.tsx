@@ -1,8 +1,6 @@
 import { MutableRefObject, useEffect, useState } from 'react';
 import { Center, PivotControls, Sphere } from '@react-three/drei';
-import {
-  BufferGeometry, Color, ColorRepresentation, Group, Mesh, Points,
-} from 'three';
+import { BufferGeometry, Color, ColorRepresentation, Group, Mesh, Points, } from 'three';
 import { URDFRobot } from 'urdf-loader';
 import { ThreeEvent } from '@react-three/fiber';
 import { VuerProps } from '../../interfaces';
@@ -46,6 +44,7 @@ export function ObjView(
 ) {
   if (!data || hide) return null;
   // todo: offer wireframe and color-override options.
+  // todo: add key to avoid GL error during fast update
   return (
     <primitive
       ref={_ref}
@@ -77,14 +76,13 @@ export function PlyView(
   if (!data || hide) return null;
 
   if (!data.attributes.normal) console.log('data.attributes.normal is missing');
-  if (!data.index) {
-    console.log(
-      "data.index is missing. Won't be able to compute surface normals.",
-    );
-  }
-  if (data && !data.attributes.normal && data.index) {
-    // console.log('computed normals for data. ')
-    data.computeVertexNormals();
+  if (data && !data.attributes.normal) {
+    if (data.index) {
+      console.log('compute normals for data. ')
+      data.computeVertexNormals();
+    } else {
+      console.log("Both data.index and data.attributes.normal are missing. Won't be able to compute surface normals.");
+    }
   }
   if (data.attributes.normal) {
     return (
@@ -92,13 +90,14 @@ export function PlyView(
         ref={_ref as MutableRefObject<Mesh>}
         geometry={data}
         castShadow
-        // recieveShadow
+        receiveShadow
         {...rest}
       >
-        <meshStandardMaterial vertexColors />
+        <meshStandardMaterial vertexColors/>
       </mesh>
     );
-  } if (color) {
+  }
+  if (color) {
     return (
       <points
         ref={_ref as MutableRefObject<Points>}
@@ -185,44 +184,44 @@ export function Gripper(
   }
   return (
     <group ref={_ref} {...rest}>
-      {axes && <axesHelper args={[ 0.1 ]} />}
+      {axes && <axesHelper args={[ 0.1 ]}/>}
       <mesh
         position={[ 0, 0.07, 0 ]}
         rotation={[ 0, 0, Math.PI / 2 ]}
         scale={[ 1, 1, 1 ]}
       >
-        <cylinderGeometry attach="geometry" args={[ 0.015, 0.015, 0.12, 32 ]} />
-        <meshBasicMaterial attach="material" color={color || '#cecece'} />
+        <cylinderGeometry attach="geometry" args={[ 0.015, 0.015, 0.12, 32 ]}/>
+        <meshBasicMaterial attach="material" color={color || '#cecece'}/>
       </mesh>
       <mesh position={[ -pinchWidth - 0.005, 0.0, 0.0 ]} scale={1}>
-        <boxGeometry attach="geometry" args={[ 0.01, 0.02, 0.025, 32 ]} />
-        <meshBasicMaterial attach="material" color={color || '#23aaff'} />
+        <boxGeometry attach="geometry" args={[ 0.01, 0.02, 0.025, 32 ]}/>
+        <meshBasicMaterial attach="material" color={color || '#23aaff'}/>
       </mesh>
       <mesh position={[ -pinchWidth - 0.005, 0.0275 + 0.01, 0.0 ]} scale={1}>
-        <boxGeometry attach="geometry" args={[ 0.01, 0.055, 0.025, 32 ]} />
-        <meshBasicMaterial attach="material" color={color || '#8ed6ff'} />
+        <boxGeometry attach="geometry" args={[ 0.01, 0.055, 0.025, 32 ]}/>
+        <meshBasicMaterial attach="material" color={color || '#8ed6ff'}/>
       </mesh>
       <mesh position={[ pinchWidth + 0.005, 0.0, 0.0 ]} scale={1}>
-        <boxGeometry attach="geometry" args={[ 0.01, 0.02, 0.025, 32 ]} />
-        <meshBasicMaterial attach="material" color={color || '#ff5656'} />
+        <boxGeometry attach="geometry" args={[ 0.01, 0.02, 0.025, 32 ]}/>
+        <meshBasicMaterial attach="material" color={color || '#ff5656'}/>
       </mesh>
       <mesh position={[ pinchWidth + 0.005, 0.0275 + 0.01, 0.0 ]} scale={1}>
-        <boxGeometry attach="geometry" args={[ 0.01, 0.055, 0.025, 32 ]} />
-        <meshBasicMaterial attach="material" color={color || '#ff9595'} />
+        <boxGeometry attach="geometry" args={[ 0.01, 0.055, 0.025, 32 ]}/>
+        <meshBasicMaterial attach="material" color={color || '#ff9595'}/>
       </mesh>
       <mesh
         position={[ 0, 0.075 + 0.025, 0 ]}
         rotation={[ 0, 0, 0 ]}
         scale={[ 1, 1, 1 ]}
       >
-        <cylinderGeometry attach="geometry" args={[ 0.0125, 0.0125, 0.05, 32 ]} />
-        <meshBasicMaterial attach="material" color={color || '#5b5b5b'} />
+        <cylinderGeometry attach="geometry" args={[ 0.0125, 0.0125, 0.05, 32 ]}/>
+        <meshBasicMaterial attach="material" color={color || '#5b5b5b'}/>
       </mesh>
       {/* add a sphere to show the origin */}
       {showOrigin ? (
         <mesh position={[ 0, 0, 0 ]} rotation={[ 0, 0, 0 ]}>
-          <sphereGeometry attach="geometry" args={[ 0.0075, 32, 32 ]} />
-          <meshBasicMaterial attach="material" color="green" />
+          <sphereGeometry attach="geometry" args={[ 0.0075, 32, 32 ]}/>
+          <meshBasicMaterial attach="material" color="green"/>
         </mesh>
       ) : null}
     </group>
@@ -265,7 +264,7 @@ export function SkeletalGripper(
         />
       </mesh>
       <mesh position={[ 0, 0.02, pinchWidth ]} scale={1}>
-        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]} />
+        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]}/>
         <meshBasicMaterial
           attach="material"
           color={color || '#23aaff'}
@@ -274,7 +273,7 @@ export function SkeletalGripper(
         />
       </mesh>
       <mesh position={[ 0, 0.02, -pinchWidth ]} scale={1}>
-        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]} />
+        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]}/>
         <meshBasicMaterial
           attach="material"
           color={color || '#ff5656'}
@@ -283,7 +282,7 @@ export function SkeletalGripper(
         />
       </mesh>
       <mesh position={[ 0, 0.09, 0 ]} rotation={[ 0, 0, 0 ]} scale={[ 0.8, 1, 1 ]}>
-        <cylinderGeometry attach="geometry" args={[ 0.01, 0.01, 0.06, 32 ]} />
+        <cylinderGeometry attach="geometry" args={[ 0.01, 0.01, 0.06, 32 ]}/>
         <meshBasicMaterial
           attach="material"
           color={color || 'gray'}
@@ -292,7 +291,7 @@ export function SkeletalGripper(
         />
       </mesh>
       <mesh position={[ 0, 0, 0 ]} rotation={[ 0, 0, 0 ]}>
-        <sphereGeometry attach="geometry" args={[ 0.01, 32, 32 ]} />
+        <sphereGeometry attach="geometry" args={[ 0.01, 32, 32 ]}/>
         <meshBasicMaterial
           attach="material"
           color={color || 'green'}
@@ -305,8 +304,8 @@ export function SkeletalGripper(
 }
 
 type MarkerProps = VuerProps<{
-  anchor: [number, number, number];
-  rotation: [number, number, number];
+  anchor: [ number, number, number ];
+  rotation: [ number, number, number ];
   radius: number;
   hoverScale?: number;
 }>;
@@ -334,7 +333,7 @@ export function Marker({
         onPointerOver={pointerOver}
         onPointerOut={pointerOut}
       >
-        <meshPhongMaterial color="blue" opacity={1} transparent />
+        <meshPhongMaterial color="blue" opacity={1} transparent/>
       </Sphere>
     );
   }
@@ -357,7 +356,7 @@ export function Marker({
           onPointerOver={pointerOver}
           onPointerOut={pointerOut}
         >
-          <meshPhongMaterial color="blue" opacity={1} transparent />
+          <meshPhongMaterial color="blue" opacity={1} transparent/>
         </Sphere>
       </Center>
     </PivotControls>

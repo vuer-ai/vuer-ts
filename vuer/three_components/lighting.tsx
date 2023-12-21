@@ -37,12 +37,14 @@ export function DirectionalLight(
 ) {
   const lightRef = useRef() as MutableRefObject<TDL>;
   // @ts-ignore: todo: fix typing
-  useHelper(helper ? lightRef : null, DirectionalLightHelper, 1, 'red');
   const controls = useControls(`${levaPrefix}Directional Light`, {
+    useHelper: helper,
     intensity: { value: intensity, step: 0.005 },
     color,
     hide,
-  });
+  }, [ helper ]);
+
+  useHelper(controls.useHelper ? lightRef : null, DirectionalLightHelper, 1, 'red');
 
   if (controls.hide) return null;
   return <directionalLight key={_key} ref={lightRef} {...controls} {...rest} />;
@@ -71,6 +73,7 @@ export function AmbientLight(
     },
     { collapsed: true },
   );
+
   if (controls.hide) return null;
   return <ambientLight key={_key} ref={lightRef} {...controls} {...rest} />;
 }

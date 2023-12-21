@@ -14,6 +14,7 @@ import { parseArray } from './three_components/utils';
 import { ServerEvent } from './interfaces';
 import { pack, unpack } from "msgpackr";
 import { Buffer } from "buffer";
+import { Grid } from "./three_components/grid";
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the
@@ -68,6 +69,13 @@ export const AppContext = createContext({
 
 export const AppProvider = AppContext.Provider;
 
+function isEmpty(obj?: unknown[] | null) {
+  if (typeof obj === 'undefined') return true;
+  if (obj === null) return true;
+  if (Array.isArray(obj)) return obj.length === 0;
+  return Object.keys(obj).length === 0;
+}
+
 export default function VuerRoot({ style, children: _, ..._props }: VuerRootProps) {
 
   const queries = useMemo<QueryParams>(() => {
@@ -117,11 +125,8 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
         _scene = { children: [] };
       }
       console.log('not implemented');
-    } else {
-      _scene = { children: [] };
     }
-    // if (typeof _scene.children === 'undefined') _scene = { children: _scene };
-    setScene(_scene);
+    if (!!scene) setScene(_scene);
     setMenu(list2menu(_scene.children, false));
   }, [ queries.scene, response.data ]);
 
@@ -199,7 +204,8 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
         const { keys } = data;
         let dirty;
         for (const key of keys) {
-          dirty = dirty || removeByKey(sceneRef.current, key);
+          const removed = removeByKey(sceneRef.current, key);
+          dirty = dirty || (removed?.length > 0)
         }
         if (dirty) setScene({ ...sceneRef.current });
       } else {
@@ -248,6 +254,10 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     }),
     [ style ],
   );
+
+  if (!backgroundChildren?.length) {
+    backgroundChildren.push(<Grid/>);
+  }
 
   // todo: might want to treat scene as one of the children.
   // note: finding a way to handle the leva menu will be tricky.

@@ -5,6 +5,7 @@ import { useControls } from 'leva';
 import { useThree } from '@react-three/fiber';
 import { document } from '../third_party/browser-monads';
 import { Euler, Object3D, Quaternion, Vector3 } from "three";
+import { label } from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 interface GridQueries {
   grid?: string;
@@ -13,7 +14,7 @@ interface GridQueries {
 interface GridProps {
   far?: number;
   levaPrefix?: string;
-  show?: boolean;
+  hide?: boolean;
 }
 
 /**
@@ -23,14 +24,14 @@ interface GridProps {
  * @param levaPrefix - The prefix for the leva controls
  * @param show - Whether to show the grid
  * */
-export function Grid({ far = null, levaPrefix = 'Scene.', show }: GridProps): Node {
+export function Grid({ far, levaPrefix = 'Scene.', hide }: GridProps): Node {
   const q = useMemo<GridQueries>(
     () => queryString.parse(document.location.search),
     [],
   );
   const { camera } = useThree();
 
-  const queryGrid = q.grid ? q.grid.toLowerCase() === 'true' : true;
+  const queryGrid = (q.grid?.toLowerCase() === 'false') ? false : true;
 
   const {
     showGrid, offset, fadeDistance, ...config
@@ -38,7 +39,7 @@ export function Grid({ far = null, levaPrefix = 'Scene.', show }: GridProps): No
     `${levaPrefix}Grid Plane`,
     {
       showGrid: {
-        value: typeof show === "boolean" ? show : queryGrid,
+        value: (typeof hide === 'undefined') ? queryGrid : hide,
         label: 'Show Grid',
       },
       offset: 0,
@@ -70,19 +71,14 @@ export function Grid({ far = null, levaPrefix = 'Scene.', show }: GridProps): No
     return euler;
   }, [])
 
+  if (!showGrid) return null;
   return (
-    <>
-      {
-        showGrid ?
-          <DreiGrid
-            position={Object3D.DEFAULT_UP.clone().multiplyScalar(offset)}
-            rotation={quat}
-            args={[ 10, 10 ]}
-            fadeDistance={Math.min(camera.far || 5, fadeDistance)}
-            {...config}
-          />
-          : null
-      }
-    </>
+    <DreiGrid
+      position={Object3D.DEFAULT_UP.clone().multiplyScalar(offset)}
+      rotation={quat}
+      args={[ 10, 10 ]}
+      fadeDistance={Math.min(camera.far || 5, fadeDistance)}
+      {...config}
+    />
   );
 };

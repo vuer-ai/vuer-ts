@@ -17,20 +17,17 @@ export type GrabRenderEvent = ServerRPC & {
 
 type GrabeRenderProps = {
   _key: string;
-  canvasRef: MutableRefObject<HTMLCanvasElement>;
 }
 
-const GrabRender = ({ _key = "DEFAULT", canvasRef }: GrabeRenderProps) => {
+const GrabRender = ({ _key = "DEFAULT" }: GrabeRenderProps) => {
   const dpr = window.devicePixelRatio || 1;
   const { sendMsg, downlink, uplink } = useContext(SocketContext) as SocketContextType;
-  const { gl } = useThree();
+  const { gl} = useThree();
   const cache = useMemo(() => ({
     lastFrame: Date.now(),
   }), []);
 
   const targetCanvas = useMemo(() => new OffscreenCanvas(1, 1), [])
-
-  const { showError } = useContext(AppContext);
 
   useEffect(() => {
     if (!downlink) return;
@@ -41,9 +38,9 @@ const GrabRender = ({ _key = "DEFAULT", canvasRef }: GrabeRenderProps) => {
       data: { downsample = 1, quality = 1 }
     }: GrabRenderEvent) => {
       if (key !== _key) return;
-      if (!canvasRef.current) return;
+      if (!gl.domElement) return;
 
-      const { width, height } = canvasRef.current;
+      const { width, height } = gl.domElement;
       const now = Date.now();
       const delta = now - cache.lastFrame
       cache.lastFrame = now;
@@ -79,7 +76,7 @@ const GrabRender = ({ _key = "DEFAULT", canvasRef }: GrabeRenderProps) => {
 
     return remove_handler;
 
-  }, [ canvasRef, sendMsg, downlink, uplink, cache ]);
+  }, [ gl, sendMsg, downlink, uplink, cache ]);
 
   return null;
 

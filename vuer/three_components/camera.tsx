@@ -341,7 +341,6 @@ export function MyKeyboardControls(
       return () => {
         el.removeEventListener('keydown', keyDown);
         el.removeEventListener('keyup', keyUp);
-        console.log('layoutEffect remove listener');
       };
     }
   }, [ controls, parent, panSpeed, viewHeight ]);
@@ -388,6 +387,7 @@ export interface PerspectiveCamLike extends BaseCamLike {
 
 type OrbitCameraType = {
   parent: MutableRefObject<HTMLDivElement>;
+  ctrlRef?: MutableRefObject<tOrbitControls>;
   onChange?: (camera: CameraLike) => void;
   panSpeed?: number;
   fov?: number;
@@ -414,6 +414,7 @@ export function rad2deg(deg: number): number {
 export function OrbitCamera(
   {
     parent,
+    ctrlRef,
     onChange,
     panSpeed = 1, // roughly 1 unit per second
     fov = 75,
@@ -426,7 +427,8 @@ export function OrbitCamera(
     initRotation = [ -0.5 * Math.PI, 0, 0 ],
   }: OrbitCameraType,
 ) {
-  const controlsRef = useRef() as MutableRefObject<tOrbitControls>;
+  let controlsRef = useRef() as MutableRefObject<tOrbitControls>;
+  controlsRef = ctrlRef || controlsRef;
   // camRef.current is undefined at the beginning.
   const camRef = useRef() as MutableRefObject<tOrthographicCamera | tPerspectiveCamera>;
   const orthoRef = useRef() as MutableRefObject<tOrthographicCamera>;
@@ -437,7 +439,6 @@ export function OrbitCamera(
     orthoRef.current.up.copy(Object3D.DEFAULT_UP);
     perspRef.current.up.copy(Object3D.DEFAULT_UP);
   }, [ Object3D.DEFAULT_UP ]);
-
 
   const queries = useMemo(() => queryString.parse(document.location.search), []) as OrbitCameraQueryType;
 
@@ -526,7 +527,8 @@ export function OrbitCamera(
       currentPos = new Vector3(...controlled.position);
       currentRot = new Euler(...controlled.rotation);
     }
-    if (ctype === 'Perspective') {
+    // useControls uses lowercase
+    if (ctype.toLowerCase() === 'perspective') {
       // @ts-ignore: might be undefined
       const zoom = camRef?.current?.zoom;
       perspRef.current.position.copy(currentPos);
@@ -541,7 +543,7 @@ export function OrbitCamera(
         curr.updateProjectionMatrix();
         setControls({ fov });
       }
-    } else if (ctype === 'Orthographic') {
+    } else if (ctype.toLowerCase() === 'orthographic') {
       // @ts-ignore: might be undefined
       const fov = camRef?.current?.fov;
       orthoRef.current.position.copy(currentPos);

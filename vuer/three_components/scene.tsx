@@ -9,14 +9,13 @@ import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
 import { CameraLike, OrbitCamera } from './camera';
 import { Download } from './download';
-import { Grid } from './grid';
-import { PointerControl } from './controls/pointer';
 import { SceneGroup } from './group';
 import { BackgroundColor } from './color';
 import { document } from '../third_party/browser-monads';
-import GrabRender from "./camera_view/GrabRender";
-import { ClientEvent } from "../interfaces";
+import { ClientEvent, VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
+import { OrbitControls as tOrbitControls } from "three-stdlib/controls/OrbitControls";
+import { Grid } from "./grid";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -33,7 +32,7 @@ extend({
   // TextGeometry,
 });
 
-export type SceneProps = PropsWithChildren<{
+export type SceneProps = VuerProps<{
   _key?: string;
   canvasRef?;
   className?: string;
@@ -62,7 +61,6 @@ export type SceneProps = PropsWithChildren<{
  * @returns the scene component
  */
 export function Scene({
-  _key: key,
   canvasRef: _canvasRef,
   className,
   style,
@@ -72,8 +70,8 @@ export function Scene({
   rawChildren,
   htmlChildren,
   up = null,
-  grid = true,
 }: SceneProps,) {
+
   const ref = useRef<HTMLCanvasElement>();
   const canvasRef = _canvasRef || ref;
   const { sendMsg, uplink, downlink } = useContext(SocketContext) as SocketContextType;
@@ -114,6 +112,8 @@ export function Scene({
     [ style ],
   );
 
+  const camCtrlRef = useRef<tOrbitControls>();
+
   return (
     <>
       <div style={divStyle} className={className}>
@@ -134,22 +134,24 @@ export function Scene({
             {/* <FileDrop/> */}
             <Hands/>
             <Controllers/>
-            <GrabRender canvasRef={canvasRef}/>
-            <PointerControl
+            <OrbitCamera
+              ctrlRef={camCtrlRef}
               parent={canvasRef}
-              parentKey={key}
+              onChange={onCameraMove}
+              panSpeed={1}
             />
-            <Grid show={grid}/>
+            {/*<PlayBar camCtrlRef={camCtrlRef}/>*/}
+            {/*<GrabRender/>*/}
+            {/*<TimelineControls/>*/}
+            {/*<PointerControl parentKey={key}/>*/}
+            {/* note: we show the grid in place of the default background children,
+             because otherwise user might think the app is broken. We can replace this
+             with a default scene in the future. <Grid/> is the default scene here.*/}
             {backgroundChildren}
             <Suspense>
               <SceneGroup>{children}</SceneGroup>
             </Suspense>
             {rawChildren}
-            <OrbitCamera
-              parent={canvasRef}
-              onChange={onCameraMove}
-              panSpeed={1}
-            />
             <BackgroundColor/>
             <Download/>
             <GizmoHelper alignment="bottom-right" margin={[ 80, 80 ]}>

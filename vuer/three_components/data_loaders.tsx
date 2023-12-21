@@ -54,9 +54,14 @@ export function Ply({
   useEffect(() => {
     if (!data && hide) return;
     const loader = new PLYLoader();
-    if (buff) text = (new TextDecoder(encoding)).decode(buff);
-    if (text) setData(loader.parse(text));
-    else if (src) loader.load(src, setData);
+    if (buff) {
+      const decoder = new TextDecoder(encoding)
+      text = decoder.decode(buff);
+    }
+    if (text) {
+      const parsed = loader.parse(text);
+      setData(parsed);
+    } else if (src) loader.load(src, setData);
   }, [ src, hide ]);
   if (!data) return null;
   return <PlyView data={data} hide={hide} {...rest} />;
