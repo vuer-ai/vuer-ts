@@ -109,7 +109,7 @@ export function HeightMaterial(
     [ displacementMap, displacementScale, normalMap, normalScale ],
   );
 
-  const props = {};
+  const props = {} as unknown;
   if (displacementMap) {
     props.displacementMap = displacementTexture;
     props['displacementMap-colorSpace'] = NoColorSpace;
@@ -123,7 +123,6 @@ export function HeightMaterial(
 
   return (
     <MType
-
       attach="material"
       {...props}
       {...controls}

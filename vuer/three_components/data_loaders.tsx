@@ -1,5 +1,5 @@
 import { PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
-import { GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 'three-stdlib';
+import { Collada, ColladaLoader, GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
@@ -126,6 +126,7 @@ export function Urdf({
       else if (path.endsWith(".glb")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
       else if (path.endsWith(".gltf")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
       else if (path.endsWith(".pcd")) new PCDLoader(manager).load(path, onLoad, undefined, onError);
+      else if (path.endsWith(".dae")) new ColladaLoader(manager).load(path, (o: Collada) => onLoad(o.scene), undefined, onError);
       else showInfo(`Unknown mesh type: ${path}`)
     }
     return _loader;

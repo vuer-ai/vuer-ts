@@ -130,13 +130,11 @@ export function Frustum(
     const cy_far = tan * far;
     const cx_far = aspect * cy_far;
 
-    // const image = src ? useTexture(src) : null;
-
     return {
       up: [
         [ -cx_focal * 0.6, cy_focal * 1.05, -focalLength ],
         [ cx_focal * 0.6, cy_focal * 1.05, -focalLength ],
-        [ 0, cx_focal * 1.2, -focalLength ],
+        [ 0, cy_focal + Math.max(cy_focal * 0.4, cx_focal * 0.25), -focalLength ],
         [ -cx_focal * 0.6, cy_focal * 1.05, -focalLength ],
       ],
       // prettier-ignore

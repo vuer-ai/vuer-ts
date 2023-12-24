@@ -25,13 +25,18 @@ type CameraViewProps = VuerProps<{
   matrix?: [ number, number, number, number, number, number, number, number, number, number, number, number, number,
     number, number, number ];
   fov?: number;
+  aspect?: number;
   top?: number;
   bottom?: number;
   left?: number;
   right?: number;
+  near?: number;
+  far?: number;
   origin?: 'bottom-left' | 'top-left' | 'bottom-right' | 'top-right';
   distanceToCamera?: number;
   ctype?: 'perspective' | 'orthographic';
+  showCamera?: boolean;
+  scale?: number;
   showFrustum?: boolean;
   stream?: null | 'frame' | 'time';
   downsample?: number;
@@ -41,6 +46,23 @@ type CameraViewProps = VuerProps<{
   rotation?: [ number, number, number ];
   monitor?: boolean;
 }>;
+
+type PerspParams = {
+  fov: number;
+  aspect: number;
+}
+type OrthoParams = {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+type ComonP = {
+  near: number;
+  far: number;
+  showImagePlane: boolean;
+  showFrustum: boolean;
+};
 
 export function CameraView(
   {
@@ -53,15 +75,21 @@ export function CameraView(
     matrix,
     // used for perspective camera
     fov = 60,
-    // used for orthographic camera
+    aspect,
+    // used for orthographic camera, not feature-complete yet.
     top = 1,
     bottom = -1,
     left = -1,
     right = 1,
+    // near and far clipping plane, affects the value of the depth material
+    near = 0.1,
+    far = 20,
     // used for positioning of the view
     origin = 'top-left', // "bottom-left" | "top-left" | "bottom-right" | "top-right"
     distanceToCamera = 0.5,
     ctype = 'perspective',
+    showCamera = true,
+    scale = 10,
     showFrustum = true,
     stream = null, // one of [null, 'frame', 'time']
     fps = 30,
@@ -86,6 +114,38 @@ export function CameraView(
   const dpr = window.devicePixelRatio || 1;
   // the output buffer size does not depend on this resolution.
   const fbo = useFBO(width * dpr, height * dpr,);
+
+  const m = useMemo(() => new Matrix4(), []);
+  const offset = useMemo(() => new Vector3(), []);
+  const { sendMsg } = useContext(SocketContext) as SocketContextType;
+
+  const ctrl = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
+    showCamera: { value: showCamera, label: "Show" },
+    camType: { value: ctype, options: [ 'perspective', 'orthographic' ] },
+  }, [ showCamera ]);
+
+  const commonParams: ComonP = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
+    near: { value: near, min: 0.001, step: 0.05 },
+    far: { value: far, min: 0.1, step: 0.1 },
+    showImagePlane: { value: true, label: "Image Plane" },
+    scale: { value: scale, min: 0.1, step: 0.1 },
+    showFrustum: { value: showFrustum, label: "Frustum" },
+  }, [ near, far, showFrustum ]);
+
+  const persp: PerspParams = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera",
+    (ctrl.camType === 'perspective') ? {
+      fov: { value: fov, min: 0, max: 170 },
+      aspect: { value: aspect || width / height, min: 0.1, max: 10 }
+    } : {}, [ ctrl.camType, fov, width, height ]);
+
+  const ortho: OrthoParams = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera",
+    (ctrl.camType === "orthographic") ? {
+      top: { value: top, min: -10, step: 0.1 },
+      bottom: { value: bottom, min: -10, step: 0.1 },
+      left: { value: left, min: -10, step: 0.1 },
+      right: { value: right, min: -10, step: 0.1 },
+    } : {}, [ ctrl.camType, top, bottom, left, right ]);
+
   const renderer = useMemo(() => {
     const r = new WebGLRenderer({
       canvas: new OffscreenCanvas(width / downsample, height / downsample),
@@ -94,20 +154,22 @@ export function CameraView(
     });
     r.setPixelRatio(dpr)
     return r;
-  }, [ width, height, dpr ]);
+  }, [ dpr, height, width, downsample ]);
 
-  const m = useMemo(() => new Matrix4(), []);
-  const offset = useMemo(() => new Vector3(), []);
-  const { sendMsg } = useContext(SocketContext) as SocketContextType;
-
-  const { _fov } = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
-    _fov: {
-      value: fov,
-      min: 0,
-      max: 180
+  useEffect(() => {
+    // const aspect = width / height;
+    let aspect;
+    if (ctrl.camType === 'perspective') {
+      aspect = persp.aspect;
+    } else {
+      aspect = (ortho.right - ortho.left) / (ortho.top - ortho.bottom);
     }
-  }, [ fov ]);
-
+    /* note: setting the updateStyle to `false`, to avoid the error. OffScreenCanvas lack styling attribute. */
+    renderer.setSize(Math.floor(aspect * height / downsample), Math.floor(height / downsample), false);
+    renderer.setPixelRatio(dpr)
+    /* Remember to also update the FBO */
+    fbo.setSize(aspect * height * dpr, height * dpr);
+  }, [ dpr, height, width, downsample, persp.aspect, ortho.top, ortho.bottom, ortho.left, ortho.right, ctrl.camType ]);
 
   const sinceLastFrame = useRef({});
 
@@ -116,7 +178,13 @@ export function CameraView(
 
     if (!cameraRef.current) return;
 
-    const aspect = width / height;
+    // const aspect = width / height;
+    let aspect;
+    if (ctrl.camType === 'perspective') {
+      aspect = persp.aspect;
+    } else {
+      aspect = (ortho.right - ortho.left) / (ortho.top - ortho.bottom);
+    }
 
     // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
     cameraRef.current.aspect = aspect;
@@ -172,6 +240,7 @@ export function CameraView(
       plane.visible = true;
       if (frustum.current) frustum.current.visible = true;
 
+      // this is the view-port aspect ratio, different from the camera aspect ration.
       const vAspect = size.width / size.height;
       const dirVec = new Vector3(0, 0, -1).applyEuler(camera.rotation);
       // prettier-ignore
@@ -194,7 +263,7 @@ export function CameraView(
       const horizontal = Math.tan((camera.fov / 360) * Math.PI);
       offset
         .set(
-          polarity[0] * (1 - width / size.width) * vAspect * horizontal,
+          polarity[0] * (1 - aspect * height / size.width) * vAspect * horizontal,
           polarity[1] * (1 - height / size.height) * horizontal,
           0,
         )
@@ -240,9 +309,9 @@ export function CameraView(
   if (hide) return null;
   return (
     <>
-      {showFrustum ? (
+      {ctrl.showCamera ? (
         <Movable _ref={frustumHandle} {...rest}>
-          <Frustum _ref={frustum} fov={_fov} showFocalPlane={false}/>
+          <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false}/>
         </Movable>
       ) : null}
       {monitor ?
@@ -255,16 +324,21 @@ export function CameraView(
           <meshBasicMaterial attach="material" map={fbo.texture}/>
         </Plane>
         : null}
-      {ctype === 'perspective' ? (
-        <PerspectiveCamera ref={cameraRef as MutableRefObject<tPerspectiveCamera>} fov={_fov} {...rest} />
+      {ctrl.camType === 'perspective' ? (
+        <PerspectiveCamera
+          ref={cameraRef as MutableRefObject<tPerspectiveCamera>}
+          near={commonParams.near}
+          far={commonParams.far}
+          {...persp}
+          {...rest}
+        />
       ) : null}
-      {ctype === 'orthographic' ? (
+      {ctrl.camType === 'orthographic' ? (
         <OrthographicCamera
           ref={cameraRef as MutableRefObject<tOrthographicCamera>}
-          top={top}
-          bottom={bottom}
-          left={left}
-          right={right}
+          near={commonParams.near}
+          far={commonParams.far}
+          {...ortho}
           {...rest}
         />
       ) : null}

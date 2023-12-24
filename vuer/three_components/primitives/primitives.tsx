@@ -36,7 +36,6 @@ export function Primitive(
   const [ materialParams, setMaterial ] = useState({});
   const [ textures, setTexture ] = useState({});
   const textureMaps = useLoader(TextureLoader, Object.values(textures) as string[] || []);
-  const matRef = useRef();
 
   useEffect(() => {
     for (const k in _material) {
@@ -64,7 +63,6 @@ export function Primitive(
         <HeightMaterial
           attach="material"
           _key={`${_key}-material`}
-          ref={matRef}
           type={materialType}
           displacementMap={displacementMap}
           normalMap={normalMap}
@@ -73,7 +71,6 @@ export function Primitive(
           {...tMaps}
           {...materialParams}
         />
-        {/* <Outlines angle={0} thickness={0.005} color="black" /> */}
         {outlines ? <Outlines {...outlines} /> : null}
       </Suspense>
     </mesh>
