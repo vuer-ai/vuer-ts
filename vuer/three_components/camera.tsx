@@ -392,8 +392,8 @@ type OrbitCameraType = {
   panSpeed?: number;
   fov?: number;
   zoom?: number;
-  position?: [ number, number, number ];
-  rotation?: [ number, number, number ];
+  // position?: [ number, number, number ];
+  // rotation?: [ number, number, number ];
   near?: number;
   far?: number;
   initPosition?: [ number, number, number ];
@@ -419,8 +419,8 @@ export function OrbitCamera(
     panSpeed = 1, // roughly 1 unit per second
     fov = 75,
     zoom = 1,
-    position,
-    rotation,
+    // position,
+    // rotation,
     near,
     far,
     initPosition = [ -0.5, 0.75, 0.8 ],
@@ -483,16 +483,14 @@ export function OrbitCamera(
     near: {
       label: 'Near (cm)',
       value: parseFloat(queries.near) || near || 0.01,
-      min: 0.01,
-      max: 1000,
-      step: 0.01,
+      min: 0.001,
+      step: 0.0001,
     },
     far: {
       label: 'Far (m)',
       value: parseFloat(queries.far) || far || 200,
-      min: 0.1,
-      max: 1000,
-      step: 0.1,
+      min: 0.001,
+      step: 0.001,
     },
     // orthographic
     panSpeed: {
@@ -675,7 +673,7 @@ export function OrbitCamera(
       setControls,
       onChange,
       // ...(up || []),
-      ...(position || []),
+      // ...(position || []),
     ],
   );
 

@@ -13,11 +13,11 @@ export interface EventType {
 
 export interface ClientEvent extends EventType {
   key?: string;
-  value?: string | number | number[] | unknown | Record<string, unknown>;
+  value?: unknown[] | unknown | Record<string, unknown>;
 }
 
 export interface ServerEvent extends EventType {
-  data: string | number | number[] | unknown | Record<string, unknown>;
+  data: unknown[] | unknown | Record<string, unknown>;
 }
 
 // server RPC requests has a uuid so that we know which respond correspond to it.

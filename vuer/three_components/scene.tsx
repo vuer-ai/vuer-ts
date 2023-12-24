@@ -1,13 +1,14 @@
-import React, { PropsWithChildren, Suspense, useCallback, useContext, useEffect, useMemo, useRef, } from 'react';
-import { Canvas, extend } from '@react-three/fiber';
-import { Controllers, Hands, VRButton, XR, } from '@react-three/xr';
+import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Controllers, VRButton, XR } from '@react-three/xr';
 import { GizmoHelper, GizmoViewport } from '@react-three/drei';
-import { SSAOPass, UnrealBloomPass } from 'three-stdlib';
 import { BufferGeometry, Mesh, Object3D, Vector3 } from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
 import { CameraLike, OrbitCamera } from './camera';
+import { Hands } from "./controls/hands";
+import { Gamepad } from "./controls/gamepad";
 import { Download } from './download';
 import { SceneGroup } from './group';
 import { BackgroundColor } from './color';
@@ -15,7 +16,6 @@ import { document } from '../third_party/browser-monads';
 import { ClientEvent, VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
 import { OrbitControls as tOrbitControls } from "three-stdlib/controls/OrbitControls";
-import { Grid } from "./grid";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -26,11 +26,11 @@ BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 // @ts-expect-error
 BufferGeometry.prototype.disposeBoundsTreee = disposeBoundsTree;
 
-extend({
-  SSAOPass,
-  UnrealBloomPass,
-  // TextGeometry,
-});
+// extend({
+//   SSAOPass,
+//   UnrealBloomPass,
+//   // TextGeometry,
+// });
 
 export type SceneProps = VuerProps<{
   _key?: string;
@@ -38,10 +38,12 @@ export type SceneProps = VuerProps<{
   className?: string;
   style?;
   up?: [ number, number, number ];
-  backgroundChildren?: unknown | unknown[];
+  bgChildren?: unknown | unknown[];
   rawChildren?: unknown | unknown[];
   htmlChildren?: unknown | unknown[];
   grid?: boolean;
+  initCamPosition?: [ number, number, number ];
+  initCamRotation?: [ number, number, number ];
 }>;
 
 /**
@@ -52,11 +54,13 @@ export type SceneProps = VuerProps<{
  * @param className - the class name of the scene component
  * @param style - the style of the scene component
  * @param children - the children of the scene component
- * @param backgroundChildren - the children of the scene component that are rendered in the background
+ * @param bgChildren - the children of the scene component that are rendered in the background
  * @param rawChildren - the children of the scene component that are rendered as is
  * @param htmlChildren - the children of the scene component that are rendered as html
  * @param up - the up vector of the scene
  * @param grid - whether to show the grid
+ * @param initCamPosition - the initial position of the camera
+ * @param initCamRotation - the initial rotation of the camera
  *
  * @returns the scene component
  */
@@ -65,11 +69,13 @@ export function Scene({
   className,
   style,
   children,
-  backgroundChildren,
+  bgChildren,
   // these are not transformed.
   rawChildren,
   htmlChildren,
   up = null,
+  initCamPosition,
+  initCamRotation,
 }: SceneProps,) {
 
   const ref = useRef<HTMLCanvasElement>();
@@ -134,20 +140,19 @@ export function Scene({
             {/* <FileDrop/> */}
             <Hands/>
             <Controllers/>
+            <Gamepad/>
             <OrbitCamera
               ctrlRef={camCtrlRef}
               parent={canvasRef}
               onChange={onCameraMove}
               panSpeed={1}
+              initPosition={initCamPosition}
+              initRotation={initCamRotation}
             />
-            {/*<PlayBar camCtrlRef={camCtrlRef}/>*/}
-            {/*<GrabRender/>*/}
-            {/*<TimelineControls/>*/}
-            {/*<PointerControl parentKey={key}/>*/}
             {/* note: we show the grid in place of the default background children,
              because otherwise user might think the app is broken. We can replace this
              with a default scene in the future. <Grid/> is the default scene here.*/}
-            {backgroundChildren}
+            {bgChildren}
             <Suspense>
               <SceneGroup>{children}</SceneGroup>
             </Suspense>

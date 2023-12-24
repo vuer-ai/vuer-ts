@@ -3,7 +3,7 @@ import { useSpring, animated } from "@react-spring/three";
 import { useGesture } from "react-use-gesture";
 
 export type PlayBarProps = {
-  camCtrlRef: React.MutableRefObject<any>;
+  camCtrlRef: React.MutableRefObject<unknown>;
 }
 
 export function PlayBar({ camCtrlRef }: PlayBarProps) {

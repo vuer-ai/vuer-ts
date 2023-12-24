@@ -33,6 +33,8 @@ export function PointCloud(
     /** note: use this to indicate the time of creation, and update the geometry when it changes.
      we do this to avoid the GL error. */
     now: Date.now(),
+    // todo: experiment with google Drecon
+    //   https://codelabs.developers.google.com/codelabs/draco-3d#0
     vertices: half2float(vertices),
     colors: colors && Float32Array.from(colors, (octet) => octet / 0xff),
   }), [ vertices, colors ]);

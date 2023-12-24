@@ -41,7 +41,7 @@ import { Frustum } from './three_components/frustum';
 import { Render, RenderLayer } from './nerf_components/view';
 import { Markdown } from './html_components/markdown/markdown';
 import { AutoScroll } from './html_components/chat/autoscroll';
-import { PointCloud } from './three_components/primitives/pointclound';
+import { PointCloud } from './three_components/primitives/pointcloud';
 import { TriMesh } from './three_components/primitives/trimesh';
 import { Gamepad } from './three_components/controls/gamepad';
 import { Hands } from './three_components/controls/hands';

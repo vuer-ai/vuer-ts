@@ -47,7 +47,7 @@ vueree vuer
 │       │   ├── half2float.tsx
 │       │   ├── height_map_materials.tsx
 │       │   ├── normal_map_utils.tsx
-│       │   ├── pointclound.tsx
+│       │   ├── pointcloud.tsx
 │       │   ├── primitives.tsx
 │       │   └── trimesh.tsx
 │       ├── image_background.tsx

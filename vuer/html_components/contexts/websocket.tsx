@@ -60,7 +60,6 @@ export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebS
 
   const onMessage = useCallback(
     ({ data: message }: MessageEvent) => {
-      // const event = JSON.parse(message);
       if (!message?.arrayBuffer) return;
       message.arrayBuffer().then((buf: Buffer) => {
         const event = unpack(buf);

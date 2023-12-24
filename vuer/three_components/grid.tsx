@@ -71,7 +71,7 @@ export function Grid({ far, levaPrefix = 'Scene.', hide }: GridProps): Node {
     return euler;
   }, [])
 
-  if (!showGrid) return null;
+  if (!showGrid) return <></>;
   return (
     <DreiGrid
       position={Object3D.DEFAULT_UP.clone().multiplyScalar(offset)}

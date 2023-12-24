@@ -1,6 +1,6 @@
-import { ElementType, ReactElement } from 'react';
+import { ElementType, ReactElement, useContext } from 'react';
 import { comp_list } from '../registry';
-import { Node } from '../index';
+import { AppContext, Node } from '../index';
 
 type HydrateProps = {
   _key?: string;
@@ -13,16 +13,25 @@ type HydrateProps = {
 export function Hydrate(
   {
     _key,
-    tag: Tag = 'div',
+    tag,
     children,
     className,
     ...rest
   }: HydrateProps,
 ): ReactElement {
-  const Component = (comp_list[Tag] || Tag) as ElementType;
+
+  const Component = (comp_list[tag] || tag) as ElementType;
+
+  const { showWarning } = useContext(AppContext);
+
+  if (!tag) {
+    showWarning(`No tag provided for component <${tag} ${_key} className="${className}">${children} </...>`)
+    return children;
+  }
 
   const hydratedChildren = (children || []).map((child: Node | string) => {
     if (typeof child === 'string') return child;
+
     const { key, ..._child } = child;
     return <Hydrate key={key} _key={key} {..._child} />;
   });

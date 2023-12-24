@@ -22,7 +22,7 @@ type GrabeRenderProps = {
 const GrabRender = ({ _key = "DEFAULT" }: GrabeRenderProps) => {
   const dpr = window.devicePixelRatio || 1;
   const { sendMsg, downlink, uplink } = useContext(SocketContext) as SocketContextType;
-  const { gl} = useThree();
+  const { gl } = useThree();
   const cache = useMemo(() => ({
     lastFrame: Date.now(),
   }), []);

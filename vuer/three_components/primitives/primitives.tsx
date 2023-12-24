@@ -1,7 +1,5 @@
-import {
-  Ref, Suspense, useEffect, useState,
-} from 'react';
-import { Mesh, TextureLoader } from 'three';
+import { Ref, Suspense, useEffect, useLayoutEffect, useRef, useState, } from 'react';
+import { Mesh, TextureLoader, UnsignedInt248Type } from 'three';
 import { useLoader } from '@react-three/fiber';
 import { Outlines } from '@react-three/drei';
 import { useControls } from 'leva';
@@ -38,6 +36,7 @@ export function Primitive(
   const [ materialParams, setMaterial ] = useState({});
   const [ textures, setTexture ] = useState({});
   const textureMaps = useLoader(TextureLoader, Object.values(textures) as string[] || []);
+  const matRef = useRef();
 
   useEffect(() => {
     for (const k in _material) {
@@ -60,11 +59,12 @@ export function Primitive(
 
   return (
     <mesh ref={_ref} key={_key} {...rest}>
-      <Geometry attach="geometry" args={args} />
+      <Geometry attach="geometry" args={args}/>
       <Suspense>
         <HeightMaterial
           attach="material"
           _key={`${_key}-material`}
+          ref={matRef}
           type={materialType}
           displacementMap={displacementMap}
           normalMap={normalMap}

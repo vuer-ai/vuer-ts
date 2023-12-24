@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState, } from 'react';
+import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState, } from 'react';
 import queryString from 'query-string';
 import { button, folder, Leva, useControls } from 'leva';
 import useFetch from 'use-http';
@@ -8,13 +8,15 @@ import { document } from './third_party/browser-monads';
 import { Scene } from './three_components/scene';
 import { Hydrate } from './html_components';
 import { list2menu } from './three_components/leva_helper';
-import { addNode, findByKey, removeByKey } from './util';
+import { addNode, findByKey, removeByKey, upsert } from './util';
 import { WebSocketProvider } from './html_components/contexts/websocket';
 import { parseArray } from './three_components/utils';
 import { ServerEvent } from './interfaces';
 import { pack, unpack } from "msgpackr";
 import { Buffer } from "buffer";
 import { Grid } from "./three_components/grid";
+import { ToneMapping } from "./three_components/ToneMapping";
+import { BackgroundColor } from "./three_components/color";
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the
@@ -28,9 +30,8 @@ export interface Node {
 
 function makeProps(props?) {
   return (data: Node[]) => {
-    const children = (data || [])
+    return (data || [])
       .map(({ key, ...child }: Node) => <Hydrate key={key} _key={key} {...props} {...child} />);
-    return { children };
   };
 }
 
@@ -45,7 +46,7 @@ interface SceneType {
   children: Node[];
   htmlChildren: Node[];
   rawChildren: Node[];
-  backgroundChildren: Node[];
+  bgChildren: Node[];
 }
 
 // const { showError } = useContext(AppContext);
@@ -76,6 +77,10 @@ function isEmpty(obj?: unknown[] | null) {
   return Object.keys(obj).length === 0;
 }
 
+const SceneAttrs = [
+  'children', 'rawChildren', 'htmlChildren', 'bgChildren'
+]
+
 export default function VuerRoot({ style, children: _, ..._props }: VuerRootProps) {
 
   const queries = useMemo<QueryParams>(() => {
@@ -92,14 +97,11 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
 
   const { showError } = useContext(AppContext)
 
-  // // for server-side rendering
-  // if (typeof window === "undefined") return <div>threejs view server-side rendering</div>;
-
   const [ scene, setScene, sceneRef ] = useStateRef<SceneType>({
     children: [],
     htmlChildren: [],
     rawChildren: [],
-    backgroundChildren: [],
+    bgChildren: [],
   });
 
   const [ menu, setMenu ] = useState({});
@@ -171,24 +173,27 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     ({ etype, data }: ServerEvent) => {
       if (etype === 'SET') {
         // the top level is a dummy node
+        if (data.tag !== "Scene") showError(`The top level node of the SET operation must be a <Scene/> object, got <${data.tag}/> instead.`)
         setScene(data as SceneType);
       } else if (etype === 'ADD') {
         // the API need to be updated, so are the rest of the API.
         const { nodes, to: parentKey } = data;
         let dirty;
         for (const node of nodes) {
-          dirty = dirty || addNode(sceneRef.current, node, parentKey);
+          try {
+            const hasAdded = addNode(sceneRef.current, node, parentKey);
+            dirty = dirty || hasAdded;
+          } catch (e) {
+            showError(`Failed to add node ${node.key} to ${parentKey}. ${e}`);
+          }
         }
         if (dirty) setScene({ ...sceneRef.current });
       } else if (etype === 'UPDATE') {
+        /* this is the find and update. */
         let dirty = false;
         const { nodes } = data;
         for (const { key, ...props } of nodes) {
-          const node = findByKey(sceneRef.current, key, [
-            'rawChildren',
-            'htmlChildren',
-            'backgroundChildren',
-          ]);
+          const node = findByKey(sceneRef.current, key, SceneAttrs);
           if (node) {
             Object.assign(node, props);
             dirty = true;
@@ -200,6 +205,20 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
           // note: use the spread to create a new instance to trigger update.
           setScene({ ...sceneRef.current });
         }
+      } else if (etype === 'UPSERT') {
+        /* this is the find and update, or add if not found.. */
+        const { nodes, to } = data;
+        const parentKey = to || 'children';
+
+        if (SceneAttrs.indexOf(parentKey) > -1) {
+          upsert(sceneRef.current, nodes, parentKey);
+        } else {
+          const parent = findByKey(sceneRef.current, parentKey, SceneAttrs);
+          if (!parent) return showError(`Failed to find parent ${parentKey}`);
+          upsert(parent, nodes, 'children');
+        }
+        // note: use the spread to create a new instance to trigger update.
+        setScene({ ...sceneRef.current });
       } else if (etype === 'REMOVE') {
         const { keys } = data;
         let dirty;
@@ -219,7 +238,7 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     children: sceneChildren,
     htmlChildren: sceneHtmlChildren,
     rawChildren: sceneRawChildren,
-    backgroundChildren: sceneBackgroundChildren,
+    bgChildren: sceneBackgroundChildren,
     ..._scene
   } = scene;
 
@@ -233,15 +252,15 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
 
   const toProps = useCallback(makeProps(), []);
 
-  const children = sceneChildren ? toProps(sceneChildren).children : [];
+  const children = sceneChildren ? toProps(sceneChildren) : [];
   const rawChildren = sceneRawChildren
-    ? toProps(sceneRawChildren).children
+    ? toProps(sceneRawChildren)
     : [];
   const htmlChildren = sceneHtmlChildren
-    ? toProps(sceneHtmlChildren).children
+    ? toProps(sceneHtmlChildren)
     : [];
-  const backgroundChildren = sceneBackgroundChildren
-    ? toProps(sceneBackgroundChildren).children
+  const bgChildren = sceneBackgroundChildren
+    ? toProps(sceneBackgroundChildren)
     : [];
 
   const sceneStyle = useMemo(
@@ -255,8 +274,14 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
     [ style ],
   );
 
-  if (!backgroundChildren?.length) {
-    backgroundChildren.push(<Grid/>);
+  if (!bgChildren?.length) {
+    // note: add key to avoid error message
+    bgChildren.push(<Grid key="default-grid"/>);
+  }
+
+  if (!rawChildren?.length) {
+    // note: add key to avoid error message
+    rawChildren.push(<ToneMapping key="default-tone-mapping"/>);
   }
 
   // todo: might want to treat scene as one of the children.
@@ -264,7 +289,7 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
   return (
     <WebSocketProvider onMessage={onMessage}>
       <Scene
-        backgroundChildren={backgroundChildren}
+        bgChildren={bgChildren}
         htmlChildren={htmlChildren}
         rawChildren={rawChildren}
         style={sceneStyle}

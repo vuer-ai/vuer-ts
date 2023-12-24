@@ -130,7 +130,6 @@ export function Urdf({
     }
     return _loader;
   }, [
-    jointValues,
     workingPath,
     fetchOptions,
     parseVisual,
@@ -140,14 +139,9 @@ export function Urdf({
 
   useEffect(() => {
     if (!data && hide) return;
-
     if (buff) text = (new TextDecoder(encoding)).decode(buff);
-
-    console.log(text, src)
-
     if (text) setData(loader.parse(text));
     else if (src) loader.load(src, setData);
-
   }, [ loader, src, hide ]);
   if (!data) return null;
   return (
