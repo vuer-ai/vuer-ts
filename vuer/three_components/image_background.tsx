@@ -130,8 +130,8 @@ export function ImageBackground(
 
   const ctrl = useControls(prefix, {
     fixed,
-    depthScale: { value: depthScale, min: 0, max: 1, step: 0.01, label: "Depth Scale" },
-    depthBias: { value: depthBias, min: 0, max: 1, step: 0.01, label: "Depth Offset" },
+    depthScale: { value: depthScale, min: 0, step: 0.01, label: "Depth Scale" },
+    depthBias: { value: depthBias, step: 0.01, label: "Depth Offset" },
   }, [ fixed, depthScale, depthBias ]);
 
   if (!depthTexture) {
