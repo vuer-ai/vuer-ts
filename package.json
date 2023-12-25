@@ -1,7 +1,7 @@
 {
   "name": "@vuer-ai/vuer",
   "author": "Ge Yang",
-  "version": "0.0.0-rc14",
+  "version": "0.0.0-rc15",
   "private": false,
   "files": [
     "vuer",
