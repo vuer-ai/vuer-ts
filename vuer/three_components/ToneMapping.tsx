@@ -9,6 +9,7 @@ import {
   ReinhardToneMapping
 } from 'three';
 import { useControls } from "leva";
+import { VuerProps } from "../interfaces";
 
 
 const TONE_MAPPING_OPTIONS = {
@@ -20,10 +21,10 @@ const TONE_MAPPING_OPTIONS = {
   Custom: CustomToneMapping
 };
 
-interface ToneMappingParams {
+type ToneMappingParams = VuerProps<{
   exposure?: number;
   mapType?: string | null;
-}
+}>;
 
 export function ToneMapping({
   exposure = 1.0,

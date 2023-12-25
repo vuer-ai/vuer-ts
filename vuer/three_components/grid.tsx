@@ -5,13 +5,13 @@ import { useControls } from 'leva';
 import { useThree } from '@react-three/fiber';
 import { document } from '../third_party/browser-monads';
 import { Euler, Object3D, Quaternion, Vector3 } from "three";
-import { label } from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 interface GridQueries {
   grid?: string;
 }
 
 interface GridProps {
+  _key?: string;
   far?: number;
   levaPrefix?: string;
   hide?: boolean;
@@ -24,7 +24,7 @@ interface GridProps {
  * @param levaPrefix - The prefix for the leva controls
  * @param show - Whether to show the grid
  * */
-export function Grid({ far, levaPrefix = 'Scene.', hide }: GridProps): Node {
+export function Grid({ _key, far, levaPrefix = 'Scene.', hide }: GridProps): JSX.Element {
   const q = useMemo<GridQueries>(
     () => queryString.parse(document.location.search),
     [],
@@ -33,11 +33,13 @@ export function Grid({ far, levaPrefix = 'Scene.', hide }: GridProps): Node {
 
   const queryGrid = (q.grid?.toLowerCase() === 'false') ? false : true;
 
+  let prefix = levaPrefix ? `${levaPrefix}Grid Plane` : 'Grid Plane'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
   const {
     showGrid, offset, fadeDistance, ...config
   } = useControls(
-    `${levaPrefix}Grid Plane`,
-    {
+    prefix, {
       showGrid: {
         value: (typeof hide === 'undefined') ? queryGrid : hide,
         label: 'Show Grid',

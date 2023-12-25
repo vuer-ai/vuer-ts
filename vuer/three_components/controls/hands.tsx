@@ -1,7 +1,10 @@
 import { Hands as BareHands } from '@react-three/xr';
+import { VuerProps } from "../../interfaces";
+
+type HandsProps = VuerProps<{}>
 
 // @ts-ignore: ignore for now. Under heavy development.
-export function Hands({ _key: key, children, ...rest }) {
+export function Hands({ _key: key, children, ...rest }: HandsProps): JSX.Element {
   // const {sendMsg} = useContext(SocketContext) as SocketContextType;
   // const onChange = useCallback((gamepads: XRInteractionEvent) => {
   //     // const {axes, buttons, connected, id, index, mapping, timestamp} =

@@ -11,6 +11,7 @@ import {
 } from 'three';
 import ImagePlane, { ImagePlaneProps } from "./image_plane";
 import ImageSphere, { ImageSphereProps } from "./image_sphere";
+import { useControls } from "leva";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -24,23 +25,29 @@ function interpolateTexture(texture: Texture, interpolate: boolean) {
 }
 
 export type ImageBackgroundProps = {
+  _key: string;
   src?: string | Blob;
   alphaSrc?: string | Blob;
   depthSrc?: string | Blob;
   interpolate?: boolean;
   opacity?: number;
+  levaPrefix?: string;
   [key: string]: unknown;
 } & ImageSphereProps & ImagePlaneProps;
 
 export function ImageBackground(
   {
+    _key,
     src,
     alphaSrc,
     depthSrc,
     interpolate = false,
     // distanceToCamera = 10,
     // opacity = 1.0,
-    // fixed = false,
+    depthScale = 1,
+    depthBias = 0,
+    fixed = false,
+    levaPrefix = "Scene.",
     // side = 0,
     // wireframe = false,
     // material = {},
@@ -118,14 +125,22 @@ export function ImageBackground(
     if (depthTexture) interpolateTexture(depthTexture, interpolate);
   }, [ rgbTexture, alphaTexture, depthTexture, interpolate ]);
 
-  const img = (depthTexture || rgbTexture)?.image;
+  let prefix = levaPrefix ? `${levaPrefix}Image Background` : 'Image Background'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
+  const ctrl = useControls(prefix, {
+    fixed,
+    depthScale: { value: depthScale, min: 0, max: 1, step: 0.01, label: "Depth Scale" },
+    depthBias: { value: depthBias, min: 0, max: 1, step: 0.01, label: "Depth Offset" },
+  }, [ fixed, depthScale, depthBias ]);
 
   if (!depthTexture) {
-    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} {...rest}/>;
+    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl} {...rest}/>;
   } else if (camera.type === 'OrthographicCamera') {
-    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...rest}/>;
+    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...ctrl} {...rest}/>;
   } else if (camera.type === 'PerspectiveCamera') {
-    return <ImageSphere matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...rest}/>;
+    return <ImageSphere matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl}
+                        depth={depthTexture} {...rest}/>;
   }
   return null;
 }

@@ -36,8 +36,12 @@ export function DirectionalLight(
   }: LightProps<TDL>,
 ) {
   const lightRef = useRef() as MutableRefObject<TDL>;
+
+  let prefix = levaPrefix ? `${levaPrefix}Directional Light` : 'Directional Light'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
   // @ts-ignore: todo: fix typing
-  const controls = useControls(`${levaPrefix}Directional Light`, {
+  const controls = useControls(prefix, {
     useHelper: helper,
     intensity: { value: intensity, step: 0.005 },
     color,
@@ -64,8 +68,12 @@ export function AmbientLight(
   }: LightProps<TAL>,
 ) {
   const lightRef = useRef() as MutableRefObject<TAL>;
+
+  let prefix = levaPrefix ? `${levaPrefix}Ambient Light` : 'Ambient Light'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
   const controls = useControls(
-    `${levaPrefix}Ambient Light`,
+    prefix,
     {
       intensity: { value: intensity, step: 0.005 },
       color,
@@ -94,11 +102,16 @@ export function SpotLight(
   const lightRef = useRef() as MutableRefObject<TSL>;
   // @ts-ignore: todo: fix typing
   useHelper(helper ? lightRef : null, SpotLightHelper, 1, 'red');
-  const controls = useControls(`${levaPrefix}Spot Light`, {
-    intensity: { value: intensity, step: 0.005 },
-    color,
-    hide,
-  });
+
+  let prefix = levaPrefix ? `${levaPrefix}Spot Light` : 'Spot Light'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
+  const controls = useControls(
+    prefix, {
+      intensity: { value: intensity, step: 0.005 },
+      color,
+      hide,
+    });
 
   if (controls.hide) return null;
   return <spotLight key={_key} ref={lightRef} {...controls} {...rest} />;
@@ -119,11 +132,16 @@ export function PointLight(
 ) {
   const lightRef = useRef() as MutableRefObject<TPL>;
   useHelper(helper ? lightRef : null, PointLightHelper, 1, 'red');
-  const controls = useControls(`${levaPrefix}Point Light`, {
-    intensity: { value: intensity, step: 0.005 },
-    color,
-    hide,
-  });
+
+  let prefix = levaPrefix ? `${levaPrefix}Point Light` : 'Point Light'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
+  const controls = useControls(
+    prefix, {
+      intensity: { value: intensity, step: 0.005 },
+      color,
+      hide,
+    });
 
   if (controls.hide) return null;
   return (

@@ -16,7 +16,6 @@ import { pack, unpack } from "msgpackr";
 import { Buffer } from "buffer";
 import { Grid } from "./three_components/grid";
 import { ToneMapping } from "./three_components/ToneMapping";
-import { BackgroundColor } from "./three_components/color";
 
 // The dataloader component hides the list of children from the outer scope.
 // this means we can not directly show the
@@ -276,7 +275,8 @@ export default function VuerRoot({ style, children: _, ..._props }: VuerRootProp
 
   if (!bgChildren?.length) {
     // note: add key to avoid error message
-    bgChildren.push(<Grid key="default-grid"/>);
+    const k = "default grid";
+    bgChildren.push(<Grid key={k} _key={k}/>);
   }
 
   if (!rawChildren?.length) {

@@ -10,7 +10,7 @@ import { CameraLike, OrbitCamera } from './camera';
 import { Hands } from "./controls/hands";
 import { Gamepad } from "./controls/gamepad";
 import { Download } from './download';
-import { SceneGroup } from './group';
+import { GroupSlave, SceneGroup } from './group';
 import { BackgroundColor } from './color';
 import { document } from '../third_party/browser-monads';
 import { ClientEvent, VuerProps } from "../interfaces";
@@ -38,9 +38,9 @@ export type SceneProps = VuerProps<{
   className?: string;
   style?;
   up?: [ number, number, number ];
-  bgChildren?: unknown | unknown[];
-  rawChildren?: unknown | unknown[];
-  htmlChildren?: unknown | unknown[];
+  bgChildren?: JSX.Element | JSX.Element[];
+  rawChildren?: JSX.Element | JSX.Element[];
+  htmlChildren?: JSX.Element | JSX.Element[];
   grid?: boolean;
   initCamPosition?: [ number, number, number ];
   initCamRotation?: [ number, number, number ];
@@ -141,6 +141,10 @@ export function Scene({
             <Hands/>
             <Controllers/>
             <Gamepad/>
+            <SceneGroup/>
+            <BackgroundColor/>
+            {/** Hoist the SceneGroup control hooks up here. This is not the original
+             usage pattern, but it turned out to work really well.*/}
             <OrbitCamera
               ctrlRef={camCtrlRef}
               parent={canvasRef}
@@ -149,15 +153,14 @@ export function Scene({
               initPosition={initCamPosition}
               initRotation={initCamRotation}
             />
-            {/* note: we show the grid in place of the default background children,
+            {/** note: we show the grid in place of the default background children,
              because otherwise user might think the app is broken. We can replace this
              with a default scene in the future. <Grid/> is the default scene here.*/}
             {bgChildren}
             <Suspense>
-              <SceneGroup>{children}</SceneGroup>
+              <GroupSlave>{children}</GroupSlave>
             </Suspense>
             {rawChildren}
-            <BackgroundColor/>
             <Download/>
             <GizmoHelper alignment="bottom-right" margin={[ 80, 80 ]}>
               <GizmoViewport

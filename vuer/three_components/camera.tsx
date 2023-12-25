@@ -385,6 +385,17 @@ export interface PerspectiveCamLike extends BaseCamLike {
   focus: number;
 }
 
+
+export function deg2rad(deg: number): number {
+  return deg * Math.PI / 180;
+}
+
+export function rad2deg(deg: number): number {
+  return deg * 180 / Math.PI;
+}
+
+export type CameraLike = OrthographicCamLike | PerspectiveCamLike;
+
 type OrbitCameraType = {
   parent: MutableRefObject<HTMLDivElement>;
   ctrlRef?: MutableRefObject<tOrbitControls>;
@@ -399,17 +410,6 @@ type OrbitCameraType = {
   initPosition?: [ number, number, number ];
   initRotation?: [ number, number, number ];
 };
-
-
-export type CameraLike = OrthographicCamLike | PerspectiveCamLike;
-
-export function deg2rad(deg: number): number {
-  return deg * Math.PI / 180;
-}
-
-export function rad2deg(deg: number): number {
-  return deg * 180 / Math.PI;
-}
 
 export function OrbitCamera(
   {
@@ -426,7 +426,7 @@ export function OrbitCamera(
     initPosition = [ -0.5, 0.75, 0.8 ],
     initRotation = [ -0.5 * Math.PI, 0, 0 ],
   }: OrbitCameraType,
-) {
+): JSX.Element {
   let controlsRef = useRef() as MutableRefObject<tOrbitControls>;
   controlsRef = ctrlRef || controlsRef;
   // camRef.current is undefined at the beginning.
@@ -677,45 +677,43 @@ export function OrbitCamera(
     ],
   );
 
-  return (
-    <>
-      <OrbitControls
-        ref={controlsRef as MutableRefObject<tOrbitControls>}
-        makeDefault
-        enableDamping={false}
-        enablePan
-        screenSpacePanning
-        onChange={handler}
-        reverseOrbit
-        maxPolarAngle={(135 / 180) * Math.PI}
-        minPolarAngle={(0 / 180) * Math.PI}
-        maxZoom={Infinity}
-        maxDistance={Infinity}
-        zoomSpeed={ctrls.zoomSpeed}
-      />
-      <PerspectiveCamera
-        key="perspective"
-        makeDefault
-        ref={perspRef as MutableRefObject<tPerspectiveCamera>}
-        fov={controlled.fov}
-        near={ctrls.near}
-        far={ctrls.far}
-      />
-      <OrthographicCamera
-        key="orthographic"
-        makeDefault
-        ref={orthoRef as MutableRefObject<tOrthographicCamera>}
-        zoom={viewHeight / controlled.zoom}
-        near={ctrls.near}
-        far={ctrls.far}
-      />
-      <MyKeyboardControls
-        parent={parent.current}
-        // fov={controlled.fov}
-        viewHeight={controlled.zoom}
-        controls={controlsRef.current}
-        panSpeed={ctrls.panSpeed / 600}
-      />
-    </>
-  );
+  return <>
+    <OrbitControls
+      ref={controlsRef as MutableRefObject<tOrbitControls>}
+      makeDefault
+      enableDamping={false}
+      enablePan
+      screenSpacePanning
+      onChange={handler}
+      reverseOrbit
+      maxPolarAngle={(135 / 180) * Math.PI}
+      minPolarAngle={(0 / 180) * Math.PI}
+      maxZoom={Infinity}
+      maxDistance={Infinity}
+      zoomSpeed={ctrls.zoomSpeed}
+    />
+    <PerspectiveCamera
+      key="perspective"
+      makeDefault
+      ref={perspRef as MutableRefObject<tPerspectiveCamera>}
+      fov={controlled.fov}
+      near={ctrls.near}
+      far={ctrls.far}
+    />
+    <OrthographicCamera
+      key="orthographic"
+      makeDefault
+      ref={orthoRef as MutableRefObject<tOrthographicCamera>}
+      zoom={viewHeight / controlled.zoom}
+      near={ctrls.near}
+      far={ctrls.far}
+    />
+    <MyKeyboardControls
+      parent={parent.current}
+      // fov={controlled.fov}
+      viewHeight={controlled.zoom}
+      controls={controlsRef.current}
+      panSpeed={ctrls.panSpeed / 600}
+    />
+  </>
 }

@@ -64,7 +64,7 @@ interface Sim3Queries {
  * @param scale - The initial scale of the scene
  * */
 export function SceneGroup({
-  levaPrefix = 'Scene',
+  levaPrefix = 'Scene.World Transform',
   position: paramPosition,
   rotation: paramRotation,
   scale: paramScale,
@@ -102,7 +102,7 @@ export function SceneGroup({
       rotation: {
         value: paramRotation || queries.rotation || { x: 0, y: 0, z: 0 },
         order: 1,
-        // lock: true,
+        lock: true,
       },
       position: {
         value: paramPosition || queries.position || { x: 0, y: 0, z: 0 },
@@ -118,7 +118,7 @@ export function SceneGroup({
         pad: 4,
       },
     },
-    { collapsed: true },
+    { collapsed: false },
   );
 
   // here we register a reducer for "CAMERA_MOVE" events. This will trigger

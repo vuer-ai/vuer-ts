@@ -112,7 +112,7 @@ export default function ImagePlane(
           alphaMap={alpha}
           displacementMap={depth}
           // invert it because depth is defined w.r.t plane.
-          displacementScale={- depthScale}
+          displacementScale={-depthScale}
           displacementBias={depthBias}
           wireframe={wireframe}
           transparent={!!alpha || typeof opacity == 'number'}
@@ -133,6 +133,8 @@ export default function ImagePlane(
         ref={matRef}
         map={rgb}
         alphaMap={alpha}
+        displacementScale={-depthScale}
+        displacementBias={depthBias}
         wireframe={wireframe}
         transparent={!!alpha || typeof opacity == 'number'}
         opacity={opacity}

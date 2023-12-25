@@ -13,7 +13,6 @@ import {
   Texture, Vector2,
 } from 'three';
 import { Sphere } from '@react-three/drei';
-import { useControls } from "leva";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -91,7 +90,6 @@ export default function ImageSphere(
     if (depth?.image) return { "displacementMap-colorSpace": NoColorSpace, ...material };
     return material;
   }, [ depth, material ]);
-  const { scale, offset } = useControls("debug", { scale: { value: depthScale }, offset: { value: depthBias } }, [])
 
   useEffect(() => {
     if (!rgb?.image) return;
@@ -131,8 +129,8 @@ export default function ImageSphere(
           alphaMap={alpha}
           displacementMap={depth}
           // No need to invert because we are looking from inside.
-          displacementScale={scale}
-          displacementBias={offset}
+          displacementScale={depthScale}
+          displacementBias={depthBias}
           wireframe={wireframe}
           transparent={!!alpha || typeof opacity == 'number'}
           opacity={opacity}
@@ -153,6 +151,8 @@ export default function ImageSphere(
         attach="material"
         map={rgb}
         alphaMap={alpha}
+        displacementScale={depthScale}
+        displacementBias={depthBias}
         wireframe={wireframe}
         transparent={!!alpha || typeof opacity == 'number'}
         opacity={opacity}
