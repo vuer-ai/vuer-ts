@@ -352,8 +352,9 @@ type OrbitCameraQueryType = {
   panSpeed: string;
   fov: string;
   zoom: string;
-  position?: string;
-  rotation?: string;
+  initCamPos?: string;
+  initCamRot?: string;
+  initTgtPos?: string;
   near: string;
   far: string;
 };
@@ -460,14 +461,15 @@ export function OrbitCamera(
         min: 0.1,
         max: 220,
       },
+      // this is not working
       position: {
-        value: parseArray(queries.position) as [ number, number, number ] || initPosition,
+        value: parseArray(queries.initCamPos) as [ number, number, number ] || initPosition,
         step: 0.01,
         min: -100,
         max: 100,
       },
       rotation: {
-        value: parseArray(queries.rotation, deg2rad) as [ number, number, number ] || initRotation,
+        value: parseArray(queries.initCamRot, deg2rad) as [ number, number, number ] || initRotation,
         step: 0.01,
       },
     })
@@ -513,8 +515,7 @@ export function OrbitCamera(
     if (!set) return;
 
     let currentPos, currentRot;
-    let
-      orbit_distance;
+    let orbit_distance;
     if (camRef.current) {
       const { target } = controlsRef.current;
       // @ts-ignore: camRef.current *is* defined

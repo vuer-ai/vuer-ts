@@ -37,7 +37,7 @@ function makeProps(props?) {
 interface QueryParams {
   scene?: string;
   collapseMenu?: string;
-  initCameraPosition?: number[];
+  // initCameraPosition?: number[];
   pointSize?: string;
 }
 
@@ -83,10 +83,10 @@ const SceneAttrs = [
 export default function VuerRoot({ style, children: _, ..._props }: VuerRootProps) {
 
   const queries = useMemo<QueryParams>(() => {
-    const parsed = queryString.parse(document.location.search);
+    const parsed = queryString.parse(document.location.search) as QueryParams;
     if (typeof parsed.collapseMenu === 'string') parsed.collapseMenu = parsed.collapseMenu.toLowerCase();
     // @ts-expect-error: initCameraPosition is a number[]
-    parsed.initCameraPosition = parseArray(parsed.initCameraPosition);
+    // parsed.initCameraPosition = parseArray(parsed.initCameraPosition);
     return parsed;
   }, []);
   const collapseMenu = useMemo<boolean>(
