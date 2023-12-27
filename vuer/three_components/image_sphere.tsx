@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, } from 'react';
+import { useEffect, useMemo, useRef, } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
   LinearFilter,
@@ -6,11 +6,10 @@ import {
   MeshBasicMaterial,
   NearestFilter,
   NoColorSpace,
-  OrthographicCamera,
   PerspectiveCamera,
   Side,
   SphereGeometry,
-  Texture, Vector2,
+  Texture,
 } from 'three';
 import { Sphere } from '@react-three/drei';
 
@@ -57,26 +56,68 @@ export default function ImageSphere(
   }: ImageSphereProps,
 ) {
   const sphereRef = useRef<Mesh<SphereGeometry>>();
-  const [ fov, setFov ] = useState({ cxDeg: 0, cyDeg: 0 });
 
-  const { camera }: { camera: PerspectiveCamera | OrthographicCamera } = useThree();
+  // make new component for just the projection.
+  const { camera }: { camera: PerspectiveCamera } = useThree();
 
-  // note: only works with perspective camera
+  /**
+   * This is the uv mapping for the stereoscopic projection. Should move
+   * this to the GPU since it is expensive.
+   * */
   useEffect(() => {
     if (camera.type !== "PerspectiveCamera") {
       console.warn("ImageSphere only works with perspective camera");
       return;
     }
     const c = camera as PerspectiveCamera;
-    const h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
-    const w = c.aspect * h;
 
-    const cyDeg = c.fov / 360 * Math.PI
-    const cxDeg = Math.atan(Math.tan(cyDeg) * c.aspect)
+    const cyRad = c.fov / 360 * Math.PI
+    const cxRad = Math.atan(Math.tan(cyRad) * c.aspect)
 
-    setFov({ cyDeg, cxDeg, h, w });
+    const {
+      uv: uvAttribute,
+      normal
+    } = sphereRef.current.geometry.attributes;
 
-  }, [ camera, camera.fov, camera.aspect, distanceToCamera ]);
+    for (let i = 0; i < normal.count; i += 1) {
+      const nY = normal.getY(i);
+      const nX = normal.getX(i);
+      const nZ = normal.getZ(i);
+
+      const u = -0.5 * nX / nZ / Math.sin(cxRad) * Math.sqrt(1 - Math.sin(cxRad) ** 2);
+      const v = 0.5 * nY / nZ / Math.sin(cyRad) * Math.sqrt(1 - Math.sin(cyRad) ** 2);
+
+      uvAttribute.setXY(i, u + 0.5, v + 0.5);
+    }
+    uvAttribute.needsUpdate = true;
+
+  }, [ camera.fov, camera.aspect ])
+
+  // note: only works with perspective camera
+  const args = useMemo(() => {
+    if (camera.type !== "PerspectiveCamera") {
+      console.warn("ImageSphere only works with perspective camera");
+      return;
+    }
+    const c = camera as PerspectiveCamera;
+
+    const cyRad = c.fov / 360 * Math.PI
+    const cxRad = Math.atan(Math.tan(cyRad) * c.aspect)
+
+    // todo: changing the arguments to the sphere will affect the uv map, because it effectively regenerates
+    //       a new sphere geometry.
+    const img = (rgb || depth)?.image;
+    const args = [
+      distanceToCamera,
+      img?.width,
+      img?.height,
+      -0.5 * Math.PI - cxRad, 2 * cxRad,
+      0.5 * Math.PI - cyRad, 2 * cyRad
+    ]
+    // the sphere needs to re-construct anyways.
+    return args;
+
+  }, [ camera.fov, camera.aspect ]);
 
   useFrame(() => {
     if (!sphereRef.current) return;
@@ -91,37 +132,10 @@ export default function ImageSphere(
     return material;
   }, [ depth, material ]);
 
-  useEffect(() => {
-    if (!rgb?.image) return;
-    rgb.center = new Vector2(0.5, 0.5);
-    rgb.rotation = Math.PI;
-    // this won't work.
-    // rgb.flipY = false;
-  }, [ rgb ])
-
-  useEffect(() => {
-    if (!depth?.image) return;
-    depth.center = new Vector2(0.5, 0.5);
-    depth.rotation = Math.PI;
-    // depth.flipY = false;
-  }, [ depth ])
-
-  useEffect(() => {
-    if (!alpha?.image) return;
-    alpha.center = new Vector2(0.5, 0.5);
-    alpha.rotation = Math.PI;
-    // alpha.flipY = false;
-  }, [ alpha ])
-
-  const img = (rgb || depth)?.image;
 
   if (depth?.image) {
     return (
-      <Sphere
-        ref={sphereRef}
-        args={[ distanceToCamera, img?.width, img?.height, 1.5 * Math.PI - fov.cxDeg, 2 * fov.cxDeg, 0.5 * Math.PI - fov.cyDeg, 2 * fov.cyDeg ]}
-        scale={[ 1, 1, 1 ]}
-      >
+      <Sphere ref={sphereRef} args={args} scale={[ 1, 1, 1 ]}>
         <meshStandardMaterial
           ref={matRef}
           attach="material"
@@ -140,12 +154,7 @@ export default function ImageSphere(
       </Sphere>
     );
   } else return (
-    <Sphere
-      ref={sphereRef}
-      // don't need this many grid. Prob.
-      args={[ distanceToCamera, img?.width, img?.height, 1.5 * Math.PI - fov.cxDeg, 2 * fov.cxDeg, 0.5 * Math.PI - fov.cyDeg, 2 * fov.cyDeg ]}
-      scale={[ 1, 1, 1 ]}
-    >
+    <Sphere ref={sphereRef} args={args} scale={[ 1, 1, 1 ]}>
       <meshBasicMaterial
         ref={matRef}
         attach="material"
