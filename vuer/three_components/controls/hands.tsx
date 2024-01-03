@@ -1,7 +1,7 @@
 import { Hands as BareHands } from '@react-three/xr';
 import { VuerProps } from "../../interfaces";
 
-type HandsProps = VuerProps<{}>
+type HandsProps = VuerProps
 
 // @ts-ignore: ignore for now. Under heavy development.
 export function Hands({ _key: key, children, ...rest }: HandsProps): JSX.Element {

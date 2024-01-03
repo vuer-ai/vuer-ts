@@ -54,7 +54,7 @@ export function ImageBackground(
     ...rest
   }: ImageBackgroundProps,
 ) {
-  const matRef = useRef<MeshBasicMaterial>();
+  const meshRef = useRef<MeshBasicMaterial>();
   const { camera }: { camera: PerspectiveCamera | OrthographicCamera } = useThree();
 
   const [ rgbTexture, setRGB ] = useState<Texture>();
@@ -79,7 +79,7 @@ export function ImageBackground(
       createImageBitmap(blob, blobOpts).then((imageBitmap) => {
         texture.image = imageBitmap;
         texture.needsUpdate = true;
-        if (matRef.current) matRef.current.needsUpdate = true;
+        if (meshRef.current) meshRef.current.needsUpdate = true;
         setRGB(texture);
       });
     }
@@ -96,7 +96,7 @@ export function ImageBackground(
       createImageBitmap(blob, blobOpts).then((imageBitmap) => {
         texture.image = imageBitmap;
         texture.needsUpdate = true;
-        if (matRef.current) matRef.current.needsUpdate = true;
+        if (meshRef.current) meshRef.current.needsUpdate = true;
         setAlpha(texture);
       });
     }
@@ -113,7 +113,7 @@ export function ImageBackground(
       createImageBitmap(blob, blobOpts).then((imageBitmap) => {
         texture.image = imageBitmap;
         texture.needsUpdate = true;
-        if (matRef.current) matRef.current.needsUpdate = true;
+        if (meshRef.current) meshRef.current.needsUpdate = true;
         setDepth(texture);
       });
     }
@@ -130,17 +130,17 @@ export function ImageBackground(
 
   const ctrl = useControls(prefix, {
     fixed,
-    depthScale: { value: depthScale, min: 0, step: 0.01, label: "Depth Scale" },
+    depthScale: { value: depthScale, step: 0.01, label: "Depth Scale" },
     depthBias: { value: depthBias, step: 0.01, label: "Depth Offset" },
   }, [ fixed, depthScale, depthBias ]);
 
   if (!depthTexture) {
-    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl} {...rest}/>;
+    return <ImagePlane matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl} {...rest}/>;
   } else if (camera.type === 'OrthographicCamera') {
-    return <ImagePlane matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...ctrl} {...rest}/>;
+    return <ImagePlane matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...ctrl} {...rest}/>;
   } else if (camera.type === 'PerspectiveCamera') {
-    return <ImageSphere matRef={matRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl}
-                        depth={depthTexture} {...rest}/>;
+    return <ImageSphere matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl}
+      depth={depthTexture} {...rest}/>;
   }
   return null;
 }
