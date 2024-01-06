@@ -7,7 +7,7 @@ import { useThree } from "@react-three/fiber";
 export type PlayBarProps = VuerProps<{
   start?: number;
   end?: number;
-  play?: bool;
+  play?: boolean;
 }>;
 
 export function TimelineControls({ _key: key, start = 0, end, stepSize = 1, play = false }: PlayBarProps) {

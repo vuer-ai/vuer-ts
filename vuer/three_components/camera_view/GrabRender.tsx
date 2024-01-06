@@ -1,7 +1,6 @@
-import { MutableRefObject, useContext, useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { useThree } from "@react-three/fiber";
 import { ServerRPC } from "../../interfaces";
-import { AppContext } from "../../index";
 import { SocketContext, SocketContextType } from "../../html_components/contexts/websocket";
 
 export type GrabRenderEvent = ServerRPC & {
@@ -76,7 +75,7 @@ const GrabRender = ({ _key = "DEFAULT" }: GrabeRenderProps) => {
 
     return remove_handler;
 
-  }, [ gl, sendMsg, downlink, uplink, cache ]);
+  }, [ gl.domElement, sendMsg, downlink, uplink, cache ]);
 
   return null;
 
