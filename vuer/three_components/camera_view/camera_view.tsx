@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useContext, useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
+import React, {MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef,} from 'react';
 import { OrthographicCamera, PerspectiveCamera, Plane, useFBO, } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
@@ -45,6 +45,7 @@ type CameraViewProps = VuerProps<{
   position?: [ number, number, number ];
   rotation?: [ number, number, number ];
   monitor?: boolean;
+  movable?: boolean;
 }>;
 
 type PerspParams = {
@@ -96,6 +97,7 @@ export function CameraView(
     downsample = 2,
     quality = 1,
     monitor = true,
+    movable = true,
     ...rest
   }: CameraViewProps,
 ) {
@@ -171,6 +173,22 @@ export function CameraView(
     fbo.setSize(aspect * height * dpr, height * dpr);
   }, [ dpr, height, width, downsample, persp.aspect, ortho.top, ortho.bottom, ortho.left, ortho.right, ctrl.camType ]);
 
+  const onMove = useCallback(()=>{
+    if (!frustumHandle.current || !cameraRef.current) return;
+    const cam = cameraRef.current;
+    const moveHandle = frustumHandle.current;
+
+    cam.matrixAutoUpdate = false;
+    cam.matrix.copy(moveHandle.matrix);
+
+    sendMsg({
+      etype: "CAMERA_MOVE", key, value: {
+        matrix: cam.matrix.toArray()
+      }
+    })
+
+  }, [ frustumHandle.current, cameraRef.current, sendMsg ])
+
   const sinceLastFrame = useRef({});
 
   useFrame(({ gl, scene }, delta) => {
@@ -189,11 +207,6 @@ export function CameraView(
     // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
     cameraRef.current.aspect = aspect;
     cameraRef.current.updateProjectionMatrix();
-
-    if (frustumHandle.current) {
-      cameraRef.current.matrixAutoUpdate = false
-      cameraRef.current.matrix.copy(frustumHandle.current.matrix);
-    }
 
     if (timingCache.sinceLastFrame > (1 / fps) && stream === 'frame') {
       timingCache.sinceLastFrame = 0;
@@ -300,17 +313,25 @@ export function CameraView(
   useLayoutEffect(() => {
     if (!cameraRef.current || !matrix || matrix.length !== 16) return;
     const cam = cameraRef.current;
-    m.set(...matrix);
-    m.decompose(cam.position, cam.quaternion, cam.scale);
-    cam.rotation.setFromQuaternion(cam.quaternion);
-    cam.updateMatrix()
+    cam.matrixAutoUpdate = false;
+    cam.matrix.fromArray(matrix)
+
+    const f = movable ? frustumHandle?.current : frustum?.current;
+    if (!f) return;
+
+    f.matrixAutoUpdate = false;
+    f.matrix.fromArray(matrix);
+
   }, [ matrix, cameraRef.current ]);
 
   if (hide) return null;
   return (
     <>
-      {ctrl.showCamera ? (
-        <Movable _ref={frustumHandle} {...rest}>
+      {( ctrl.showCamera && !movable ) ? (
+        <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false} {...rest}/>
+      ) : null}
+      {( ctrl.showCamera && movable ) ? (
+        <Movable _ref={frustumHandle} onMove={onMove} {...rest}>
           <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false}/>
         </Movable>
       ) : null}

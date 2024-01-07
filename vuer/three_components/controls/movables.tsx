@@ -22,15 +22,17 @@ export const HandleBox = forwardRef((
   {
     size,
     children,
+    opacity,
     ...rest
   }: MeshProps & PropsWithChildren<{
     size: [ number, number, number ];
+    opacity?: number;
   }>,
   ref: ForwardedRef<Mesh>,
 ) => (
   <mesh ref={ref} {...rest}>
     <boxGeometry args={size}/>
-    <meshPhongMaterial color={0xfffff7}/>
+    <meshPhongMaterial opacity={opacity} color={0xfffff7}/>
     {children}
   </mesh>
 ));
@@ -253,6 +255,8 @@ export function PivotXR(
       <HandleBox
         ref={localRef}
         size={[ scale, scale, scale ]}
+        transparent
+        opacity={0.5}
         rotation={rotation}
         position={addThree(position, offset) as rVector3}
       />
