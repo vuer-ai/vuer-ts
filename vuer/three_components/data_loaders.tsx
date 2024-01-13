@@ -1,5 +1,15 @@
 import { PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
-import { Collada, ColladaLoader, GLTF, GLTFLoader, OBJLoader, PCDLoader, PLYLoader, STLLoader, } from 'three-stdlib';
+import {
+  Collada,
+  ColladaLoader,
+  GLTF,
+  GLTFLoader,
+  MTLLoader,
+  OBJLoader,
+  PCDLoader,
+  PLYLoader,
+  STLLoader,
+} from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
@@ -12,21 +22,33 @@ type Props = PropsWithChildren<{
   src?: string;
   text?: string;
   buff?: ArrayBuffer;
+  mtl?: string;
   hide?: boolean;
   encoding?: string;
   [key: string]: unknown;
 }>;
 
 export function Obj({
-  src, text, buff, hide, encoding = 'ascii', ...rest
+  src, text, buff, mtl, hide, encoding = 'ascii', ...rest
 }: Props) {
   const [ data, setData ] = useState<{ scene: unknown } | undefined>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new OBJLoader();
-    if (buff) text = (new TextDecoder(encoding)).decode(buff);
-    if (text) setData(loader.parse(text));
-    else if (src) loader.load(src, setData);
+    if (!!mtl) {
+      const mtlLoader = new MTLLoader();
+      mtlLoader.load(mtl, (materials) => {
+        materials.preload();
+        loader.setMaterials(materials);
+        if (buff) text = (new TextDecoder(encoding)).decode(buff);
+        if (text) setData(loader.parse(text));
+        else if (src) loader.load(src, setData);
+      });
+    } else {
+      if (buff) text = (new TextDecoder(encoding)).decode(buff);
+      if (text) setData(loader.parse(text));
+      else if (src) loader.load(src, setData);
+    }
   }, [ src, hide ]);
   if (!data) return null;
   return <ObjView data={data} hide={hide} {...rest} />;

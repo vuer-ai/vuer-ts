@@ -39,12 +39,21 @@ export function PcdView(
 
 export function ObjView(
   {
-    data, _ref, hide, ...rest
-  }: ObjProps,
+    data, _ref, wireframe = false, color = null, hide, ...rest
+  }: ObjProps & { wireframe?: boolean, color?: ColorRepresentation }
 ) {
-  if (!data || hide) return null;
-  // todo: offer wireframe and color-override options.
+  useEffect(() => {
+    const color3 = color ? new Color(color) : null;
+    data?.children.forEach((mesh: Mesh) => {
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.material.wireframe = wireframe;
+      if (color3) mesh.material.color = color3;
+    })
+  }, [ data, color, wireframe ])
+  // done: offer wireframe and color-override options.
   // todo: add key to avoid GL error during fast update
+  if (!data || hide) return null;
   return (
     <primitive
       ref={_ref}
