@@ -5,7 +5,6 @@
  * todo: need to change this into a factory function and a registry object.
  */
 import React, { Component, FC, } from 'react';
-import { Html, Splat } from '@react-three/drei';
 import { Scene } from './three_components/scene';
 import { Glb, Obj, Pcd, Ply, Urdf, } from './three_components/data_loaders';
 import {
@@ -53,6 +52,7 @@ import GrabRender from "./three_components/camera_view/GrabRender";
 import { TimelineControls } from "./uxr_components/TimelineControls";
 import { PointerControls } from "./three_components/controls/pointer";
 import { Grid } from "./three_components/grid";
+import { drei_component_list } from "./drei_components";
 
 // prettier-ignore
 type CompList = Record<string, FC | Component | Promise<Component>>;
@@ -116,12 +116,11 @@ export const comp_list: CompList = {
   TimelineControls,
   PointerControls,
   Grid,
-  Html,
-  Splat,
   Splats: React.lazy(() => import( './third_party/luma_splats' )) as Promise<Component>,
   BBox,
   Render,
   RenderLayer,
   AutoScroll,
   Markdown,
+  ...drei_component_list
 };

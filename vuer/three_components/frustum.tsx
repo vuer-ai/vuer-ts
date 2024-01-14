@@ -113,7 +113,7 @@ export function Frustum(
       groupRef.current.rotation.set(...rotation);
       groupRef.current.updateMatrix();
     }
-  }, [ fov, focus, near, far ]);
+  }, [ matrix, fov, focus, near, far ]);
 
   const all_points = useMemo<ptList>((): ptList => {
     const tan = Math.tan((fov / 360) * Math.PI);
