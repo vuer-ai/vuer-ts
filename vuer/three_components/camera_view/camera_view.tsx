@@ -1,9 +1,8 @@
-import React, {MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef,} from 'react';
+import React, { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
 import { OrthographicCamera, PerspectiveCamera, Plane, useFBO, } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { RootState, useFrame, useThree } from '@react-three/fiber';
 import {
   Group,
-  Matrix4,
   Mesh,
   NoColorSpace,
   OrthographicCamera as tOrthographicCamera,
@@ -17,6 +16,7 @@ import { Movable } from "../controls/movables";
 import { useControls } from "leva";
 import { VuerProps } from "../../interfaces";
 import { SocketContext, SocketContextType } from "../../html_components/contexts/websocket";
+import { GrabRenderEvent } from "./GrabRender";
 
 type CameraViewProps = VuerProps<{
   hide?: boolean;
@@ -38,7 +38,7 @@ type CameraViewProps = VuerProps<{
   showCamera?: boolean;
   scale?: number;
   showFrustum?: boolean;
-  stream?: null | 'frame' | 'time';
+  stream?: null | 'frame' | 'time' | 'ondemand';
   downsample?: number;
   fps?: number;
   quality?: number;
@@ -68,7 +68,7 @@ type ComonP = {
 export function CameraView(
   {
     _ref,
-    _key: key,
+    _key,
     hide,
     width = 640,
     height = 480,
@@ -110,23 +110,22 @@ export function CameraView(
     sinceLastFrame: 0,
   }), []);
 
-  const { size, camera } = useThree() as {
-    size: { width: number, height: number }, camera: tPerspectiveCamera
-  };
+  const { size, camera, scene } = useThree() as RootState & {
+    camera: tPerspectiveCamera;
+  }
   const dpr = window.devicePixelRatio || 1;
   // the output buffer size does not depend on this resolution.
   const fbo = useFBO(width * dpr, height * dpr,);
 
-  const m = useMemo(() => new Matrix4(), []);
   const offset = useMemo(() => new Vector3(), []);
-  const { sendMsg } = useContext(SocketContext) as SocketContextType;
+  const { sendMsg, downlink, uplink } = useContext(SocketContext) as SocketContextType;
 
-  const ctrl = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
+  const ctrl = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera", {
     showCamera: { value: showCamera, label: "Show" },
     camType: { value: ctype, options: [ 'perspective', 'orthographic' ] },
   }, [ showCamera ]);
 
-  const commonParams: ComonP = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera", {
+  const commonParams: ComonP = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera", {
     near: { value: near, min: 0.001, step: 0.05 },
     far: { value: far, min: 0.1, step: 0.1 },
     showImagePlane: { value: true, label: "Image Plane" },
@@ -134,13 +133,13 @@ export function CameraView(
     showFrustum: { value: showFrustum, label: "Frustum" },
   }, [ near, far, showFrustum ]);
 
-  const persp: PerspParams = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera",
+  const persp: PerspParams = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
     (ctrl.camType === 'perspective') ? {
       fov: { value: fov, min: 0, max: 170 },
       aspect: { value: aspect || width / height, min: 0.1, max: 10 }
     } : {}, [ ctrl.camType, fov, width, height ]);
 
-  const ortho: OrthoParams = useControls(key ? `Scene.Camera-${key}` : "Scene.Camera",
+  const ortho: OrthoParams = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
     (ctrl.camType === "orthographic") ? {
       top: { value: top, min: -10, step: 0.1 },
       bottom: { value: bottom, min: -10, step: 0.1 },
@@ -173,7 +172,7 @@ export function CameraView(
     fbo.setSize(aspect * height * dpr, height * dpr);
   }, [ dpr, height, width, downsample, persp.aspect, ortho.top, ortho.bottom, ortho.left, ortho.right, ctrl.camType ]);
 
-  const onMove = useCallback(()=>{
+  const onMove = useCallback(() => {
     if (!frustumHandle.current || !cameraRef.current) return;
     const cam = cameraRef.current;
     const moveHandle = frustumHandle.current;
@@ -182,12 +181,34 @@ export function CameraView(
     cam.matrix.copy(moveHandle.matrix);
 
     sendMsg({
-      etype: "CAMERA_MOVE", key, value: {
+      etype: "CAMERA_MOVE", key: _key, value: {
         matrix: cam.matrix.toArray()
       }
     })
 
   }, [ frustumHandle.current, cameraRef.current, sendMsg ])
+
+  useLayoutEffect(() => {
+    if (!cameraRef.current) return;
+    const cam = cameraRef.current;
+    // @ts-ignore: aspect is only available on the PerspectiveCamera.
+    cam.aspect = width / height;
+    cameraRef.current.updateProjectionMatrix();
+  }, [ width, height, cameraRef.current ]);
+
+  useLayoutEffect(() => {
+    if (!cameraRef.current || !matrix || matrix.length !== 16) return;
+    const cam = cameraRef.current;
+    cam.matrixAutoUpdate = false;
+    cam.matrix.fromArray(matrix)
+
+    const f = movable ? frustumHandle?.current : frustum?.current;
+    if (!f) return;
+
+    f.matrixAutoUpdate = false;
+    f.matrix.fromArray(matrix);
+
+  }, [ matrix, cameraRef.current ]);
 
   const sinceLastFrame = useRef({});
 
@@ -208,6 +229,7 @@ export function CameraView(
     cameraRef.current.aspect = aspect;
     cameraRef.current.updateProjectionMatrix();
 
+    // note: we do not render these frames if the stream is 'ondemand'
     if (timingCache.sinceLastFrame > (1 / fps) && stream === 'frame') {
       timingCache.sinceLastFrame = 0;
 
@@ -227,7 +249,7 @@ export function CameraView(
         blob.arrayBuffer().then((array: ArrayBuffer) => {
           const payload = {
             etype: 'CAMERA_VIEW',
-            key,
+            key: _key,
             value: {
               dpr,
               delta: sinceLastFrame,
@@ -241,6 +263,7 @@ export function CameraView(
       })
     }
 
+    // wow I render so many times!
     if (!!monitor && planeRef?.current) {
       const plane = planeRef.current;
 
@@ -253,7 +276,7 @@ export function CameraView(
       plane.visible = true;
       if (frustum.current) frustum.current.visible = true;
 
-      // this is the view-port aspect ratio, different from the camera aspect ration.
+      // this is the view-port aspect ratio, different from the camera aspect ratio.
       const vAspect = size.width / size.height;
       const dirVec = new Vector3(0, 0, -1).applyEuler(camera.rotation);
       // prettier-ignore
@@ -302,35 +325,62 @@ export function CameraView(
 
   }, 1);
 
-  useLayoutEffect(() => {
-    if (!cameraRef.current) return;
-    const cam = cameraRef.current;
-    // @ts-ignore: aspect is only available on the PerspectiveCamera.
-    cam.aspect = width / height;
-    cameraRef.current.updateProjectionMatrix();
-  }, [ width, height, cameraRef.current ]);
+  useEffect(() => {
+    if (!downlink) return;
+    // Only add the render listener if we are in ondemand mode.
+    if (stream !== 'ondemand') return;
 
-  useLayoutEffect(() => {
-    if (!cameraRef.current || !matrix || matrix.length !== 16) return;
-    const cam = cameraRef.current;
-    cam.matrixAutoUpdate = false;
-    cam.matrix.fromArray(matrix)
+    const remove_handler = downlink.subscribe("GRAB_RENDER", ({
+      key,
+      rtype,
+      data: { quality = 1 }
+    }: GrabRenderEvent) => {
+      if (!cameraRef.current) return;
+      if (key !== _key) return;
 
-    const f = movable ? frustumHandle?.current : frustum?.current;
-    if (!f) return;
+      const ctx = renderer.getContext();
+      const w = renderer.domElement.width;
+      const h = renderer.domElement.height;
 
-    f.matrixAutoUpdate = false;
-    f.matrix.fromArray(matrix);
+      if (planeRef?.current) planeRef.current.visible = false;
+      if (frustum?.current) frustum.current.visible = false;
+      renderer.render(scene, cameraRef.current);
 
-  }, [ matrix, cameraRef.current ]);
+      const rgbArrayBuffer = new Uint8Array(w * h * 4);
+      ctx.readPixels(0, 0, w, h, ctx.RGBA, ctx.UNSIGNED_BYTE, rgbArrayBuffer);
+      // @ts-ignore: this is okay.
+      const canvas = renderer.domElement as OffscreenCanvas;
+      canvas.convertToBlob({ quality, type: "image/jpeg" }).then((blob) => {
+        blob.arrayBuffer().then((array: ArrayBuffer) => {
+          const payload = {
+            etype: rtype || `GRAB_RENDER_RESPONSE`,
+            key,
+            value: {
+              dpr,
+              // todo: need to add timing
+              // delta,
+              width,
+              height,
+              frame: new Uint8Array(array),
+            },
+          };
+          sendMsg(payload);
+        })
+      })
+    });
+
+    return remove_handler;
+
+  }, [ sendMsg, downlink, uplink, downsample ]);
+
 
   if (hide) return null;
   return (
     <>
-      {( ctrl.showCamera && !movable ) ? (
+      {(ctrl.showCamera && !movable) ? (
         <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false} {...rest}/>
       ) : null}
-      {( ctrl.showCamera && movable ) ? (
+      {(ctrl.showCamera && movable) ? (
         <Movable _ref={frustumHandle} onMove={onMove} {...rest}>
           <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false}/>
         </Movable>
