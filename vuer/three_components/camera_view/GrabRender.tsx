@@ -18,10 +18,10 @@ export type GrabRenderEvent = ServerRPC & {
 
 type GrabeRenderProps = {
   _key: string;
-  camera?: CameraLike;
+  // camera?: CameraLike;
 }
 
-const GrabRender = ({ _key = "DEFAULT", camera = null }: GrabeRenderProps) => {
+const GrabRender = ({ _key = "DEFAULT" }: GrabeRenderProps) => {
   const dpr = window.devicePixelRatio || 1;
   const { sendMsg, downlink, uplink } = useContext(SocketContext) as SocketContextType;
   const { gl } = useThree();

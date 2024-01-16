@@ -10,7 +10,6 @@ import { Hydrate } from './html_components';
 import { list2menu } from './three_components/leva_helper';
 import { addNode, findByKey, removeByKey, upsert } from './util';
 import { WebSocketProvider } from './html_components/contexts/websocket';
-import { parseArray } from './three_components/utils';
 import { ServerEvent } from './interfaces';
 import { pack, unpack } from "msgpackr";
 import { Buffer } from "buffer";

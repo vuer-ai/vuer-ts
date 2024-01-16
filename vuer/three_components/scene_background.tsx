@@ -9,7 +9,7 @@ interface BackgroundImageParams {
 }
 
 export function SceneBackground({ src }: BackgroundImageParams) {
-  const { scene, gl } = useThree();
+  const { scene } = useThree();
   const loader: TextureLoader = useMemo(() => new TextureLoader(), []);
   const [ rgbTexture, setRGB ] = useState<Texture | undefined>();
 

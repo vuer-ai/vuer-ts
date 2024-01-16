@@ -1,5 +1,5 @@
-import { Ref, Suspense, useEffect, useLayoutEffect, useRef, useState, } from 'react';
-import { Mesh, TextureLoader, UnsignedInt248Type } from 'three';
+import { Ref, Suspense, useEffect, useState, } from 'react';
+import { Mesh, TextureLoader } from 'three';
 import { useLoader } from '@react-three/fiber';
 import { Outlines } from '@react-three/drei';
 import { useControls } from 'leva';
