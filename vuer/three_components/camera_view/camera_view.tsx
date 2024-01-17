@@ -1,5 +1,6 @@
 import React, { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
-import { OrthographicCamera, PerspectiveCamera, Plane, useFBO, } from '@react-three/drei';
+import { OrthographicCamera, Plane, useFBO, } from '@react-three/drei';
+import { PerspectiveCamera } from './PerspectiveCamera';
 import { RootState, useFrame, useThree } from '@react-three/fiber';
 import {
   Group,
@@ -76,7 +77,7 @@ export function CameraView(
     matrix,
     // used for perspective camera
     fov = 60,
-    aspect,
+    // aspect,
     // used for orthographic camera, not feature-complete yet.
     top = 1,
     bottom = -1,
@@ -136,7 +137,7 @@ export function CameraView(
   const persp: PerspParams = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
     (ctrl.camType === 'perspective') ? {
       fov: { value: fov, min: 0, max: 170 },
-      aspect: { value: aspect || width / height, min: 0.1, max: 10 }
+      aspect: { value: width / height, min: 0.1, max: 10 }
     } : {}, [ ctrl.camType, fov, width, height ]);
 
   const ortho: OrthoParams = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
@@ -157,20 +158,45 @@ export function CameraView(
     return r;
   }, [ dpr, height, width, downsample ]);
 
+  /** Place all sizing and update logic here. */
   useEffect(() => {
-    // const aspect = width / height;
     let aspect;
     if (ctrl.camType === 'perspective') {
       aspect = persp.aspect;
     } else {
       aspect = (ortho.right - ortho.left) / (ortho.top - ortho.bottom);
     }
+    // // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
+    cameraRef.current.aspect = aspect;
+    cameraRef.current.updateProjectionMatrix();
     /* note: setting the updateStyle to `false`, to avoid the error. OffScreenCanvas lack styling attribute. */
     renderer.setSize(Math.floor(aspect * height / downsample), Math.floor(height / downsample), false);
     renderer.setPixelRatio(dpr)
     /* Remember to also update the FBO */
     fbo.setSize(aspect * height * dpr, height * dpr);
   }, [ dpr, height, width, downsample, persp.aspect, ortho.top, ortho.bottom, ortho.left, ortho.right, ctrl.camType ]);
+
+  // useLayoutEffect(() => {
+  //   if (!cameraRef.current) return;
+  //   const cam = cameraRef.current;
+  //   // @ts-ignore: aspect is only available on the PerspectiveCamera.
+  //   cam.aspect = width / height;
+  //   cameraRef.current.updateProjectionMatrix();
+  // }, [ width, height, cameraRef.current ]);
+
+  useLayoutEffect(() => {
+    if (!cameraRef.current || !matrix || matrix.length !== 16) return;
+    const cam = cameraRef.current;
+    cam.matrixAutoUpdate = false;
+    cam.matrix.fromArray(matrix)
+
+    const f = movable ? frustumHandle?.current : frustum?.current;
+    if (!f) return;
+
+    f.matrixAutoUpdate = false;
+    f.matrix.fromArray(matrix);
+
+  }, [ matrix, cameraRef.current ]);
 
   const onMove = useCallback(() => {
     if (!frustumHandle.current || !cameraRef.current) return;
@@ -188,28 +214,6 @@ export function CameraView(
 
   }, [ frustumHandle.current, cameraRef.current, sendMsg ])
 
-  useLayoutEffect(() => {
-    if (!cameraRef.current) return;
-    const cam = cameraRef.current;
-    // @ts-ignore: aspect is only available on the PerspectiveCamera.
-    cam.aspect = width / height;
-    cameraRef.current.updateProjectionMatrix();
-  }, [ width, height, cameraRef.current ]);
-
-  useLayoutEffect(() => {
-    if (!cameraRef.current || !matrix || matrix.length !== 16) return;
-    const cam = cameraRef.current;
-    cam.matrixAutoUpdate = false;
-    cam.matrix.fromArray(matrix)
-
-    const f = movable ? frustumHandle?.current : frustum?.current;
-    if (!f) return;
-
-    f.matrixAutoUpdate = false;
-    f.matrix.fromArray(matrix);
-
-  }, [ matrix, cameraRef.current ]);
-
   const sinceLastFrame = useRef({});
 
   useFrame(({ gl, scene }, delta) => {
@@ -217,17 +221,12 @@ export function CameraView(
 
     if (!cameraRef.current) return;
 
-    // const aspect = width / height;
     let aspect;
     if (ctrl.camType === 'perspective') {
       aspect = persp.aspect;
     } else {
       aspect = (ortho.right - ortho.left) / (ortho.top - ortho.bottom);
     }
-
-    // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
-    cameraRef.current.aspect = aspect;
-    cameraRef.current.updateProjectionMatrix();
 
     // note: we do not render these frames if the stream is 'ondemand'
     if (timingCache.sinceLastFrame > (1 / fps) && stream === 'frame') {
@@ -262,6 +261,7 @@ export function CameraView(
         })
       })
     }
+
 
     // wow I render so many times!
     if (!!monitor && planeRef?.current) {
@@ -371,7 +371,7 @@ export function CameraView(
 
     return remove_handler;
 
-  }, [ sendMsg, downlink, uplink, downsample ]);
+  }, [ sendMsg, downlink, uplink, downsample, renderer.domElement ]);
 
 
   if (hide) return null;
