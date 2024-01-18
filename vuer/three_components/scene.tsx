@@ -80,7 +80,7 @@ export function Scene({
 
   const ref = useRef<HTMLCanvasElement>();
   const canvasRef = _canvasRef || ref;
-  const { sendMsg, uplink, downlink } = useContext(SocketContext) as SocketContextType;
+  const { sendMsg, uplink } = useContext(SocketContext) as SocketContextType;
   const queries = useMemo<ParsedQuery>(() => queryString.parse(document.location.search), []);
 
   useEffect(() => {
