@@ -151,33 +151,33 @@ export function Sphere(
     _ref,
     _key,
     // hide,
-    args = [ 1 ],
-    color = 'white',
+    // args = [ 1 ],
+    // color = 'white',
     materialType = 'basic',
     ...params
   }: SphereProps,
 ) {
-  const controls = useControls(
-    `Sphere-${_key}`,
-    {
-      radius: {
-        value: args[0],
-        step: 0.0001,
-        optional: true,
-        innerLabelTrim: 10,
-        pad: 10,
-      },
-      color: { value: color, optional: true },
-    },
-    [ ...args ],
-  );
+  // const controls = useControls(
+  //   `Sphere-${_key}`,
+  //   {
+  //     radius: {
+  //       value: args[0],
+  //       step: 0.0001,
+  //       optional: true,
+  //       innerLabelTrim: 10,
+  //       pad: 10,
+  //     },
+  //     color: { value: color, optional: true },
+  //   },
+  //   [ ...args ],
+  // );
   return (
     <Primitive
       ref={_ref}
       geometry="sphereGeometry"
       materialType={materialType}
-      args={[ controls.radius, ...args.slice(1) ]}
-      color={controls.color || color}
+      // args={[ controls.radius, ...args.slice(1) ]}
+      // color={controls.color || color}
       {...params}
     />
   );
