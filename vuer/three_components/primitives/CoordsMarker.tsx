@@ -7,15 +7,90 @@ const instances = [
   { position: new Vector3(0, 0, 1), rotation: new Euler(0.5 * Math.PI, 0, 0), color: new Color(0x0000ff) }
 ]
 
-export type CoordsMarker = {
+export type ArrowProps = {
   matrix?: [ number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number ],
   position?: [ number, number, number ],
   rotation?: [ number, number, number ],
+  direction?: [ number, number, number ],
+  color: string | Color,
   scale?: number,
   lod?: number,
   headScale?: number,
 }
 
+export function Arrow({
+  matrix,
+  position,
+  rotation,
+  // todo: use direction vector instead.
+  // direction = [ 1, 0, 0 ],
+  scale = 1.0,
+  color = "red",
+  headScale = 1.0,
+  lod = 10,
+}: ArrowProps) {
+
+  const ref = useRef<Group>();
+  const coneRef = useRef<InstancedMesh>();
+  const cylinderRef = useRef<InstancedMesh>();
+
+  const color3 = useMemo(() => new Color(color), [ color ])
+
+  const obj = useMemo(() => new Object3D(), [])
+
+  /** these are local within the coords legend. Do NOT need to be recomputed.*/
+  useLayoutEffect(() => {
+    const coneIMesh = coneRef.current;
+    if (!!coneIMesh) {
+      obj.position.set(1, 0, 0)
+      obj.rotation.set(0, 0, -0.5 * Math.PI)
+      obj.updateMatrix()
+      coneIMesh.setMatrixAt(0, obj.matrix)
+    }
+
+    const cylinderIMesh = cylinderRef.current;
+    if (!!cylinderIMesh) {
+      obj.position.set(0.5, 0, 0)
+      obj.rotation.set(0, 0, -0.5 * Math.PI)
+      obj.updateMatrix()
+      cylinderIMesh.setMatrixAt(0, obj.matrix)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    coneRef.current?.setColorAt(0, color3)
+    cylinderRef.current?.setColorAt(0, color3)
+  }, [ color3 ])
+
+  useLayoutEffect(() => {
+    const group = ref.current;
+    if (!group || !matrix) return
+    group.matrix.set(...matrix)
+  }, [ matrix ])
+
+  return (
+    <group ref={ref} position={position} rotation={rotation} scale={scale}>
+      <instancedMesh ref={coneRef} args={[ null, null, 1 ]}>
+        <coneGeometry args={[ 0.05 * headScale, 0.1 * headScale, lod, lod ]}/>
+        <meshBasicMaterial/>
+      </instancedMesh>
+      <instancedMesh ref={cylinderRef} args={[ null, null, 1 ]}>
+        <cylinderGeometry args={[ 0.025, 0.025, 1, lod, lod ]}/>
+        <meshBasicMaterial/>
+      </instancedMesh>
+    </group>
+  )
+}
+
+export type CoordsMarkerProps = {
+  matrix?: [ number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number ],
+  position?: [ number, number, number ],
+  rotation?: [ number, number, number ],
+  direction?: [ number, number, number ],
+  scale?: number,
+  lod?: number,
+  headScale?: number,
+}
 
 export function CoordsMarker({
   matrix,
@@ -24,7 +99,7 @@ export function CoordsMarker({
   scale = 1.0,
   headScale = 1.0,
   lod = 10,
-}: CoordsMarker) {
+}: CoordsMarkerProps) {
 
   const ref = useRef<Group>();
   const coneRef = useRef<InstancedMesh>();
@@ -32,6 +107,7 @@ export function CoordsMarker({
 
   const obj = useMemo(() => new Object3D(), [])
 
+  /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
     const coneIMesh = coneRef.current;
     if (!coneIMesh) return
@@ -46,6 +122,7 @@ export function CoordsMarker({
 
   }, [])
 
+  /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
     const cylinderIMesh = cylinderRef.current;
     if (!cylinderIMesh) return
@@ -60,6 +137,7 @@ export function CoordsMarker({
 
   }, [])
 
+  /** transform the entire group using the metrix */
   useLayoutEffect(() => {
     const group = ref.current;
     if (!group || !matrix) return

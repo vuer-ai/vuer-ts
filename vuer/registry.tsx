@@ -46,7 +46,7 @@ import { Gamepad } from './three_components/controls/gamepad';
 import { Hands } from './three_components/controls/hands';
 import { SceneBackground } from './three_components/scene_background';
 import { ImageBackground } from './three_components/image_background';
-import { CoordsMarker } from "./three_components/primitives/CoordsMarker";
+import { Arrow, CoordsMarker } from "./three_components/primitives/CoordsMarker";
 import { Button, Div, ImageUpload, Img, Input, Slider, Text } from "./html_components/input_components";
 import GrabRender from "./three_components/camera_view/GrabRender";
 import { TimelineControls } from "./uxr_components/TimelineControls";
@@ -80,6 +80,7 @@ export const comp_list: CompList = {
   Gripper,
   SkeletalGripper,
   CoordsMarker,
+  Arrow,
   Pivot,
   Movable,
   Gamepad,
