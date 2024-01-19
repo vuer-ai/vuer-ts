@@ -1,7 +1,7 @@
 {
   "name": "@vuer-ai/vuer",
   "author": "Ge Yang",
-  "version": "0.0.18-patch-6",
+  "version": "0.0.19",
   "private": false,
   "files": [
     "vuer",
