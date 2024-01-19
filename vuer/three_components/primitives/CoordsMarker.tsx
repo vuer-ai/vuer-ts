@@ -23,13 +23,13 @@ export function Arrow({
   position,
   rotation,
   // todo: use direction vector instead.
-  direction = [ 1, 0, 0 ],
+  // direction = [ 1, 0, 0 ],
   scale = 1.0,
   color = "red",
   headScale = 1.0,
   lod = 10,
 }: ArrowProps) {
-
+  const direction = [ 0.5, 0.01, 0 ]
   const ref = useRef<Group>();
   const coneRef = useRef<InstancedMesh>();
   const cylinderRef = useRef<InstancedMesh>();
@@ -39,14 +39,15 @@ export function Arrow({
   const obj = useMemo(() => new Object3D(), [])
   const dir = useMemo(() => new Vector3(...direction), [ direction ])
   // the default up for cones and cylinders is Y. We need to rotate the arrow to point in the right direction.
-  const quat = useMemo(() => new Quaternion()
-    .setFromUnitVectors(new Vector3(0, 1, 0), dir), [ direction ])
+  const quat = useMemo(() =>
+    new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dir.normalize()), [ dir ]);
+
 
   /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
     const coneIMesh = coneRef.current;
     if (!!coneIMesh) {
-      obj.position.set(...direction)
+      obj.position.set(direction[0], direction[1], direction[2])
       obj.rotation.setFromQuaternion(quat)
       obj.updateMatrix()
 
@@ -55,7 +56,7 @@ export function Arrow({
 
     const cylinderIMesh = cylinderRef.current;
     if (!!cylinderIMesh) {
-      obj.position.set(...direction).multiplyScalar(0.5)
+      obj.position.set(direction[0], direction[1], direction[2]).multiplyScalar(0.5)
       obj.rotation.setFromQuaternion(quat)
       obj.updateMatrix()
 
@@ -78,11 +79,11 @@ export function Arrow({
     <group ref={ref} position={position} rotation={rotation} scale={scale}>
       <instancedMesh ref={coneRef} args={[ null, null, 1 ]}>
         <coneGeometry args={[ 0.05 * headScale, 0.1 * headScale, lod, lod ]}/>
-        <meshBasicMaterial/>
+        <meshStandardMaterial wireframe/>
       </instancedMesh>
       <instancedMesh ref={cylinderRef} args={[ null, null, 1 ]}>
-        <cylinderGeometry args={[ 0.025, 0.025, 1, lod, lod ]}/>
-        <meshBasicMaterial/>
+        <cylinderGeometry args={[ 0.025, 0.025, dir.length() / 2, lod, lod ]}/>
+        <meshStandardMaterial wireframe/>
       </instancedMesh>
     </group>
   )
