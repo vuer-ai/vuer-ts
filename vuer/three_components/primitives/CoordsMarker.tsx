@@ -1,5 +1,5 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { Color, Euler, Group, InstancedMesh, Object3D, Vector3 } from "three";
+import { Color, Euler, Group, InstancedMesh, Object3D, Quaternion, Vector3 } from "three";
 
 const instances = [
   { position: new Vector3(1, 0, 0), rotation: new Euler(0, 0, -0.5 * Math.PI), color: new Color(0xff0000) },
@@ -23,7 +23,7 @@ export function Arrow({
   position,
   rotation,
   // todo: use direction vector instead.
-  // direction = [ 1, 0, 0 ],
+  direction = [ 1, 0, 0 ],
   scale = 1.0,
   color = "red",
   headScale = 1.0,
@@ -37,22 +37,28 @@ export function Arrow({
   const color3 = useMemo(() => new Color(color), [ color ])
 
   const obj = useMemo(() => new Object3D(), [])
+  const dir = useMemo(() => new Vector3(...direction), [ direction ])
+  // the default up for cones and cylinders is Y. We need to rotate the arrow to point in the right direction.
+  const quat = useMemo(() => new Quaternion()
+    .setFromUnitVectors(new Vector3(0, 1, 0), dir), [ direction ])
 
   /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
     const coneIMesh = coneRef.current;
     if (!!coneIMesh) {
-      obj.position.set(1, 0, 0)
-      obj.rotation.set(0, 0, -0.5 * Math.PI)
+      obj.position.set(...direction)
+      obj.rotation.setFromQuaternion(quat)
       obj.updateMatrix()
+
       coneIMesh.setMatrixAt(0, obj.matrix)
     }
 
     const cylinderIMesh = cylinderRef.current;
     if (!!cylinderIMesh) {
-      obj.position.set(0.5, 0, 0)
-      obj.rotation.set(0, 0, -0.5 * Math.PI)
+      obj.position.set(...direction).multiplyScalar(0.5)
+      obj.rotation.setFromQuaternion(quat)
       obj.updateMatrix()
+
       cylinderIMesh.setMatrixAt(0, obj.matrix)
     }
   }, [])
