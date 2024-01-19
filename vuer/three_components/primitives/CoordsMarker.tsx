@@ -16,6 +16,7 @@ export type ArrowProps = {
   scale?: number,
   lod?: number,
   headScale?: number,
+  wireframe?: boolean,
 }
 
 export function Arrow({
@@ -23,13 +24,13 @@ export function Arrow({
   position,
   rotation,
   // todo: use direction vector instead.
-  // direction = [ 1, 0, 0 ],
+  direction = [ 1, 0, 0 ],
   scale = 1.0,
   color = "red",
   headScale = 1.0,
   lod = 10,
+  wireframe = false,
 }: ArrowProps) {
-  const direction = [ 0.5, 0.01, 0 ]
   const ref = useRef<Group>();
   const coneRef = useRef<InstancedMesh>();
   const cylinderRef = useRef<InstancedMesh>();
@@ -40,8 +41,10 @@ export function Arrow({
   const dir = useMemo(() => new Vector3(...direction), [ direction ])
   // the default up for cones and cylinders is Y. We need to rotate the arrow to point in the right direction.
   const quat = useMemo(() =>
-    new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dir.normalize()), [ dir ]);
+    new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dir.clone().normalize()), [ dir ]);
 
+
+  console.log(direction, dir.length())
 
   /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
@@ -75,15 +78,19 @@ export function Arrow({
     group.matrix.set(...matrix)
   }, [ matrix ])
 
+  const material = wireframe
+    ? <meshStandardMaterial wireframe color={color3}/>
+    : <meshBasicMaterial color={color3}/>
+
   return (
     <group ref={ref} position={position} rotation={rotation} scale={scale}>
       <instancedMesh ref={coneRef} args={[ null, null, 1 ]}>
         <coneGeometry args={[ 0.05 * headScale, 0.1 * headScale, lod, lod ]}/>
-        <meshStandardMaterial wireframe/>
+        {material}
       </instancedMesh>
       <instancedMesh ref={cylinderRef} args={[ null, null, 1 ]}>
-        <cylinderGeometry args={[ 0.025, 0.025, dir.length() / 2, lod, lod ]}/>
-        <meshStandardMaterial wireframe/>
+        <cylinderGeometry args={[ 0.025, 0.025, dir.length(), lod, lod ]}/>
+        {material}
       </instancedMesh>
     </group>
   )
@@ -97,6 +104,7 @@ export type CoordsMarkerProps = {
   scale?: number,
   lod?: number,
   headScale?: number,
+  wireframe?: boolean,
 }
 
 export function CoordsMarker({
@@ -106,6 +114,7 @@ export function CoordsMarker({
   scale = 1.0,
   headScale = 1.0,
   lod = 10,
+  wireframe = false,
 }: CoordsMarkerProps) {
 
   const ref = useRef<Group>();
@@ -151,15 +160,20 @@ export function CoordsMarker({
     group.matrix.set(...matrix)
   }, [ matrix ])
 
+
+  const material = wireframe
+    ? <meshStandardMaterial wireframe color={color3}/>
+    : <meshBasicMaterial color={color3}/>
+
   return (
     <group ref={ref} position={position} rotation={rotation} scale={scale}>
       <instancedMesh ref={coneRef} args={[ null, null, 3 ]}>
         <coneGeometry args={[ 0.05 * headScale, 0.1 * headScale, lod, lod ]}/>
-        <meshBasicMaterial/>
+        {material}
       </instancedMesh>
       <instancedMesh ref={cylinderRef} args={[ null, null, 3 ]}>
         <cylinderGeometry args={[ 0.025, 0.025, 1, lod, lod ]}/>
-        <meshBasicMaterial/>
+        {material}
       </instancedMesh>
     </group>
   )
