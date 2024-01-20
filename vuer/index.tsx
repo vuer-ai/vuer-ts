@@ -30,11 +30,9 @@ export const AppContext = createContext({
   }
 });
 
-
 export const AppProvider = AppContext.Provider;
 
-
-export default function VuerRoot({ style, ...rest }: VuerRootProps) {
+function VuerRoot({ style, ...rest }: VuerRootProps) {
 
   const queries = useMemo<QueryParams>(() => {
     const parsed = queryString.parse(document.location.search) as QueryParams;
@@ -75,3 +73,5 @@ export default function VuerRoot({ style, ...rest }: VuerRootProps) {
     </WebSocketProvider>
   );
 }
+
+export default VuerRoot;
