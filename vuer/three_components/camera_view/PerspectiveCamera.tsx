@@ -5,7 +5,9 @@ import { useFBO } from "@react-three/drei";
 import { forwardRef, useLayoutEffect, useRef } from 'react';
 import { ForwardRefComponent } from "@react-three/drei/helpers/ts-utils";
 
-const isFunction = (node: any): node is Function => typeof node === 'function'
+const isFunction = (node): boolean => {
+  return typeof node === 'function';
+}
 
 type Props = Omit<JSX.IntrinsicElements['perspectiveCamera'], 'children'> & {
   /** Registers the camera as the system default, fiber will start rendering with it */

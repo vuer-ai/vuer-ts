@@ -14,22 +14,38 @@ import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
 import { AppContext } from "../index";
+import { SocketContext } from "../html_components/contexts/websocket";
 
 // todo: pass reference
-// todo: change src to src
-
 type Props = PropsWithChildren<{
+  _key?: string;
   src?: string;
   text?: string;
   buff?: ArrayBuffer;
   mtl?: string;
   hide?: boolean;
   encoding?: string;
+  onLoad?: () => void | string
   [key: string]: unknown;
 }>;
 
+/**
+ * Load a 3D object from a file or text.
+ *
+ * @param _key
+ * @param src
+ * @param text
+ * @param buff
+ * @param mtl
+ * @param hide
+ * @param encoding
+ * @param onLoad: When this is a string, it will emit a LOAD event containing the key to this component.
+ *                When this is a function, the function will be called.
+ * @param rest
+ * @constructor
+ */
 export function Obj({
-  src, text, buff, mtl, hide, encoding = 'ascii', ...rest
+  _key, src, text, buff, mtl, hide, encoding = 'ascii', onLoad, ...rest
 }: Props) {
   const [ data, setData ] = useState<{ scene: unknown } | undefined>();
   useEffect(() => {
@@ -50,12 +66,22 @@ export function Obj({
       else if (src) loader.load(src, setData);
     }
   }, [ src, hide ]);
+  const { sendMsg } = useContext(SocketContext);
+  useEffect(() => {
+    if (!data) return;
+    if (typeof onLoad === 'function') onLoad();
+    if (typeof onLoad === 'string') sendMsg({
+      etype: 'LOAD',
+      key: _key,
+      value: onLoad
+    });
+  }, [ data ])
   if (!data) return null;
   return <ObjView data={data} hide={hide} {...rest} />;
 }
 
 export function Pcd({
-  src, text, buff, hide, encoding = 'ascii', ...rest
+  _key, src, text, buff, hide, encoding = 'ascii', onLoad, ...rest
 }: Props) {
   const [ data, setData ] = useState<Points>();
   useEffect(() => {
@@ -65,12 +91,22 @@ export function Pcd({
     if (text) setData(loader.parse(text, '') as Points);
     else if (src) loader.load(src as string, setData);
   }, [ src, hide ]);
+  const { sendMsg } = useContext(SocketContext);
+  useEffect(() => {
+    if (!data) return;
+    if (typeof onLoad === 'function') onLoad();
+    if (typeof onLoad === 'string') sendMsg({
+      etype: 'LOAD',
+      key: _key,
+      value: onLoad
+    });
+  }, [ data ])
   if (!data) return null;
   return <PcdView data={data} hide={hide} {...rest} />;
 }
 
 export function Ply({
-  src, text, buff, hide, encoding = 'ascii', ...rest
+  _key, src, text, buff, hide, encoding = 'ascii', onLoad, ...rest
 }: Props) {
   const [ data, setData ] = useState<BufferGeometry>();
   useEffect(() => {
@@ -85,12 +121,22 @@ export function Ply({
       setData(parsed);
     } else if (src) loader.load(src, setData);
   }, [ src, hide ]);
+  const { sendMsg } = useContext(SocketContext);
+  useEffect(() => {
+    if (!data) return;
+    if (typeof onLoad === 'function') onLoad();
+    if (typeof onLoad === 'string') sendMsg({
+      etype: 'LOAD',
+      key: _key,
+      value: onLoad
+    });
+  }, [ data ])
   if (!data) return null;
   return <PlyView data={data} hide={hide} {...rest} />;
 }
 
 export function Glb({
-  src, text, buff, hide, encoding = 'ascii', ...rest
+  _key, src, text, buff, hide, encoding = 'ascii', onLoad, ...rest
 }: Props) {
   const [ data, setData ] = useState<unknown>();
   useEffect(() => {
@@ -100,6 +146,16 @@ export function Glb({
     if (text) loader.parse(text, '', setData);
     else if (src) loader.load(src, setData);
   }, [ src, hide ]);
+  const { sendMsg } = useContext(SocketContext);
+  useEffect(() => {
+    if (!data) return;
+    if (typeof onLoad === 'function') onLoad();
+    if (typeof onLoad === 'string') sendMsg({
+      etype: 'LOAD',
+      key: _key,
+      value: onLoad
+    });
+  }, [ data ])
   if (!data) return null;
   return <GltfView data={data as { scene: unknown }} hide={hide} {...rest} />;
 }
@@ -113,6 +169,7 @@ type URDFProps = Props & {
 }
 
 export function Urdf({
+  _key,
   src, text, buff, hide, encoding = 'ascii',
   jointValues,
   workingPath,
@@ -120,6 +177,7 @@ export function Urdf({
   parseVisual,
   parseCollision,
   packages,
+  onLoad,
   ...rest
 }: URDFProps) {
   const [ data, setData ] = useState<URDFRobot>();
@@ -166,6 +224,16 @@ export function Urdf({
     if (text) setData(loader.parse(text));
     else if (src) loader.load(src, setData);
   }, [ loader, src, hide ]);
+  const { sendMsg } = useContext(SocketContext);
+  useEffect(() => {
+    if (!data) return;
+    if (typeof onLoad === 'function') onLoad();
+    if (typeof onLoad === 'string') sendMsg({
+      etype: 'LOAD',
+      key: _key,
+      value: onLoad
+    });
+  }, [ data ])
   if (!data) return null;
   return (
     <UrdfView robot={data} jointValues={jointValues} hide={hide} {...rest} />
