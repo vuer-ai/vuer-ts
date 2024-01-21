@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 import { Euler, Matrix4, Mesh, Object3D, Quaternion, Vector3, } from 'three';
-import { invalidate, MeshProps, Vector3 as rVector3 } from '@react-three/fiber';
+import { MeshProps, Vector3 as rVector3 } from '@react-three/fiber';
 import { PivotControls } from '@react-three/drei';
 import { useXR } from '@react-three/xr';
 import { SqueezeRayGrab } from './utils';
@@ -92,17 +92,24 @@ export function Pivot(
   useEffect(() => {
     if (!localRef.current) return;
     const pivot = localRef.current;
-    if (matrix) {
-      pivot.matrix.fromArray(matrix);
-      pivot.matrix.decompose(pivot.position, pivot.quaternion, pivot.scale);
-      pivot.rotation.setFromQuaternion(pivot.quaternion);
-    } else {
-      pivot.position.fromArray(position);
-      pivot.rotation.fromArray(rotation);
-      pivot.updateMatrix();
-      invalidate();
-    }
-  }, [ localRef.current ]);
+    if (!matrix) return;
+    pivot.matrix.fromArray(matrix);
+    pivot.matrix.decompose(pivot.position, pivot.quaternion, pivot.scale);
+    pivot.rotation.setFromQuaternion(pivot.quaternion);
+    // note: invalidate is not needed here? - Ge
+    // invalidate();
+  }, [ matrix, localRef.current ]);
+
+  useEffect(() => {
+    if (!localRef.current) return;
+    const pivot = localRef.current;
+    if (!!matrix) return;
+    pivot.position.fromArray(position);
+    pivot.rotation.fromArray(rotation);
+    pivot.updateMatrix();
+    // note: invalidate is not needed here? - Ge
+    // invalidate();
+  }, [ position, rotation, localRef.current ]);
 
   function onDrag(
     local: Matrix4,

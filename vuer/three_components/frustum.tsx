@@ -97,7 +97,6 @@ export function Frustum(
 
     if (matrix) {
       if (cache.raw && equals(cache.raw, matrix)) return;
-
       cache.raw = matrix;
       cache.matrix.fromArray(matrix);
       cache.matrix.decompose(

@@ -381,7 +381,7 @@ export function CameraView(
         <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false} {...rest}/>
       ) : null}
       {(ctrl.showCamera && movable) ? (
-        <Movable _ref={frustumHandle} onMove={onMove} {...rest}>
+        <Movable _ref={frustumHandle} onMove={onMove} matrix={matrix} {...rest}>
           <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false}/>
         </Movable>
       ) : null}
