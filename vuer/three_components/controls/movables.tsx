@@ -71,8 +71,8 @@ export function Pivot(
     scale = 0.4,
     lineWidth = 1.0,
     matrix,
-    position = [ 0, 0, 0 ],
-    rotation = [ 0, 0, 0 ],
+    position,
+    rotation,
     onMove, onMoveEnd,
     ...rest
   }: PivotProps,
@@ -83,8 +83,8 @@ export function Pivot(
   const { sendMsg } = useContext(SocketContext) as SocketContextType;
 
   const cache = useMemo<Sim3Type>(() => ({
-    position: new Vector3(...position as [ number, number, number ]),
-    rotation: new Euler(...rotation as [ number, number, number ]),//, (EulerOrder) ]),
+    position: new Vector3(...(position || [ 0, 0, 0 ]) as [ number, number, number ]),
+    rotation: new Euler(...(rotation || [ 0, 0, 0 ]) as [ number, number, number ]),//, (EulerOrder) ]),
     quaternion: new Quaternion(),
     scale: new Vector3(),
   }), []);
@@ -104,11 +104,16 @@ export function Pivot(
     if (!localRef.current) return;
     const pivot = localRef.current;
     if (!!matrix) return;
-    pivot.position.fromArray(position);
-    pivot.rotation.fromArray(rotation);
-    pivot.updateMatrix();
-    // note: invalidate is not needed here? - Ge
-    // invalidate();
+    let dirty = false;
+    if (!!position) {
+      pivot.position.fromArray(position);
+      dirty = true;
+    }
+    if (!!rotation) {
+      pivot.rotation.fromArray(rotation);
+      dirty = true;
+    }
+    if (dirty) pivot.updateMatrix();
   }, [ position, rotation, localRef.current ]);
 
   function onDrag(

@@ -75,6 +75,7 @@ export function Frustum(
     colorUp = 0x00aaff,
     colorTarget = 'green',
     colorCross = 0x333333,
+    children,
   }: FrustumProps,
 ) {
   const cache = useMemo(
@@ -286,6 +287,7 @@ export function Frustum(
           />,
         ]
         : null}
+      {children}
     </group>
   );
 }

@@ -1,8 +1,6 @@
-import { Ref, Suspense, useEffect, useState, } from 'react';
+import { Ref, Suspense, useEffect, useMemo, useRef, useState, } from 'react';
 import { Mesh, TextureLoader } from 'three';
-import { useLoader } from '@react-three/fiber';
 import { Outlines } from '@react-three/drei';
-import { useControls } from 'leva';
 import { HeightMaterial } from './height_map_materials';
 
 type PrimitiveProps = {
@@ -35,29 +33,39 @@ export function Primitive(
 ) {
   const [ materialParams, setMaterial ] = useState({});
   const [ textures, setTexture ] = useState({});
-  const textureMaps = useLoader(TextureLoader, Object.values(textures) as string[] || []);
+  const loader = useMemo(() => new TextureLoader(), []);
+  const localRef = useRef();
+  const ref = _ref || localRef;
+  const updateRef = useRef(false);
+
+  const materialParamValues = Object.values(_material);
 
   useEffect(() => {
     for (const k in _material) {
       const value = _material[k];
       const isMap = k.endsWith('map') || k.endsWith('Map');
       if (typeof value === 'string' && isMap) {
-        setTexture((store) => ({ ...store, [k]: value }));
+        loader && loader.load(value, (newTexture) => {
+          setTexture((store) => ({ ...store, [k]: newTexture }));
+          updateRef.current = true;
+        });
       } else {
         setMaterial((store) => ({ ...store, [k]: value }));
       }
     }
-  }, [ rest ]);
+  }, materialParamValues);
 
-  const tMaps = Object.fromEntries(
-    Object.keys(textures).map((key, i) => [ key, textureMaps[i] ]),
-  );
+  if (updateRef.current) {
+    updateRef.current = false;
+    const matRef = ref?.current?.material;
+    matRef && (matRef.needsUpdate = true);
+  }
 
   // todo: use hide as a higher-level component, to avoid running all of the hooks.
   if (hide) return null;
 
   return (
-    <mesh ref={_ref} key={_key} {...rest}>
+    <mesh ref={ref} key={_key} {...rest}>
       <Geometry attach="geometry" args={args}/>
       <Suspense>
         <HeightMaterial
@@ -68,7 +76,7 @@ export function Primitive(
           normalMap={normalMap}
           normalScale={[ 1, 1 ]}
           displacementScale={1}
-          {...tMaps}
+          {...textures}
           {...materialParams}
         />
         {outlines ? <Outlines {...outlines} /> : null}

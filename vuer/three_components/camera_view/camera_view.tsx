@@ -99,6 +99,7 @@ export function CameraView(
     quality = 1,
     monitor = true,
     movable = true,
+    children = [],
     ...rest
   }: CameraViewProps,
 ) {
@@ -378,11 +379,12 @@ export function CameraView(
   return (
     <>
       {(ctrl.showCamera && !movable) ? (
-        <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false} {...rest}/>
+        <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false} {...rest}>{children}</Frustum>
       ) : null}
       {(ctrl.showCamera && movable) ? (
         <Movable _ref={frustumHandle} onMove={onMove} matrix={matrix} {...rest}>
           <Frustum _ref={frustum} {...persp} {...commonParams} showFocalPlane={false}/>
+          {children}
         </Movable>
       ) : null}
       {monitor ?
