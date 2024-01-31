@@ -38,7 +38,7 @@ export function Primitive(
   const ref = _ref || localRef;
   const updateRef = useRef(false);
 
-  const materialParamValues = Object.values(_material);
+  const materialParamValues = _material ? Object.values(_material) : [];
 
   useEffect(() => {
     for (const k in _material) {

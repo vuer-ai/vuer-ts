@@ -1,14 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { MeshProps, MeshStandardMaterialProps, useLoader } from '@react-three/fiber';
+import { MeshProps } from '@react-three/fiber';
 import { half2float } from './half2float';
 import { BufferAttribute, RepeatWrapping, TextureLoader } from "three";
-import { and } from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 enum Side { front, back, double }
 
 type MaterialArgs = {
   mapRepeat?: [ number, number ];
-} & MeshStandardMaterialProps
+  [key: string]: unknown;
+};
 
 type TriMeshProps = MeshProps & {
   vertices: Uint16Array;
@@ -16,7 +16,7 @@ type TriMeshProps = MeshProps & {
   colors?: Uint8Array;
   color?: string;
   uv?: Uint16Array;
-  materialType?: 'basic' | 'standard' | 'phong' | 'lambert';
+  materialType?: 'basic' | 'standard' | 'phong' | 'lambert' | 'normal' | 'depth';
   wireframe?: boolean;
   opacity?: number;
   side?: 'front' | 'back' | 'double';
@@ -63,7 +63,7 @@ export function TriMesh(
   const meshRef = useRef();
   const updateRef = useRef(false);
 
-  const materialParamValues = Object.values(material);
+  const materialParamValues = material ? Object.values(material) : [];
 
   useEffect(() => {
     for (const k in material) {
