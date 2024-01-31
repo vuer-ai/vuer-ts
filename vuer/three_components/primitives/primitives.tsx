@@ -47,10 +47,13 @@ export function Primitive(
       if (typeof value === 'string' && isMap) {
         loader && loader.load(value, (newTexture) => {
           setTexture((store) => ({ ...store, [k]: newTexture }));
+          // this is asynchronous.
           updateRef.current = true;
         });
       } else {
         setMaterial((store) => ({ ...store, [k]: value }));
+        // the previous update flag is set asynchronously. This is synchronous.
+        updateRef.current = true;
       }
     }
   }, materialParamValues);
