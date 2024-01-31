@@ -1,7 +1,5 @@
-import { useLoader } from '@react-three/fiber';
-import {
-  DataTexture, NoColorSpace, TangentSpaceNormalMap, Texture, TextureLoader,
-} from 'three';
+import { MaterialProps, MeshStandardMaterialProps, useLoader } from '@react-three/fiber';
+import { DataTexture, NoColorSpace, TangentSpaceNormalMap, Texture, TextureLoader, } from 'three';
 import { useEffect, useMemo } from 'react';
 import { useControls } from 'leva';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -26,9 +24,9 @@ import { height2normal } from './normal_map_utils';
 
 const isLoaded = (image: TextureImageData) => image?.complete && image.naturalHeight !== 0;
 
-interface HeightMaterialProps {
+type HeightMaterialProps = {
   _key?: string;
-  type: 'basic' | 'standard' | 'phong' | 'lambert';
+  type: 'basic' | 'standard' | 'phong' | 'lambert' | 'normal' | 'depth';
 
   normalMap?: string | string[] | false;
   displacementMap?: string | string[];
@@ -36,7 +34,7 @@ interface HeightMaterialProps {
   normalScale: number | number[];
   displacementScale: number;
   [key: string]: unknown;
-}
+} & MaterialProps;
 
 export function HeightMaterial(
   {
@@ -109,7 +107,8 @@ export function HeightMaterial(
     [ displacementMap, displacementScale, normalMap, normalScale ],
   );
 
-  const props = {} as unknown;
+  const props: MeshStandardMaterialProps = {};
+  // assert material type is MeshStandardMaterial.
   if (displacementMap) {
     props.displacementMap = displacementTexture;
     props['displacementMap-colorSpace'] = NoColorSpace;

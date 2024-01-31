@@ -1,24 +1,33 @@
-import { useMemo } from 'react';
-import { MeshProps } from '@react-three/fiber';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { MeshProps, MeshStandardMaterialProps, useLoader } from '@react-three/fiber';
 import { half2float } from './half2float';
+import { BufferAttribute, RepeatWrapping, TextureLoader } from "three";
+import { and } from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 enum Side { front, back, double }
+
+type MaterialArgs = {
+  mapRepeat?: [ number, number ];
+} & MeshStandardMaterialProps
 
 type TriMeshProps = MeshProps & {
   vertices: Uint16Array;
   faces: Uint16Array;
   colors?: Uint8Array;
   color?: string;
+  uv?: Uint16Array;
   materialType?: 'basic' | 'standard' | 'phong' | 'lambert';
   wireframe?: boolean;
   opacity?: number;
   side?: 'front' | 'back' | 'double';
+  material?: MaterialArgs;
 };
 
 type GeoCache = {
   vertices: Float32Array;
   faces: Uint32Array;
   colors?: Float32Array;
+  uv?: Float32Array;
 };
 
 export function TriMesh(
@@ -29,10 +38,12 @@ export function TriMesh(
     faces,
     colors,
     color,
+    uv,
     materialType = 'standard',
     wireframe,
     opacity,
     side = 'double',
+    material,
     ...rest
   }: TriMeshProps,
 ) {
@@ -42,16 +53,55 @@ export function TriMesh(
       vertices: half2float(vertices),
       faces: new Uint32Array(faces.buffer.slice(faces.byteOffset), 0, byteRatio * faces.byteLength),
       colors: colors && Float32Array.from(colors, (octet) => octet / 0xff),
+      uv: uv && half2float(uv),
     };
-  }, [ vertices, faces, colors ]);
+  }, [ vertices, faces, colors, uv ]);
 
-  const MType = `mesh${
-    materialType.charAt(0).toUpperCase()
-  }${materialType.slice(1)
-  }Material`;
+  const [ materialParams, setMaterial ] = useState({});
+  const [ textures, setTexture ] = useState({});
+  const loader = useMemo(() => new TextureLoader(), []);
+  const meshRef = useRef();
+  const updateRef = useRef(false);
+
+  const materialParamValues = Object.values(material);
+
+  useEffect(() => {
+    for (const k in material) {
+      const value = material[k];
+      const isMap = k.endsWith('map') || k.endsWith('Map');
+      if (typeof value === 'string' && isMap) {
+        loader && loader.load(value, (newTexture) => {
+          const repeat = material[`${k}Repeat`] as [ number, number ];
+          if (!!repeat) {
+            newTexture.wrapS = newTexture.wrapT = RepeatWrapping;
+            newTexture.repeat.set(...repeat);
+          }
+          setTexture((store) => ({ ...store, [k]: newTexture }));
+          updateRef.current = true;
+        });
+      } else {
+        setMaterial((store) => ({ ...store, [k]: value }));
+      }
+    }
+  }, materialParamValues);
+
+  if (updateRef.current) {
+    updateRef.current = false;
+    const matRef = meshRef?.current?.material;
+    matRef && (matRef.needsUpdate = true);
+  }
+
+  useLayoutEffect(() => {
+    const geom = meshRef?.current?.geometry;
+    if (!geom || !geometry.uv) return;
+    geom.attributes.uv = new BufferAttribute(geometry.uv, 2)
+  }, [ geometry.uv ])
+
+  const MType = `mesh${materialType.charAt(0).toUpperCase()}${materialType.slice(1)}Material`;
 
   return (
     <mesh
+      ref={meshRef}
       position={position}
       rotation={rotation}
       castShadow
@@ -91,6 +141,8 @@ export function TriMesh(
         opacity={opacity}
         // one of [0, 1, 2]
         side={Side[side]}
+        {...materialParams}
+        {...textures}
       />
     </mesh>
   );
