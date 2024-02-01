@@ -196,17 +196,18 @@ export function Urdf({
       onLoad: (mesh: Object3D, err?: Error) => void
     ) {
       if (typeof path !== "string") return;
+      const _path = path.toLowerCase();
       const onError = (err) => {
         showError(`Failed to load mesh: ${path}`);
         onLoad(undefined, err);
       }
-      if (path.endsWith(".obj")) new OBJLoader(manager).load(path, onLoad, undefined, onError);
-      else if (path.endsWith(".stl")) new STLLoader(manager).load(path, (o) => onLoad(
+      if (_path.endsWith(".obj")) new OBJLoader(manager).load(path, onLoad, undefined, onError);
+      else if (_path.endsWith(".stl")) new STLLoader(manager).load(path, (o) => onLoad(
         new Mesh(o, new MeshStandardMaterial())), undefined, onError);
-      else if (path.endsWith(".glb")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
-      else if (path.endsWith(".gltf")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
-      else if (path.endsWith(".pcd")) new PCDLoader(manager).load(path, onLoad, undefined, onError);
-      else if (path.endsWith(".dae")) new ColladaLoader(manager).load(path, (o: Collada) => onLoad(o.scene), undefined, onError);
+      else if (_path.endsWith(".glb")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
+      else if (_path.endsWith(".gltf")) new GLTFLoader(manager).load(path, (o: GLTF) => onLoad(o.scene), undefined, onError);
+      else if (_path.endsWith(".pcd")) new PCDLoader(manager).load(path, onLoad, undefined, onError);
+      else if (_path.endsWith(".dae")) new ColladaLoader(manager).load(path, (o: Collada) => onLoad(o.scene), undefined, onError);
       else showInfo(`Unknown mesh type: ${path}`)
     }
     return _loader;
