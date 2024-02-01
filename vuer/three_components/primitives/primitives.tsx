@@ -1,4 +1,4 @@
-import { Ref, Suspense, useEffect, useMemo, useRef, useState, } from 'react';
+import { Ref, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, } from 'react';
 import { Mesh, RepeatWrapping, TextureLoader } from 'three';
 import { Outlines } from '@react-three/drei';
 import { HeightMaterial } from './height_map_materials';
@@ -40,7 +40,7 @@ export function Primitive(
 
   const materialParamValues = _material ? Object.values(_material) : [];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     for (const k in _material) {
       const value = _material[k];
       const isMap = k.endsWith('map') || k.endsWith('Map');

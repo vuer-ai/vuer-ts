@@ -65,7 +65,7 @@ export function TriMesh(
 
   const materialParamValues = material ? Object.values(material) : [];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     for (const k in material) {
       const value = material[k];
       const isMap = k.endsWith('map') || k.endsWith('Map');
