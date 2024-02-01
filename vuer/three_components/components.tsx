@@ -1,6 +1,6 @@
 import { MutableRefObject, useEffect, useState } from 'react';
 import { Center, PivotControls, Sphere } from '@react-three/drei';
-import { BufferGeometry, Color, ColorRepresentation, Group, Mesh, Points, } from 'three';
+import { BufferGeometry, Color, ColorRepresentation, Group, Mesh, Object3D, Points, } from 'three';
 import { URDFRobot } from 'urdf-loader';
 import { ThreeEvent } from '@react-three/fiber';
 import { VuerProps } from '../../interfaces';
@@ -176,6 +176,7 @@ export function Gripper(
     axes = false,
     // showCoordnates = True,
     showOrigin = true,
+    // up = Object3D.DEFAULT_UP,
     hide,
     ...rest
   }: GripperProps,

@@ -1,4 +1,4 @@
-import { Ref, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, } from 'react';
+import { Ref, useLayoutEffect, useMemo, useRef, useState, } from 'react';
 import { Mesh, RepeatWrapping, TextureLoader } from 'three';
 import { Outlines } from '@react-three/drei';
 import { HeightMaterial } from './height_map_materials';
@@ -38,7 +38,13 @@ export function Primitive(
   const ref = _ref || localRef;
   const updateRef = useRef(false);
 
-  const materialParamValues = _material ? Object.values(_material) : [];
+  const materialKeyRef = useRef(1);
+  useLayoutEffect(() => {
+    materialKeyRef.current += 1;
+  }, [ materialType ])
+
+  const matRef = ref?.current?.material;
+  const allKeys = Object.keys(_material).join(';');
 
   useLayoutEffect(() => {
     for (const k in _material) {
@@ -51,22 +57,13 @@ export function Primitive(
             newTexture.wrapS = newTexture.wrapT = RepeatWrapping;
             newTexture.repeat.set(...repeat);
           }
-          setTexture((store) => ({ ...store, [k]: newTexture }));
-          updateRef.current = true;
+          _material[k] = newTexture;
+          matRef && (matRef.needsUpdate = true);
         });
-      } else {
-        setMaterial((store) => ({ ...store, [k]: value }));
-        // the previous update flag is set asynchronously. This is synchronous.
-        updateRef.current = true;
       }
     }
-  }, materialParamValues);
+  }, [ materialKeyRef.current, allKeys ]);
 
-  if (updateRef.current) {
-    updateRef.current = false;
-    const matRef = ref?.current?.material;
-    matRef && (matRef.needsUpdate = true);
-  }
 
   // todo: use hide as a higher-level component, to avoid running all of the hooks.
   if (hide) return null;
@@ -74,20 +71,16 @@ export function Primitive(
   return (
     <mesh ref={ref} key={_key} {...rest}>
       <Geometry attach="geometry" args={args}/>
-      <Suspense>
-        <HeightMaterial
-          attach="material"
-          _key={`${_key}-material`}
-          type={materialType}
-          displacementMap={displacementMap}
-          normalMap={normalMap}
-          normalScale={[ 1, 1 ]}
-          displacementScale={1}
-          {...textures}
-          {...materialParams}
-        />
-        {outlines ? <Outlines {...outlines} /> : null}
-      </Suspense>
+      <HeightMaterial
+        _key={`${materialKeyRef.current}`}
+        type={materialType}
+        displacementMap={displacementMap}
+        normalMap={normalMap}
+        normalScale={[ 1, 1 ]}
+        displacementScale={1}
+        {..._material}
+      />
+      {outlines ? <Outlines {...outlines} /> : null}
     </mesh>
   );
 }
