@@ -46,7 +46,7 @@ export function DirectionalLight(
     intensity: { value: intensity, step: 0.005 },
     color,
     hide,
-  }, [ helper ]);
+  }, [ helper, intensity, color, hide ]);
 
   useHelper(controls.useHelper ? lightRef : null, DirectionalLightHelper, 1, 'red');
 
@@ -79,7 +79,7 @@ export function AmbientLight(
       color,
       hide,
     },
-    { collapsed: true },
+    { collapsed: true }, [ intensity, color, hide ]
   );
 
   if (controls.hide) return null;
@@ -111,7 +111,7 @@ export function SpotLight(
       intensity: { value: intensity, step: 0.005 },
       color,
       hide,
-    });
+    }, [ intensity, color, hide ]);
 
   if (controls.hide) return null;
   return <spotLight key={_key} ref={lightRef} {...controls} {...rest} />;
@@ -127,6 +127,8 @@ export function PointLight(
     color = '#ffffff',
     levaPrefix = 'Scene.',
     helper = false,
+    showSphere = false,
+    radius = 0.1,
     ...rest
   }: LightProps<TPL> & PointLightProps,
 ) {
@@ -141,19 +143,21 @@ export function PointLight(
       intensity: { value: intensity, step: 0.005 },
       color,
       hide,
-    });
+    }, [ intensity, color, hide ]);
 
   if (controls.hide) return null;
   return (
     <group>
       <pointLight key={_key} ref={lightRef} {...controls} {...rest} />
-      <Sphere
-        args={[ 0.1, 32, 32 ]}
-        position={rest.position}
-        // @ts-ignore: todo: fix this.
-        emissive={color || 'white'}
-        emissiveIntensity={intensity}
-      />
+      {showSphere
+        ? <Sphere
+          args={[ radius, 32, 32 ]}
+          position={rest.position}
+          // @ts-ignore: todo: fix this.
+          emissive={color || 'white'}
+          emissiveIntensity={intensity}
+        /> : null
+      }
     </group>
   );
 }
