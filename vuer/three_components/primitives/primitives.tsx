@@ -1,5 +1,5 @@
 import { Ref, Suspense, useEffect, useMemo, useRef, useState, } from 'react';
-import { Mesh, TextureLoader } from 'three';
+import { Mesh, RepeatWrapping, TextureLoader } from 'three';
 import { Outlines } from '@react-three/drei';
 import { HeightMaterial } from './height_map_materials';
 
@@ -46,8 +46,12 @@ export function Primitive(
       const isMap = k.endsWith('map') || k.endsWith('Map');
       if (typeof value === 'string' && isMap) {
         loader && loader.load(value, (newTexture) => {
+          const repeat = _material[`${k}Repeat`] as [ number, number ];
+          if (!!repeat) {
+            newTexture.wrapS = newTexture.wrapT = RepeatWrapping;
+            newTexture.repeat.set(...repeat);
+          }
           setTexture((store) => ({ ...store, [k]: newTexture }));
-          // this is asynchronous.
           updateRef.current = true;
         });
       } else {

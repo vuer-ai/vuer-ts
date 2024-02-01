@@ -81,6 +81,8 @@ export function TriMesh(
         });
       } else {
         setMaterial((store) => ({ ...store, [k]: value }));
+        // the previous update flag is set asynchronously. This is synchronous.
+        updateRef.current = true;
       }
     }
   }, materialParamValues);
