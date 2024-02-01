@@ -15,11 +15,11 @@ import { PointLightProps } from '@react-three/fiber';
 import { VuerProps } from '../../interfaces';
 
 type LightProps<TL> = VuerProps<{
-  color: Color | undefined;
-  intensity: number;
-  hide: boolean;
-  levaPrefix: string;
-  helper: boolean;
+  color?: Color | undefined;
+  intensity?: number;
+  hide?: boolean;
+  levaPrefix?: string;
+  helper?: boolean;
 }, TL>;
 
 export function DirectionalLight(
@@ -43,7 +43,7 @@ export function DirectionalLight(
   // @ts-ignore: todo: fix typing
   const controls = useControls(prefix, {
     useHelper: helper,
-    intensity: { value: intensity, step: 0.005 },
+    intensity: { value: intensity, step: 0.05 },
     color,
     hide,
   }, [ helper, intensity, color, hide ]);
@@ -75,7 +75,7 @@ export function AmbientLight(
   const controls = useControls(
     prefix,
     {
-      intensity: { value: intensity, step: 0.005 },
+      intensity: { value: intensity, step: 0.05 },
       color,
       hide,
     },
@@ -108,7 +108,7 @@ export function SpotLight(
 
   const controls = useControls(
     prefix, {
-      intensity: { value: intensity, step: 0.005 },
+      intensity: { value: intensity, step: 0.05 },
       color,
       hide,
     }, [ intensity, color, hide ]);
@@ -140,7 +140,7 @@ export function PointLight(
 
   const controls = useControls(
     prefix, {
-      intensity: { value: intensity, step: 0.005 },
+      intensity: { value: intensity, step: 0.05 },
       color,
       hide,
     }, [ intensity, color, hide ]);
@@ -154,7 +154,7 @@ export function PointLight(
           args={[ radius, 32, 32 ]}
           position={rest.position}
           // @ts-ignore: todo: fix this.
-          emissive={color || 'white'}
+          emissive={color}
           emissiveIntensity={intensity}
         /> : null
       }
