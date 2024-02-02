@@ -1,7 +1,14 @@
-import { Ref, useLayoutEffect, useMemo, useRef, useState, } from 'react';
-import { Mesh, RepeatWrapping, TextureLoader } from 'three';
-import { Outlines } from '@react-three/drei';
+import React, { Ref, useLayoutEffect, useMemo, useRef, } from 'react';
+import { Mesh, RepeatWrapping, Texture, TextureLoader } from 'three';
+import { useLoader } from "@react-three/fiber";
 import { HeightMaterial } from './height_map_materials';
+import { Outlines } from "@react-three/drei";
+
+type MaterialProps = {
+  map?: string | string[];
+  mapRepeat?: [ number, number ];
+  [key: string]: unknown;
+};
 
 type PrimitiveProps = {
   _ref?: Ref<Mesh>;
@@ -11,10 +18,11 @@ type PrimitiveProps = {
   hide?: boolean;
   args?: number[];
   materialType?: 'basic' | 'standard' | 'phong' | 'lambert';
-  material?;
+  material?: MaterialProps;
   outlines?;
   [key: string]: unknown;
 };
+
 
 export function Primitive(
   {
@@ -26,44 +34,24 @@ export function Primitive(
     hide,
     args,
     materialType = 'basic', // One of ["basic", "standard", "phong", "standard", "lambert"]
-    material: { displacementMap, normalMap, ..._material } = {},
+    material: { map, mapRepeat, displacementMap, normalMap, ..._material } = {},
     outlines,
     ...rest
   }: { geometry: string } & PrimitiveProps,
 ) {
-  const [ materialParams, setMaterial ] = useState({});
-  const [ textures, setTexture ] = useState({});
-  const loader = useMemo(() => new TextureLoader(), []);
   const localRef = useRef();
   const ref = _ref || localRef;
-  const updateRef = useRef(false);
 
   const materialKeyRef = useRef(1);
   useLayoutEffect(() => {
     materialKeyRef.current += 1;
   }, [ materialType ])
 
-  const matRef = ref?.current?.material;
-  const allKeys = Object.keys(_material).join(';');
-
-  useLayoutEffect(() => {
-    for (const k in _material) {
-      const value = _material[k];
-      const isMap = k.endsWith('map') || k.endsWith('Map');
-      if (typeof value === 'string' && isMap) {
-        loader && loader.load(value, (newTexture) => {
-          const repeat = _material[`${k}Repeat`] as [ number, number ];
-          if (!!repeat) {
-            newTexture.wrapS = newTexture.wrapT = RepeatWrapping;
-            newTexture.repeat.set(...repeat);
-          }
-          _material[k] = newTexture;
-          matRef && (matRef.needsUpdate = true);
-        });
-      }
-    }
-  }, [ materialKeyRef.current, allKeys ]);
-
+  const texture = useLoader(TextureLoader, map || []) as Texture;
+  if (map && !!mapRepeat) {
+    texture.wrapS = texture.wrapT = RepeatWrapping;
+    texture.repeat.set(...mapRepeat);
+  }
 
   // todo: use hide as a higher-level component, to avoid running all of the hooks.
   if (hide) return null;
@@ -78,7 +66,7 @@ export function Primitive(
         normalMap={normalMap}
         normalScale={[ 1, 1 ]}
         displacementScale={1}
-        {..._material}
+        map={map && texture}
       />
       {outlines ? <Outlines {...outlines} /> : null}
     </mesh>
@@ -154,41 +142,8 @@ type SphereProps = {
   [key: string]: unknown;
 };
 
-export function Sphere(
-  {
-    _ref,
-    _key,
-    // hide,
-    // args = [ 1 ],
-    // color = 'white',
-    materialType = 'basic',
-    ...params
-  }: SphereProps,
-) {
-  // const controls = useControls(
-  //   `Sphere-${_key}`,
-  //   {
-  //     radius: {
-  //       value: args[0],
-  //       step: 0.0001,
-  //       optional: true,
-  //       innerLabelTrim: 10,
-  //       pad: 10,
-  //     },
-  //     color: { value: color, optional: true },
-  //   },
-  //   [ ...args ],
-  // );
-  return (
-    <Primitive
-      ref={_ref}
-      geometry="sphereGeometry"
-      materialType={materialType}
-      // args={[ controls.radius, ...args.slice(1) ]}
-      // color={controls.color || color}
-      {...params}
-    />
-  );
+export function Sphere(params: PrimitiveProps) {
+  return <Primitive geometry={'sphereGeometry'} {...params} />;
 }
 
 export function Tetrahedron(params: PrimitiveProps) {

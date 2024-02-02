@@ -1,6 +1,6 @@
 import { MaterialProps, MeshStandardMaterialProps, useLoader } from '@react-three/fiber';
 import { DataTexture, NoColorSpace, TangentSpaceNormalMap, Texture, TextureLoader, } from 'three';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { useControls } from 'leva';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
@@ -26,6 +26,7 @@ const isLoaded = (image: TextureImageData) => image?.complete && image.naturalHe
 
 type HeightMaterialProps = {
   _key?: string;
+  _ref?: unknown;
   type: 'basic' | 'standard' | 'phong' | 'lambert' | 'normal' | 'depth';
 
   normalMap?: string | string[] | false;
@@ -39,6 +40,7 @@ type HeightMaterialProps = {
 export function HeightMaterial(
   {
     _key,
+    _ref,
     type = 'standard',
     normalMap,
     displacementMap,
@@ -77,7 +79,7 @@ export function HeightMaterial(
     [ normalMap, width, height ],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!!normalMap || normalMap === false) return;
     if (!isLoaded(displacementTexture.image)) return;
     if (!computedNormal || !computedNormal.image) return;
@@ -122,6 +124,8 @@ export function HeightMaterial(
 
   return (
     <MType
+      ref={_ref}
+      key={_key}
       attach="material"
       {...props}
       {...controls}

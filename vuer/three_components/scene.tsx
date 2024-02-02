@@ -2,8 +2,8 @@ import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, }
 import { Canvas } from '@react-three/fiber';
 import { Controllers, VRButton, XR } from '@react-three/xr';
 import { GizmoHelper, GizmoViewport } from '@react-three/drei';
-import { BufferGeometry, Mesh, Object3D, Vector3 } from 'three';
-import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
+import { Mesh, Object3D, Vector3 } from 'three';
+import { acceleratedRaycast } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
 import { CameraLike, OrbitCamera } from './camera';
@@ -21,10 +21,10 @@ import { OrbitControls as tOrbitControls } from "three-stdlib/controls/OrbitCont
 Mesh.prototype.raycast = acceleratedRaycast;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+// BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-BufferGeometry.prototype.disposeBoundsTreee = disposeBoundsTree;
+// BufferGeometry.prototype.disposeBoundsTreee = disposeBoundsTree;
 
 // extend({
 //   SSAOPass,
