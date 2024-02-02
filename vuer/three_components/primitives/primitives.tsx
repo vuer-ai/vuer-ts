@@ -42,10 +42,12 @@ export function Primitive(
   const localRef = useRef();
   const ref = _ref || localRef;
 
+  const materialKeys = Object.keys(_material).join(",");
+
   const materialKeyRef = useRef(1);
   useLayoutEffect(() => {
     materialKeyRef.current += 1;
-  }, [ materialType ])
+  }, [ materialType , materialKeys ])
 
   const texture = useLoader(TextureLoader, map || []) as Texture;
   if (map && !!mapRepeat) {
@@ -60,6 +62,7 @@ export function Primitive(
     <mesh ref={ref} key={_key} {...rest}>
       <Geometry attach="geometry" args={args}/>
       <HeightMaterial
+        // key={`${materialKeyRef.current}`}
         _key={`${materialKeyRef.current}`}
         type={materialType}
         displacementMap={displacementMap}
@@ -67,6 +70,7 @@ export function Primitive(
         normalScale={[ 1, 1 ]}
         displacementScale={1}
         map={map && texture}
+        {..._material}
       />
       {outlines ? <Outlines {...outlines} /> : null}
     </mesh>
