@@ -24,6 +24,8 @@ type WebSocketProviderProps = PropsWithChildren<{
 }>;
 type wsQueries = {
   ws?: string;
+  reconnect?: string; // should get turned into numbers
+  interval?: string; // should get turned into numbers
 };
 export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebSocketProviderProps) {
   const [ isConnected, setIsConnected ] = useStateRef(false);
@@ -103,8 +105,8 @@ export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebS
       shouldReconnect() {
         return shouldReconnect.current;
       },
-      reconnectAttempts: 3,
-      reconnectInterval: 2000,
+      reconnectAttempts: queries.reconnect ? parseInt(queries.reconnect) : 3,
+      reconnectInterval: queries.interval ? parseInt(queries.interval) : 3000,
     },
     (!!socketURI && connectWS),
   );
