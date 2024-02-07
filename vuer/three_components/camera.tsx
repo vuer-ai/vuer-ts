@@ -686,7 +686,7 @@ export function OrbitCamera(
       enablePan
       screenSpacePanning
       onChange={handler}
-      reverseOrbit
+      // reverseOrbit
       maxPolarAngle={(135 / 180) * Math.PI}
       minPolarAngle={(0 / 180) * Math.PI}
       maxZoom={Infinity}
