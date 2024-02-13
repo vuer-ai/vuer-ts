@@ -7,7 +7,7 @@ import { acceleratedRaycast } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
 import { CameraLike, OrbitCamera } from './camera';
-import { Hands } from "./controls/hands";
+import { Hands } from "./controls/hands/hands";
 import { Gamepad } from "./controls/gamepad";
 import { Download } from './download';
 import { GroupSlave, SceneGroup } from './group';

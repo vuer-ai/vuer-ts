@@ -43,7 +43,7 @@ import { AutoScroll } from './html_components/chat/autoscroll';
 import { PointCloud } from './three_components/primitives/pointcloud';
 import { TriMesh } from './three_components/primitives/trimesh';
 import { Gamepad } from './three_components/controls/gamepad';
-import { Hands } from './three_components/controls/hands';
+import { Hands } from './three_components/controls/hands/hands';
 import { SceneBackground } from './three_components/scene_background';
 import { ImageBackground } from './three_components/image_background';
 import { Arrow, CoordsMarker } from "./three_components/primitives/CoordsMarker";

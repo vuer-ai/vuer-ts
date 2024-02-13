@@ -9,6 +9,7 @@
   ],
   "main": "dist/vuer.cjs.js",
   "module": "dist/vuer.es.js",
+  "type": "module",
   "exports": {
     ".": {
       "import": "./dist/vuer.es.js",
