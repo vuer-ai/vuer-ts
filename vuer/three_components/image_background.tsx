@@ -25,7 +25,7 @@ function interpolateTexture(texture: Texture, interpolate: boolean) {
 }
 
 export type ImageBackgroundProps = {
-  _key: string;
+  _key?: string;
   src?: string | Blob;
   alphaSrc?: string | Blob;
   depthSrc?: string | Blob;

@@ -162,8 +162,8 @@ export function CoordsMarker({
 
 
   const material = wireframe
-    ? <meshStandardMaterial wireframe color={color3}/>
-    : <meshBasicMaterial color={color3}/>
+    ? <meshStandardMaterial wireframe/>
+    : <meshBasicMaterial/>
 
   return (
     <group ref={ref} position={position} rotation={rotation} scale={scale}>

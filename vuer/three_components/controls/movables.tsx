@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Euler, Matrix4, Mesh, Object3D, Quaternion, Vector3, } from 'three';
+import { Euler, Group, Matrix4, Mesh, Object3D, Quaternion, Vector3, } from 'three';
 import { MeshProps, Vector3 as rVector3 } from '@react-three/fiber';
 import { PivotControls } from '@react-three/drei';
 import { useXR } from '@react-three/xr';
@@ -22,7 +22,7 @@ export const HandleBox = forwardRef((
   {
     size,
     children,
-    opacity,
+    opacity = 1.0,
     ...rest
   }: MeshProps & PropsWithChildren<{
     size: [ number, number, number ];
@@ -32,7 +32,7 @@ export const HandleBox = forwardRef((
 ) => (
   <mesh ref={ref} {...rest}>
     <boxGeometry args={size}/>
-    <meshPhongMaterial opacity={opacity} color={0xfffff7}/>
+    <meshPhongMaterial opacity={opacity} transparent={opacity < 1} color={0xfffff7}/>
     {children}
   </mesh>
 ));
@@ -78,8 +78,8 @@ export function Pivot(
   }: PivotProps,
 ) {
   const [ state, setState ] = useState({});
-  const ref = useRef() as MutableRefObject<Object3D>;
-  const localRef = _ref || ref;
+  const ref = useRef();
+  const localRef = (_ref || ref) as MutableRefObject<Group | Mesh>;
   const { sendMsg } = useContext(SocketContext) as SocketContextType;
 
   const cache = useMemo<Sim3Type>(() => ({
@@ -113,7 +113,7 @@ export function Pivot(
       pivot.rotation.fromArray(rotation);
       dirty = true;
     }
-    if (dirty) pivot.updateMatrix();
+    if (dirty) pivot?.updateMatrix();
   }, [ position, rotation, localRef.current ]);
 
   function onDrag(
@@ -185,10 +185,10 @@ function addThree(
 
 
 type PivotXRProps = VuerProps<{
-  offset: [ number, number, number ];
-  scale: number;
-  position: [ number, number, number ];
-  rotation: [ number, number, number ];
+  offset?: [ number, number, number ];
+  scale?: number;
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
   onMove?: (event: MoveHandleInputType) => void;
   onMoveEnd?: (event: MoveHandleInputType) => void;
 }>;
@@ -207,8 +207,8 @@ export function PivotXR(
   }: PivotXRProps,
 ) {
   // const cloud_ref = useRef(children.length && children[0], children);
-  const ref = useRef() as MutableRefObject<Mesh>;
-  const localRef = _ref || ref;
+  const ref = useRef();
+  const localRef = (_ref || ref) as MutableRefObject<Mesh>;
 
   const { sendMsg } = useContext(SocketContext) as SocketContextType;
 
@@ -267,7 +267,6 @@ export function PivotXR(
       <HandleBox
         ref={localRef}
         size={[ scale, scale, scale ]}
-        transparent
         opacity={0.5}
         rotation={rotation}
         position={addThree(position, offset) as rVector3}
@@ -284,7 +283,7 @@ type MovableType = VuerProps<{
   lineWidth?: number;
   handleOffset?: [ number, number, number ];
   hide?: boolean;
-} & PivotXRProps & PivotProps>;
+} & PivotXRProps & PivotProps, Group | Mesh>;
 
 export function Movable(
   {

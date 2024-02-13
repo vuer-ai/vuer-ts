@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo } from 'react';
 import { useControls } from 'leva';
 import queryString from 'query-string';
 import { SocketContext } from "../html_components/contexts/websocket";
+import { ClientEvent } from "../interfaces";
 
 interface BackgroundColorProps {
   levaPrefix?: string;
@@ -16,6 +17,8 @@ type BackgroundQueries = {
 
 const preferredTheme = () => window?.matchMedia?.('(prefers-color-scheme:dark)')?.matches ? 'dark' : 'light';
 
+type CameraMoveEvent = ClientEvent<{ world: {world: string } }>
+
 export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: BackgroundColorProps) {
   const queries = useMemo(() => queryString.parse(document.location.search), [ document.location.search ]) as BackgroundQueries;
   const bgColor = useMemo<string>((): string | undefined => {
@@ -27,7 +30,7 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
     if (queries.darkBg) dark = queries.darkBg;
     if (queries.lightBg) light = queries.lightBg;
 
-    const theme =  preferredTheme();
+    const theme = preferredTheme();
 
     let localColor;
     if (theme === "dark") localColor = dark || light;
@@ -51,13 +54,15 @@ export function BackgroundColor({ levaPrefix = 'Scene', color = '#151822' }: Bac
   );
   const { uplink } = useContext(SocketContext);
   useEffect(
-    () => uplink.addReducer('CAMERA_MOVE', (event) =>
+    () => uplink.addReducer('CAMERA_MOVE', ({
+      value: { world, ..._value }, ..._event
+    }: CameraMoveEvent) =>
       // console.log("CAMERA_MOVE-reducer-once", event);
       ({
-        ...event,
+        ..._event,
         value: {
-          ...event.value,
-          world: { ...event.value?.world, background },
+          ..._value,
+          world: { ...(world as object), background },
         },
       })),
     [ uplink, background ],

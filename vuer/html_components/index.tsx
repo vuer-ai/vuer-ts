@@ -1,11 +1,11 @@
-import { ElementType, ReactElement, useContext } from 'react';
+import { Component, ElementType, ReactNode, useContext } from 'react';
 import { comp_list } from '../registry';
 import { AppContext, Node } from '../index';
 
 type HydrateProps = {
   _key?: string;
   tag: string;
-  className: string;
+  className?: string;
   children?: Node[] | string[] | undefined | null;
   [key: string]: unknown;
 };
@@ -18,7 +18,7 @@ export function Hydrate(
     className,
     ...rest
   }: HydrateProps,
-): ReactElement {
+): ReactNode | null | undefined {
 
   const Component = (comp_list[tag] || tag) as ElementType;
 
@@ -26,7 +26,7 @@ export function Hydrate(
 
   if (!tag) {
     showWarning(`No tag provided for component <${tag} ${_key} className="${className}">${children} </...>`)
-    return children;
+    return children as string[];
   }
 
   const hydratedChildren = (children || []).map((child: Node | string) => {

@@ -1,12 +1,22 @@
 import { MutableRefObject, useEffect, useState } from 'react';
 import { Center, PivotControls, Sphere } from '@react-three/drei';
-import { BufferGeometry, Color, ColorRepresentation, Group, Mesh, Object3D, Points, } from 'three';
+import {
+  BufferGeometry,
+  Color,
+  ColorRepresentation,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  Object3D,
+  Points,
+} from 'three';
 import { URDFRobot } from 'urdf-loader';
-import { ThreeEvent } from '@react-three/fiber';
-import { VuerProps } from '../../interfaces';
+import { ThreeEvent, useThree } from '@react-three/fiber';
+import { VuerProps } from "../interfaces";
+import { GLTF } from "three-stdlib";
 
-type ObjProps = VuerProps<{
-  data?: Points<BufferGeometry>;
+export type PcdProps = VuerProps<{
+  data?: Points;
   hide?: boolean;
   color?: string;
 }, Points>;
@@ -14,7 +24,7 @@ type ObjProps = VuerProps<{
 export function PcdView(
   {
     data, _ref, size = 0.0015, hide, ...rest
-  }: ObjProps & {
+  }: PcdProps & {
     size?: number;
   },
 ): JSX.Element | null {
@@ -37,19 +47,29 @@ export function PcdView(
   );
 }
 
+export type ObjProps = VuerProps<{
+  data?: Group;
+  hide?: boolean;
+  color?: string;
+}, Points>;
+
 export function ObjView(
   {
     data, _ref, wireframe = false, color = null, hide, ...rest
   }: ObjProps & { wireframe?: boolean, color?: ColorRepresentation }
 ) {
+  const { scene } = useThree();
   useEffect(() => {
     const color3 = color ? new Color(color) : null;
-    data?.children.forEach((mesh: Mesh) => {
+    data?.children.forEach((mesh: Mesh<BufferGeometry, MeshStandardMaterial>) => {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       mesh.material.wireframe = wireframe;
       if (color3) mesh.material.color = color3;
     })
+    return () => {
+      scene.remove(data)
+    };
   }, [ data, color, wireframe ])
   // done: offer wireframe and color-override options.
   // todo: add key to avoid GL error during fast update
@@ -136,8 +156,23 @@ export function PlyView(
 }
 
 // GLB is a binary container format of GLTF.
-export function GltfView({ data, _ref, ...rest }: VuerProps<{ data: { scene } }>) {
+export function GltfView({ data, _ref, ...rest }: VuerProps<{ data: GLTF }>) {
+  const { scene } = useThree();
+  useEffect(() => {
+    return () => {
+      // from: https://discourse.threejs.org/t/how-to-dispose-and-destroy-gltf-object-completely/24761
+      scene.remove(data.scene);
+    };
+  }, [ data ]);
   return <primitive ref={_ref} object={data.scene} {...rest} />;
+}
+
+function dispose(node: Object3D): void {
+  const n = node as Mesh<BufferGeometry, MeshStandardMaterial>;
+  n.geometry?.dispose();
+  n.material?.dispose();
+  // todo: need to go through the materials to remove texture
+  n.material?.map?.dispose();
 }
 
 export function UrdfView(
@@ -148,12 +183,22 @@ export function UrdfView(
     jointValues;
   }, Group>,
 ) {
+  const { scene } = useThree();
   useEffect(
     () => {
       if (jointValues) robot?.setJointValues(jointValues);
+      return () => {
+        // Object.values(robot.links).forEach(dispose)
+        // Object.values(robot.joints).forEach(dispose)
+        // Object.values(robot.colliders).forEach(dispose)
+        // Object.values(robot.visual).forEach(dispose)
+        // // Object.values(robot.frames).forEach(dispose)
+        scene.remove(robot)
+      };
     },
     [ robot, jointValues ],
-  );
+  )
+  ;
   return <primitive ref={_ref} object={robot} {...rest} />;
 }
 

@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
     "composite": true,
+    "skipLibCheck": true,
     "module": "ESNext",
+    "moduleResolution": "bundler",
     "rootDir": "./",
+    "outDir": "./dist",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "esModuleInterop": true,
@@ -12,30 +16,24 @@
       "DOM.Iterable",
       "webworker"
     ],
-    "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "allowImportingTsExtensions": false,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
   },
-  "main": "vuer/index.cm.js",
-  "include": [],
+  /* Bundler mode */
+  "noEmit": true,
+  "allowSyntheticDefaultImports": true,
+  "allowImportingTsExtensions": false,
+  "resolveJsonModule": true,
+  "isolatedModules": true,
+  /* Linting */
+  "strict": true,
+  "noUnusedLocals": true,
+  "noUnusedParameters": true,
+  "noFallthroughCasesInSwitch": true,
+  "include": [
+    "vuer"
+  ],
   "exclude": [
     "./node_modules",
     "tsconfig.ts",
     "tsconfig.node.ts"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
   ]
 }

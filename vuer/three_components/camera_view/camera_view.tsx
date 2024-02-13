@@ -106,7 +106,7 @@ export function CameraView(
   const cameraRef = useRef() as MutableRefObject<tPerspectiveCamera | tOrthographicCamera>;
   const planeRef = useRef() as MutableRefObject<Mesh<PlaneGeometry>>;
   const frustum = useRef() as MutableRefObject<Group>;
-  const frustumHandle = useRef() as MutableRefObject<Mesh>
+  const frustumHandle = useRef() as MutableRefObject<Group>
 
   const timingCache = useMemo(() => ({
     sinceLastFrame: 0,
@@ -135,19 +135,19 @@ export function CameraView(
     showFrustum: { value: showFrustum, label: "Frustum" },
   }, [ near, far, showFrustum ]);
 
-  const persp: PerspParams = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
+  const persp = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
     (ctrl.camType === 'perspective') ? {
       fov: { value: fov, min: 0, max: 170 },
       aspect: { value: width / height, min: 0.1, max: 10 }
-    } : {}, [ ctrl.camType, fov, width, height ]);
+    } : {}, [ ctrl.camType, fov, width, height ]) as PerspParams;
 
-  const ortho: OrthoParams = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
+  const ortho = useControls(_key ? `Scene.Camera-${_key}` : "Scene.Camera",
     (ctrl.camType === "orthographic") ? {
       top: { value: top, min: -10, step: 0.1 },
       bottom: { value: bottom, min: -10, step: 0.1 },
       left: { value: left, min: -10, step: 0.1 },
       right: { value: right, min: -10, step: 0.1 },
-    } : {}, [ ctrl.camType, top, bottom, left, right ]);
+    } : {}, [ ctrl.camType, top, bottom, left, right ]) as OrthoParams;
 
   const renderer = useMemo(() => {
     const r = new WebGLRenderer({
@@ -167,7 +167,7 @@ export function CameraView(
     } else {
       aspect = (ortho.right - ortho.left) / (ortho.top - ortho.bottom);
     }
-    // // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
+    // @ts-ignore: aspect is only available on the PerspectiveCamera. Need to fix this.
     cameraRef.current.aspect = aspect;
     cameraRef.current.updateProjectionMatrix();
     /* note: setting the updateStyle to `false`, to avoid the error. OffScreenCanvas lack styling attribute. */

@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithRef, useMemo, } from 'react';
+import { createContext, PropsWithRef, useMemo, } from 'react';
 import queryString from 'query-string';
 import { Leva } from 'leva';
 import { document } from './third_party/browser-monads';
@@ -18,7 +18,7 @@ interface QueryParams {
   collapseMenu?: string;
 }
 
-type VuerRootProps = PropsWithRef<{ style? } & SceneContainerP>;
+type VuerRootProps = PropsWithRef<{ style?: object} & SceneContainerP>;
 
 export const AppContext = createContext({
   showError: (msg: string) => console.error(msg),
@@ -32,7 +32,7 @@ export const AppContext = createContext({
 
 export const AppProvider = AppContext.Provider;
 
-function VuerRoot({ style, ...rest }: VuerRootProps) {
+function VuerRoot({ style = {}, ...rest }: VuerRootProps) {
 
   const queries = useMemo<QueryParams>(() => {
     const parsed = queryString.parse(document.location.search) as QueryParams;
@@ -50,7 +50,7 @@ function VuerRoot({ style, ...rest }: VuerRootProps) {
       width: '100%',
       height: '100%',
       zIndex: 10,
-      ...(style || {}),
+      ...style,
     }),
     [ style ],
   );

@@ -24,10 +24,12 @@ import { height2normal } from './normal_map_utils';
 
 const isLoaded = (image: TextureImageData) => image?.complete && image.naturalHeight !== 0;
 
-type HeightMaterialProps = {
+export type MaterialTypes = 'basic' | 'standard' | 'phong' | 'lambert' | 'normal' | 'depth';
+
+type HeightMaterialProps = Omit<MaterialProps, 'normalMap'> & {
   _key?: string;
   _ref?: unknown;
-  type: 'basic' | 'standard' | 'phong' | 'lambert' | 'normal' | 'depth';
+  type: MaterialTypes;
 
   normalMap?: string | string[] | false;
   displacementMap?: string | string[];
@@ -35,7 +37,7 @@ type HeightMaterialProps = {
   normalScale: number | number[];
   displacementScale: number;
   [key: string]: unknown;
-} & MaterialProps;
+};
 
 export function HeightMaterial(
   {

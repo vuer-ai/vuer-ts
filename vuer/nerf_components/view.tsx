@@ -12,9 +12,7 @@ import { button, buttonGroup, useControls } from 'leva';
 import { ButtonInput, ButtonSettings } from 'leva/plugin';
 import { ImageBackground } from '../three_components/image_background';
 import { BBox } from '../three_components/primitives/bbox';
-import {
-  GroupSlave, rot2array, scale2array, v3array,
-} from '../three_components/group';
+import { GroupSlave, rot2array, scale2array, v3array, } from '../three_components/group';
 import { V3 } from '../three_components/number_types';
 import { ClientEvent, ServerEvent, VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
@@ -48,6 +46,8 @@ export type BaseRenderSettingsType = {
   layers: string[];
 };
 
+export type CameraMoveEvent = ClientEvent<{ render?: object }>
+
 export type RenderProps = VuerProps<{
   layers: string[];
   children: ReactElement[];
@@ -64,7 +64,8 @@ export function Render(
     children = [],
   }: RenderProps,
 ) {
-  let controls; let
+  let controls;
+  let
     setLeva: (state) => void;
   const context = useMemo<{ layers: Set<ReactElement> }>(
     () => ({ layers: new Set() }),
@@ -138,31 +139,36 @@ export function Render(
   const renderSettings = useControls('Render.more․․․', _settings, {
     collapsed: true,
   }) as BaseRenderSettingsType;
-    // the world position and rotations are added on the top.
+  // the world position and rotations are added on the top.
   useEffect(() => {
     setTimeout(() => uplink?.publish({ etype: 'CAMERA_UPDATE' }), 0);
-    return uplink.addReducer('CAMERA_MOVE', (event) => ({
-      ...event,
-      value: {
-        ...event.value,
-        render: {
-          ...(event.value.render || {}),
-          // ideally this should be done as part of the schema.
-          // progressive: Math.pow(2, progressive),
-          ...controls,
-          ...renderSettings,
-          // cast to list
-          layers: selectChildren.map((c) => c.key),
+    return uplink.addReducer(
+      'CAMERA_MOVE',
+      ({
+        value: { render, ..._value },
+        ..._event
+      }: CameraMoveEvent) => ({
+        ..._event,
+        value: {
+          ..._value,
+          render: {
+            ...render,
+            // ideally this should be done as part of the schema.
+            // progressive: Math.pow(2, progressive),
+            ...controls,
+            ...renderSettings,
+            // cast to list
+            layers: selectChildren.map((c) => c.key),
+          },
         },
-      },
-    }));
+      }));
   }, [ selectChildren, uplink, renderSettings, controls ]);
 
   return (
     <>
       {renderSettings.use_aabb ? (
         <GroupSlave>
-          <BBox min={renderSettings.aabb_min} max={renderSettings.aabb_max} />
+          <BBox min={renderSettings.aabb_min} max={renderSettings.aabb_max}/>
         </GroupSlave>
       ) : null}
       <RenderContext.Provider value={context}>
@@ -229,19 +235,19 @@ export function RenderLayer(
   const renderParams = useControls(title, setting_cache, folderOptions, [
     settings,
   ]) as BaseRenderParamsType;
-    // the world position and rotations are added on the top.
+  // the world position and rotations are added on the top.
   useLayoutEffect(() => {
     setTimeout(() => uplink?.publish({ etype: 'CAMERA_UPDATE' }), 0);
     return uplink.addReducer(
       'CAMERA_MOVE',
-      (event: ClientEvent) =>
+      ({ value: { render = {}, ..._value }, ..._event }: CameraMoveEvent) =>
         // console.log("render layer: event", event);
         ({
-          ...event,
+          ..._event,
           value: {
-            ...event.value,
+            ..._value,
             render: {
-              ...(event.value.render || {}),
+              ...render,
               [_key]: renderParams,
             },
           },
@@ -265,7 +271,7 @@ export function RenderLayer(
   );
 
   const onMessage = useCallback(
-    ({ etype, data }: ServerEvent) => {
+    ({ etype, data }: ServerEvent<Record<string, string | Blob>>) => {
       // console.log("RenderLayer", etype, data);
       if (etype !== 'RENDER') return;
 
@@ -295,7 +301,7 @@ export function RenderLayer(
             rotation={rot2array(renderParams.rotation)}
             scale={scale2array(renderParams.scale)}
           >
-            <BBox min={renderParams.aabb_min} max={renderParams.aabb_max} />
+            <BBox min={renderParams.aabb_min} max={renderParams.aabb_max}/>
           </group>
         </GroupSlave>
       ) : null}

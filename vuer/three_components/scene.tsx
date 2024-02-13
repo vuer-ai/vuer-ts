@@ -15,15 +15,12 @@ import { BackgroundColor } from './color';
 import { document } from '../third_party/browser-monads';
 import { ClientEvent, VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
+// @ts-ignore: no type definition for three-stdlib
 import { OrbitControls as tOrbitControls } from "three-stdlib/controls/OrbitControls";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 // BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 // BufferGeometry.prototype.disposeBoundsTreee = disposeBoundsTree;
 
 // extend({
@@ -109,10 +106,10 @@ export function Scene({
     () => ({
       overflow: 'hidden',
       ...(style || {
-        height: '300px',
-        width: '400px',
-        border: '1px solid black',
-        margin: '5px 5px 5px 5px',
+        height: '100vh',
+        width: '100vw',
+        margin: '0px',
+        border: '0px',
       }),
     }),
     [ style ],

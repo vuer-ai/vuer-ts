@@ -15,6 +15,7 @@ type MethodType = {
   [key: string]: unknown;
 }
 
+// @ts-ignore
 self.onmessage = function ({
   data: {
     rgba,

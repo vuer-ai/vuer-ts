@@ -1,6 +1,4 @@
-import {
-  PropsWithChildren, useContext, useEffect, useMemo,
-} from 'react';
+import { PropsWithChildren, useContext, useEffect, useMemo, } from 'react';
 import { useControls } from 'leva';
 import queryString, { ParsedQuery } from 'query-string';
 import { Euler, Vector3 } from '@react-three/fiber';
@@ -28,7 +26,7 @@ export function rad2deg(rotation: SO3): SO3 {
   } as SO3;
 }
 
-export const v3array = ({ x, y, z }: V3): [number, number, number] => [ x, y, z ];
+export const v3array = ({ x, y, z }: V3): [ number, number, number ] => [ x, y, z ];
 export const euler2array = ({
   x, y, z, order = undefined,
 }: SO3): Euler => {
@@ -37,7 +35,7 @@ export const euler2array = ({
 };
 export const rot2array = (rotation: SO3): Euler => euler2array(deg2rad(rotation));
 
-export const scale2array = (scale: number | [number, number, number] | V3): Vector3 => {
+export const scale2array = (scale: number | [ number, number, number ] | V3): Vector3 => {
   if (typeof scale === 'number') return [ scale, scale, scale ] as Vector3;
   return v3array(scale as V3) as Vector3;
 };
@@ -80,12 +78,10 @@ export function SceneGroup({
     let scale;
 
     if (q.rotation) {
-      // @ts-expect-error: okay for now
       const [ x, y, z ] = q.rotation.split(',').filter((u) => u && u === u).map(parseFloat);
       rotation = { x, y, z };
     }
     if (q.position) {
-      // @ts-expect-error: okay for now
       const [ x, y, z ] = q.position.split(',').filter((u) => u && u === u).map(parseFloat);
       position = { x, y, z };
     }
@@ -130,12 +126,12 @@ export function SceneGroup({
     // update the scene store.
     sceneStore.update({ position, rotation, scale } as SceneStoreType);
 
-    return uplink.addReducer('CAMERA_MOVE', (event: ClientEvent): ClientEvent => ({
+    return uplink.addReducer('CAMERA_MOVE', (event: ClientEvent<{ world: number[] }>): ClientEvent => ({
       ...event,
       value: {
-        ...event.value,
+        ...(event.value as object),
         world: {
-          ...event.value?.world,
+          ...(event.value?.world as object),
           position,
           rotation, // : deg2rad(rotation),
           scale,
@@ -153,6 +149,7 @@ export function SceneGroup({
     </group>
   );
 }
+
 export function GroupSlave({ children }: PropsWithChildren) {
   const { position, rotation, scale } = useSceneStore() as Sim3;
   return (

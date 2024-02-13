@@ -89,11 +89,13 @@ export function TriMesh(
 
   if (updateRef.current) {
     updateRef.current = false;
+    // @ts-ignore: geom is defined
     const matRef = meshRef?.current?.material;
     matRef && (matRef.needsUpdate = true);
   }
 
   useLayoutEffect(() => {
+    // @ts-ignore: geom is defined
     const geom = meshRef?.current?.geometry;
     if (!geom || !geometry.uv) return;
     geom.attributes.uv = new BufferAttribute(geometry.uv, 2)
@@ -133,6 +135,7 @@ export function TriMesh(
         />
       </bufferGeometry>
       <MType
+        // @ts-ignore: suppress not in intrinsic props error.
         attach="material"
         wireframe={wireframe}
         // only use vertex colors if it is provided.

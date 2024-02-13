@@ -70,13 +70,15 @@ export const PerspectiveCamera: ForwardRefComponent<Props, PerspectiveCameraImpl
       // that must exchange the default, and clean up after itself on unmount.
     }, [ cameraRef, makeDefault, set ])
 
-    return (
-      <>
-        <perspectiveCamera ref={mergeRefs([ cameraRef, ref ])} {...props}>
-          {!functional && children}
-        </perspectiveCamera>
-        <group ref={groupRef}>{functional && children(fbo.texture)}</group>
+    if (functional) {
+      const c = children as (texture: THREE.Texture) => React.ReactNode
+      return <>
+        <perspectiveCamera ref={mergeRefs([ cameraRef, ref ])} {...props} />
+        <group ref={groupRef}>{c(fbo.texture)}</group>
       </>
-    )
+    } else {
+      return <perspectiveCamera
+        ref={mergeRefs([ cameraRef, ref ])} {...props} >{children as React.ReactNode}</perspectiveCamera>
+    }
   }
 )

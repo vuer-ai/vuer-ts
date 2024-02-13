@@ -1,12 +1,14 @@
-import React, { Ref, useLayoutEffect, useMemo, useRef, } from 'react';
+import React, { Ref, useLayoutEffect, useRef, } from 'react';
 import { Mesh, RepeatWrapping, Texture, TextureLoader } from 'three';
 import { useLoader } from "@react-three/fiber";
-import { HeightMaterial } from './height_map_materials';
+import { HeightMaterial, MaterialTypes } from './height_map_materials';
 import { Outlines } from "@react-three/drei";
 
 type MaterialProps = {
   map?: string | string[];
   mapRepeat?: [ number, number ];
+  normalMap?: string | string[];
+  displacementMap?: string | string[];
   [key: string]: unknown;
 };
 
@@ -17,7 +19,7 @@ type PrimitiveProps = {
   children?;
   hide?: boolean;
   args?: number[];
-  materialType?: 'basic' | 'standard' | 'phong' | 'lambert';
+  materialType?: MaterialTypes;
   material?: MaterialProps;
   outlines?;
   [key: string]: unknown;
@@ -47,7 +49,7 @@ export function Primitive(
   const materialKeyRef = useRef(1);
   useLayoutEffect(() => {
     materialKeyRef.current += 1;
-  }, [ materialType , materialKeys ])
+  }, [ materialType, materialKeys ])
 
   const texture = useLoader(TextureLoader, map || []) as Texture;
   if (map && !!mapRepeat) {
@@ -59,7 +61,9 @@ export function Primitive(
   if (hide) return null;
 
   return (
+    // @ts-ignore: todo: fix typing
     <mesh ref={ref} key={_key} {...rest}>
+      {/* @ts-ignore: todo: fix typing*/}
       <Geometry attach="geometry" args={args}/>
       <HeightMaterial
         // key={`${materialKeyRef.current}`}

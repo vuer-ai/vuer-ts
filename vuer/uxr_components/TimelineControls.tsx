@@ -37,9 +37,10 @@ export function TimelineControls({ _key: key, start = 0, end, stepSize = 1, play
 
   }, []);
 
-  const c = useControls("Timeline", {
+  const c  = useControls("Timeline", {
+    // @ts-ignore: there seems to be something wrong with the schema type.
     stepSize: { value: stepSize, min: -5, max: 10, step: 0.5 },
-  }, [])
+  }, []) as { stepSize: number }
 
   const [ ctrl, setControl ] = useControls("Timeline", () => {
     return {
@@ -60,12 +61,13 @@ export function TimelineControls({ _key: key, start = 0, end, stepSize = 1, play
         if (clock.running) clock.stop();
         else clock.start()
       }, {
-        label() {
+        // @ts-ignore: there seems to be something wrong with the button type.
+        label: function () {
           return clock.running ? "Pause" : "Play";
         }
       })
     };
-  }, [ c.stepSize ])
+  }, [ c.stepSize ]);
 
   useEffect(() => {
     if (ctrl.frameRate <= 0) return;

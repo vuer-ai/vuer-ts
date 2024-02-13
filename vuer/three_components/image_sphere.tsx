@@ -11,7 +11,9 @@ import {
   SphereGeometry,
   Texture,
 } from 'three';
-import { Sphere } from '@react-three/drei';
+import { Args, Sphere } from '@react-three/drei';
+import * as THREE from "three";
+import { ShapeProps } from "@react-three/drei/core/shapes";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -94,7 +96,7 @@ export default function ImageSphere(
   }, [ camera.fov, camera.aspect ])
 
   // note: only works with perspective camera
-  const args = useMemo(() => {
+  const args: Args<typeof SphereGeometry> = useMemo(() => {
     if (camera.type !== "PerspectiveCamera") {
       console.warn("ImageSphere only works with perspective camera");
       return;
@@ -115,7 +117,7 @@ export default function ImageSphere(
       0.5 * Math.PI - cyRad, 2 * cyRad
     ]
     // the sphere needs to re-construct anyways.
-    return args;
+    return args as Args<typeof SphereGeometry>;
 
   }, [ camera.fov, camera.aspect ]);
 

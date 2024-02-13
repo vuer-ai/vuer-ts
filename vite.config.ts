@@ -21,9 +21,13 @@ export default defineConfig({
     minify: false, // <-- this is the important part
     lib: {
       name: 'Vuer',
-      entry: path.resolve(__dirname, './vuer/index.tsx'),
+      entry: {
+        "vuer": path.resolve(__dirname, './vuer/index.tsx'),
+        "registry": path.resolve(__dirname, './vuer/registry.tsx'),
+        "html_components/contexts/websocket": path.resolve(__dirname, './vuer/html_components/contexts/websocket.tsx'),
+      },
       formats: [ 'es', 'cjs' ],
-      fileName: (format) => `vuer.${format}.js`,
+      fileName: (format, name) => `${name}.${format}.js`,
     },
     rollupOptions: {
       // These are the libraries that we do not want to include in our bundle.

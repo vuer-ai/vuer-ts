@@ -51,8 +51,11 @@ type CameraProps = VuerProps<{
   near?: number;
   far?: number;
   fov?: number;
+  makeDefault?: boolean;
   position?: [ number, number, number ];
   rotation?: [ number, number, number ];
+  matrix?: [ number, number, number, number, number, number, number, number, number, number, number,
+    number, number, number, number, number ];
 }>;
 
 export function Camera(
@@ -99,7 +102,7 @@ export function Camera(
       cam.updateWorldMatrix(true, true);
       invalidate();
     }
-  }, [ ref.current, ...(matrix || []) ]);
+  }, [ ref.current, matrix ]);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -129,6 +132,7 @@ export function Camera(
     <>
       {/* @ts-ignore: disable this check now. */}
       <Component
+        // @ts-ignore: disable this check now.
         ref={ref}
         position={position || undefined}
         rotation={rotation || undefined}

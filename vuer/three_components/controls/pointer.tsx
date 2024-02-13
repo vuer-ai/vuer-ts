@@ -148,7 +148,7 @@ export function PointerControls({
 }: PointerControlProps) {
 
   const { gl } = useThree();
-  const localRef = useRef()
+  const localRef = useRef() as MutableRefObject<HTMLElement>;
 
   useLayoutEffect(() => {
     if (!parent) localRef.current = gl.domElement;

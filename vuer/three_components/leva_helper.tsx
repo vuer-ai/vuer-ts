@@ -16,8 +16,8 @@ import { folder } from 'leva';
 export function list2menu(nodes: Node[], expand: boolean) {
   const menu = {};
   nodes.forEach((node: Node) => {
-    // @ts-ignore: not even used anymore, can just remove.
     const {
+      // @ts-ignore: not even used anymore, can just remove.
       label, color, threshold, hide, ...rest
     } = node;
     if (color) {

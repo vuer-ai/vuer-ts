@@ -20,11 +20,13 @@ export function PlayBar({ camCtrlRef }: PlayBarProps) {
       position: [ -x / aspect, y / aspect, 0 ],
     }),
     onHover: ({ hovering }) => {
+      // @ts-ignore: under construction
       camCtrlRef.current.enabled = !hovering;
       set({ scale: hovering ? [ 1.2, 1.2, 1.2 ] : [ 1, 1, 1 ] })
     }
   })
   return (
+    // @ts-ignore: under construction
     <animated.mesh {...spring} {...bind()} castShadow>
       <boxGeometry args={[ 0.1, 0.1, 0.1 ]}/>
       <meshStandardMaterial color="hotpink"/>

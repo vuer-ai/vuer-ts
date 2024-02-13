@@ -54,6 +54,12 @@ const SceneAttrs = [
   'children', 'rawChildren', 'htmlChildren', 'bgChildren'
 ]
 
+export type SetEvent = ServerEvent & { data: { tag: string } & SceneType };
+export type AddEvent = ServerEvent & { data: { nodes: Node[], to: string } };
+export type UpdateEvent = ServerEvent & { data: { nodes: Node[] } };
+export type UpsertEvent = ServerEvent & { data: { nodes: Node[], to: string } };
+export type RemoveEvent = ServerEvent & { data: { keys: string[] } };
+
 export default function SceneContainer({ children: _, ..._props }: SceneContainerP) {
 
   const queries = useMemo<QueryParams>(() =>
@@ -106,17 +112,19 @@ export default function SceneContainer({ children: _, ..._props }: SceneContaine
         { collapsed: true },
       ),
       "Share": button(() => {
-        const sceneStr = pack(scene);
-        if (sceneStr.length > 10_000) {
-          return showError(`The scene likely contains a large amount of data. To share, please replace 
+          const sceneStr = pack(scene);
+          if (sceneStr.length > 10_000) {
+            return showError(`The scene likely contains a large amount of data. To share, please replace 
           geometry data with an URI. Length is ${sceneStr.length} bytes.`)
-        }
-        const chars = String.fromCharCode.apply(null, sceneStr)
-        const scene64b = btoa(chars);
-        const url = new URL(document.location);
-        url.searchParams.set('scene', scene64b);
-        document.location.href = url.toString();
-      }, { label: "Share Scene" }),
+          }
+          const chars = String.fromCharCode.apply(null, sceneStr)
+          const scene64b = btoa(chars);
+          const url = new URL(document.location);
+          url.searchParams.set('scene', scene64b);
+          document.location.href = url.toString();
+        },
+        // @ts-ignore: leva is broken
+        { label: "Share Scene" }),
       Scene: folder({}),
       Render: folder(
         {
@@ -136,13 +144,13 @@ export default function SceneContainer({ children: _, ..._props }: SceneContaine
 
 
   useEffect(() => {
-    const removeSet = downlink.subscribe("SET", ({ etype, data }: ServerEvent) => {
+    const removeSet = downlink.subscribe("SET", ({ etype, data }: SetEvent) => {
       // the top level is a dummy node
       if (data.tag !== "Scene") showError(`The top level node of the SET operation must be a <Scene/> object, got <${data.tag}/> instead.`)
       setScene(data as SceneType);
     })
 
-    const removeAdd = downlink.subscribe("ADD", ({ etype, data }: ServerEvent) => {
+    const removeAdd = downlink.subscribe("ADD", ({ etype, data }: AddEvent) => {
       // the API need to be updated, so are the rest of the API.
       const { nodes, to: parentKey } = data;
       let dirty;
@@ -156,7 +164,7 @@ export default function SceneContainer({ children: _, ..._props }: SceneContaine
       }
       if (dirty) setScene({ ...sceneRef.current });
     })
-    const removeUpdate = downlink.subscribe("UPDATE", ({ etype, data }: ServerEvent) => {
+    const removeUpdate = downlink.subscribe("UPDATE", ({ etype, data }: UpdateEvent) => {
       /* this is the find and update. */
       let dirty = false;
       const { nodes } = data;
@@ -174,7 +182,7 @@ export default function SceneContainer({ children: _, ..._props }: SceneContaine
         setScene({ ...sceneRef.current });
       }
     })
-    const removeUpsert = downlink.subscribe("UPSERT", ({ etype, data }: ServerEvent) => {
+    const removeUpsert = downlink.subscribe("UPSERT", ({ etype, data }: UpsertEvent) => {
       /* this is the find and update, or add if not found.. */
       const { nodes, to } = data;
       const parentKey = to || 'children';
@@ -189,12 +197,12 @@ export default function SceneContainer({ children: _, ..._props }: SceneContaine
       // note: use the spread to create a new instance to trigger update.
       setScene({ ...sceneRef.current });
     })
-    const removeRemove = downlink.subscribe("REMOVE", ({ etype, data }: ServerEvent) => {
+    const removeRemove = downlink.subscribe("REMOVE", ({ etype, data }: RemoveEvent) => {
       const { keys } = data;
       let dirty;
       for (const key of keys) {
         const removed = removeByKey(sceneRef.current, key);
-        dirty = dirty || (removed?.length > 0)
+        dirty = dirty || removed;
       }
       if (dirty) setScene({ ...sceneRef.current });
     })

@@ -2,25 +2,27 @@ import { MutableRefObject, useRef } from 'react';
 import { useControls } from 'leva';
 import { Sphere, useHelper } from '@react-three/drei';
 import {
-  AmbientLight as TAL,
-  Color,
-  DirectionalLight as TDL,
-  DirectionalLightHelper,
+  AmbientLightProps as TALP,
+  DirectionalLightProps as TDLP,
+  SpotLightProps as TSLP,
+} from '@react-three/fiber';
+import {
   PointLight as TPL,
-  PointLightHelper,
   SpotLight as TSL,
+  DirectionalLight as TDL,
+  AmbientLight as TAL,
+  DirectionalLightHelper,
+  PointLightHelper,
   SpotLightHelper,
-} from 'three';
-import { PointLightProps } from '@react-three/fiber';
-import { VuerProps } from '../../interfaces';
+} from "three";
+import { VuerProps } from "../interfaces";
 
-type LightProps<TL> = VuerProps<{
-  color?: Color | undefined;
+type LightProps<TLP> = VuerProps<{
   intensity?: number;
   hide?: boolean;
   levaPrefix?: string;
   helper?: boolean;
-}, TL>;
+}, TLP>;
 
 export function DirectionalLight(
   {
@@ -33,24 +35,28 @@ export function DirectionalLight(
     levaPrefix = 'Scene.',
     helper = false,
     ...rest
-  }: LightProps<TDL>,
+  }: LightProps<TDLP>,
 ) {
   const lightRef = useRef() as MutableRefObject<TDL>;
 
   let prefix = levaPrefix ? `${levaPrefix}Directional Light` : 'Directional Light'
   prefix = _key ? `${prefix}-[${_key}]` : prefix;
 
-  // @ts-ignore: todo: fix typing
+  // @ts-ignore: leva is broken
   const controls = useControls(prefix, {
     useHelper: helper,
     intensity: { value: intensity, step: 0.05 },
+    // @ts-ignore: leva is broken
     color,
     hide,
   }, [ helper, intensity, color, hide ]);
 
-  useHelper(controls.useHelper ? lightRef : null, DirectionalLightHelper, 1, 'red');
+  // @ts-ignore: leva is broken
+  useHelper(controls.useHelper as boolean ? lightRef : null, DirectionalLightHelper, 1, 'red');
 
+  // @ts-ignore: leva is broken
   if (controls.hide) return null;
+  // @ts-ignore: leva is broken
   return <directionalLight key={_key} ref={lightRef} {...controls} {...rest} />;
 }
 
@@ -65,7 +71,7 @@ export function AmbientLight(
     levaPrefix = 'Scene.',
 
     ...rest
-  }: LightProps<TAL>,
+  }: LightProps<TALP>,
 ) {
   const lightRef = useRef() as MutableRefObject<TAL>;
 
@@ -74,15 +80,19 @@ export function AmbientLight(
 
   const controls = useControls(
     prefix,
+    // @ts-ignore: leva is broken
     {
       intensity: { value: intensity, step: 0.05 },
+      // @ts-ignore: leva is broken
       color,
       hide,
     },
     { collapsed: true }, [ intensity, color, hide ]
   );
 
+  // @ts-ignore: leva is broken
   if (controls.hide) return null;
+  // @ts-ignore: leva is broken
   return <ambientLight key={_key} ref={lightRef} {...controls} {...rest} />;
 }
 
@@ -97,7 +107,7 @@ export function SpotLight(
     levaPrefix = 'Scene.',
     helper = false,
     ...rest
-  }: LightProps<TSL>,
+  }: LightProps<TSLP>,
 ) {
   const lightRef = useRef() as MutableRefObject<TSL>;
   // @ts-ignore: todo: fix typing
@@ -107,15 +117,23 @@ export function SpotLight(
   prefix = _key ? `${prefix}-[${_key}]` : prefix;
 
   const controls = useControls(
+    // @ts-ignore: leva typing is broken
     prefix, {
       intensity: { value: intensity, step: 0.05 },
+      // @ts-ignore: leva is broken
       color,
       hide,
     }, [ intensity, color, hide ]);
 
+  // @ts-ignore: leva typing is broken
   if (controls.hide) return null;
+  // @ts-ignore: todo: fix typing
   return <spotLight key={_key} ref={lightRef} {...controls} {...rest} />;
 }
+
+type PointLightProps = LightProps<{
+  radius?: number;
+} & Omit<TPL, "radius">>;
 
 export function PointLight(
   {
@@ -130,7 +148,7 @@ export function PointLight(
     showSphere = false,
     radius = 0.1,
     ...rest
-  }: LightProps<TPL> & PointLightProps,
+  }: PointLightProps,
 ) {
   const lightRef = useRef() as MutableRefObject<TPL>;
   useHelper(helper ? lightRef : null, PointLightHelper, 1, 'red');
@@ -139,19 +157,23 @@ export function PointLight(
   prefix = _key ? `${prefix}-[${_key}]` : prefix;
 
   const controls = useControls(
+    // @ts-ignore: this is fine
     prefix, {
       intensity: { value: intensity, step: 0.05 },
+      // @ts-ignore: leva is broken
       color,
       hide,
     }, [ intensity, color, hide ]);
 
+  // @ts-ignore: this is fine
   if (controls.hide) return null;
   return (
     <group>
       <pointLight key={_key} ref={lightRef} {...controls} {...rest} />
       {showSphere
         ? <Sphere
-          args={[ radius, 32, 32 ]}
+          args={[ radius as number, 32, 32 ]}
+          // @ts-ignore: todo: fix this.
           position={rest.position}
           // @ts-ignore: todo: fix this.
           emissive={color}

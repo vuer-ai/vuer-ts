@@ -11,7 +11,7 @@ import {
   STLLoader,
 } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
-import { BufferGeometry, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
+import { BufferGeometry, Group, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
 import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
 import { AppContext } from "../index";
 import { SocketContext } from "../html_components/contexts/websocket";
@@ -47,7 +47,7 @@ type Props = PropsWithChildren<{
 export function Obj({
   _key, src, text, buff, mtl, hide, encoding = 'ascii', onLoad, ...rest
 }: Props) {
-  const [ data, setData ] = useState<{ scene: unknown } | undefined>();
+  const [ data, setData ] = useState<Group | undefined>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new OBJLoader();
@@ -138,7 +138,7 @@ export function Ply({
 export function Glb({
   _key, src, text, buff, hide, encoding = 'ascii', onLoad, ...rest
 }: Props) {
-  const [ data, setData ] = useState<unknown>();
+  const [ data, setData ] = useState<GLTF>();
   useEffect(() => {
     if (!data && hide) return;
     const loader = new GLTFLoader();
@@ -157,7 +157,7 @@ export function Glb({
     });
   }, [ data ])
   if (!data) return null;
-  return <GltfView data={data as { scene: unknown }} hide={hide} {...rest} />;
+  return <GltfView data={data} hide={hide} {...rest} />;
 }
 
 type URDFProps = Props & {

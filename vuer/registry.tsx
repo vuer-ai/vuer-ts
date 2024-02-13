@@ -53,6 +53,7 @@ import { TimelineControls } from "./uxr_components/TimelineControls";
 import { PointerControls } from "./three_components/controls/pointer";
 import { Grid } from "./three_components/grid";
 import { drei_component_list } from "./drei_components";
+import SceneContainer from "./three_components";
 
 // prettier-ignore
 type CompList = Record<string, FC | Component | Promise<Component>>;
@@ -65,6 +66,7 @@ export const comp_list: CompList = {
   ImageUpload,
   Div,
   // three components
+  SceneContainer,
   Scene,
   SceneBackground,
   ImageBackground,
@@ -117,7 +119,7 @@ export const comp_list: CompList = {
   TimelineControls,
   PointerControls,
   Grid,
-  Splats: React.lazy(() => import( './third_party/luma_splats' )) as Promise<Component>,
+  Splats: React.lazy(() => import( './third_party/luma_splats' )),
   BBox,
   Render,
   RenderLayer,

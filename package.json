@@ -1,7 +1,7 @@
 {
   "name": "@vuer-ai/vuer",
   "author": "Ge Yang",
-  "version": "0.0.25-patch-8",
+  "version": "0.0.26-rc1",
   "private": false,
   "files": [
     "vuer",
@@ -9,6 +9,20 @@
   ],
   "main": "dist/vuer.cjs.js",
   "module": "dist/vuer.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vuer.es.js",
+      "require": "./dist/vuer.cjs.js"
+    },
+    "./registry": {
+      "import": "./dist/registry.es.js",
+      "require": "./dist/registry.cjs.js"
+    },
+    "./html_components/contexts/websocket": {
+      "import": "./dist/html_components/contexts/websocket.es.js",
+      "require": "./dist/html_components/contexts/websocket.cjs.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

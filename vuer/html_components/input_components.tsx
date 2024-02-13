@@ -48,9 +48,8 @@ export function Slider({
           const { value } = target as HTMLInputElement;
           sendMsg({ etype: 'SET', key, value });
         }}
-        // @ts-expect-error: not sure how to fix
         onChange={({ target }: ChangeEvent<HTMLInputElement>) => {
-          setValue(target.value as number);
+          setValue(Number(target.value) as number);
         }}
         {...props}
       />
@@ -59,11 +58,12 @@ export function Slider({
   );
 }
 
-export function Img({ _key: key, children, ...props }: VuerProps) {
+export type ImgProps = VuerProps<{ alt: string }>;
+export function Img({ _key: key, children, alt, ...props }: ImgProps) {
   const { sendMsg } = useContext(SocketContext);
   return (
     <img
-      alt={props.alt || key}
+      alt={alt || key}
       className="input-image"
       onClick={(e: MouseEvent<HTMLImageElement>) => {
         console.log('click on image');
@@ -176,7 +176,6 @@ export function ImageUpload({ _key: key, label }: ImageUploadProps) {
   const { sendMsg } = useContext(SocketContext);
   const [ file, setFile ] = useState<Blob | null>(null);
   const onChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    // @ts-expect-error: not sure how to fix this
     (e: ChangeEvent<HTMLInputElement>) => {
       setFile(e.target.files[0]);
     }, []);
