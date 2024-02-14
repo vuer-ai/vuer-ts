@@ -1,13 +1,12 @@
 import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Controllers, VRButton, XR } from '@react-three/xr';
-import { GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { Mesh, Object3D, Vector3 } from 'three';
+import { Canvas } from '@react-three/fiber';
+import { GizmoHelper, GizmoViewport } from '@react-three/drei';
+import { Controllers, Hands as DreiHands, VRButton, XR } from '@react-three/xr';
 import { acceleratedRaycast } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
 import { CameraLike, OrbitCamera } from './camera';
-import { Hands } from "./controls/hands/hands";
 import { Gamepad } from "./controls/gamepad";
 import { Download } from './download';
 import { GroupSlave, SceneGroup } from './group';
@@ -17,6 +16,7 @@ import { ClientEvent, VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
 // @ts-ignore: no type definition for three-stdlib
 import { OrbitControls as tOrbitControls } from "three-stdlib/controls/OrbitControls";
+import { Hands } from "./controls/hands/hands";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -74,7 +74,6 @@ export function Scene({
   initCamPosition,
   initCamRotation,
 }: SceneProps,) {
-
   const ref = useRef<HTMLCanvasElement>();
   const canvasRef = _canvasRef || ref;
   const { sendMsg, uplink } = useContext(SocketContext) as SocketContextType;
@@ -130,12 +129,12 @@ export function Scene({
           // why set it to 1: https://stackoverflow.com/a/32936969/1560241
           tabIndex={1}
         >
-          <XR>
+          <XR foveation={1}>
             {queries.debug || queries.perf ? (
               <Perf position="top-left"/>
             ) : null}
             {/* <FileDrop/> */}
-            <Hands/>
+            {/*<DreiHands/>*/}
             <Controllers/>
             <Gamepad/>
             <SceneGroup/>
