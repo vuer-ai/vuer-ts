@@ -12,8 +12,6 @@ import { addNode, findByKey, removeByKey, upsert } from '../util';
 import { ServerEvent } from '../interfaces';
 import { pack, unpack } from "msgpackr";
 import { Buffer } from "buffer";
-import { Grid } from "./grid";
-import { ToneMapping } from "./ToneMapping";
 import { SocketContext } from "../html_components/contexts/websocket";
 import { AppContext } from "../index";
 
@@ -46,6 +44,10 @@ interface SceneType {
 
 export type SceneContainerP = PropsWithChildren<{
   up: [ number, number, number ];
+  children?: JSX.Element | JSX.Element[];
+  rawChildren?: JSX.Element | JSX.Element[];
+  htmlChildren?: JSX.Element | JSX.Element[];
+  bgChildren?: JSX.Element | JSX.Element[];
   [key: string]: unknown;
 }>;
 
@@ -60,7 +62,13 @@ export type UpdateEvent = ServerEvent & { data: { nodes: Node[] } };
 export type UpsertEvent = ServerEvent & { data: { nodes: Node[], to: string } };
 export type RemoveEvent = ServerEvent & { data: { keys: string[] } };
 
-export default function SceneContainer({ children: _, ..._props }: SceneContainerP) {
+export default function SceneContainer({
+  children,
+  rawChildren,
+  htmlChildren,
+  bgChildren,
+  ...rest
+}: SceneContainerP) {
 
   const queries = useMemo<QueryParams>(() =>
     queryString.parse(document.location.search) as QueryParams, []);
@@ -223,47 +231,25 @@ export default function SceneContainer({ children: _, ..._props }: SceneContaine
     ..._scene
   } = scene;
 
-  // very problematic
-  const rest = {
-    ..._props,
-    // add the scene params here to allow programmatic override
-    ..._scene,
-  };
 
   const toProps = useCallback(makeProps(), []);
-
-  const children = sceneChildren ? toProps(sceneChildren) : [];
-  const rawChildren = sceneRawChildren
-    ? toProps(sceneRawChildren)
-    : [];
-  const htmlChildren = sceneHtmlChildren
-    ? toProps(sceneHtmlChildren)
-    : [];
-  const bgChildren = sceneBackgroundChildren
-    ? toProps(sceneBackgroundChildren)
-    : [];
-
-
-  if (!bgChildren?.length) {
-    // note: add key to avoid error message
-    const k = "default grid";
-    bgChildren.push(<Grid key={k} _key={k}/>);
-  }
-
-  if (!rawChildren?.length) {
-    // note: add key to avoid error message
-    rawChildren.push(<ToneMapping key="default-tone-mapping"/>);
-  }
 
   // todo: might want to treat scene as one of the children.
   // note: finding a way to handle the leva menu will be tricky.
   return (
     <Scene
-      bgChildren={bgChildren}
-      htmlChildren={htmlChildren}
-      rawChildren={rawChildren}
+      rawChildren={sceneRawChildren.length
+        ? toProps(sceneRawChildren)
+        : (rawChildren || [])}
+      htmlChildren={sceneHtmlChildren.length
+        ? toProps(sceneHtmlChildren)
+        : (htmlChildren || [])}
+      bgChildren={sceneBackgroundChildren.length
+        ? toProps(sceneBackgroundChildren)
+        : (bgChildren || [])}
       {...rest}
+      {..._scene}
     >
-      {children}
+      {sceneChildren.length ? toProps(sceneChildren) : (children || [])}
     </Scene>);
 }

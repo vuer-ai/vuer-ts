@@ -22,6 +22,10 @@
     "./html_components/contexts/websocket": {
       "import": "./dist/html_components/contexts/websocket.es.js",
       "require": "./dist/html_components/contexts/websocket.cjs.js"
+    },
+    "./three_components/controls/hands/hands": {
+      "import": "./dist/three_components/controls/hands/hands.es.js",
+      "require": "./dist/three_components/controls/hands/hands.cjs.js"
     }
   },
   "scripts": {
