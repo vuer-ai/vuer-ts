@@ -1,7 +1,7 @@
 import { MutableRefObject, useCallback, useContext, useLayoutEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import throttle from "lodash.throttle";
-import { useController, useXR, XRController } from '@react-three/xr';
+import { useController, useXR } from '@react-three/xr';
 
 import { VuerProps } from "../../../interfaces";
 import { SocketContext, SocketContextType } from "../../../html_components/contexts/websocket";
@@ -10,7 +10,9 @@ import { Group } from "three";
 
 type Chirality = "left" | "right" | "gaze";
 type XRControllerEventTypes = "select" | "selectStart" | "selectEnd" | "squeeze" | "squeezeStart" | "squeezeEnd";
-type EventType = XRControllerEventTypes;
+type EventType = XRControllerEventTypes | "select@right" | "selectStart@right" | "selectEnd@right" | "squeeze@right" |
+  "squeezeStart@right" | "squeezeEnd@right" | "select@left" | "selectStart@left" | "selectEnd@left" | "squeeze@left" |
+  "squeezeStart@left" | "squeezeEnd@left";
 
 
 const HAND_MODEL_JOINT_KEYS = [
@@ -53,9 +55,17 @@ type HandsProps = VuerProps<{
  * hands component in the @react-three/xr package. This component is used to send
  * messages to the server when the hands are moved or when the hands are used to
  * interact with the scene.
+ *
+ * @param {string} _key - the key for the component, set to hands by default on the python side.
+ * @param {boolean} left - If selected, suppresses the right hand.
+ * @param {boolean} right - If selected, suppresses the left hand.
+ * @param {boolean} stream - whether to stream the hand data to the server. Off by default.
+ * @param {number} fps - the frames per second for the hand data.
+ * @param {EventType[]} eventTypes - the event types to listen for.
+ * @param {VuerProps} _ - the rest of the props.
  * */
 function Hands({
-  _key,
+  _key = "hands",
   children,
   fps = 30,
   eventTypes = [],
@@ -66,8 +76,9 @@ function Hands({
 }: HandsProps): JSX.Element {
 
   const { sendMsg } = useContext(SocketContext) as SocketContextType;
-  const { isPresenting, referenceSpace } = useXR() as {
-    isPresenting: boolean, referenceSpace: XRReferenceSpace
+  const { session, isPresenting, referenceSpace } = useXR() as {
+    // fix three type bug.
+    session: XRSession, isPresenting: boolean, referenceSpace: XRReferenceSpace
   };
 
   const leftHandRef = useRef() as MutableRefObject<Group>;
@@ -95,13 +106,13 @@ function Hands({
       poseData.rightState = right?.hand?.inputState
     }
 
-    sendMsg({
+    setTimeout(() => sendMsg({
       etype: "HAND_MOVE",
-      key: "hands",
+      key: _key,
       value: poseData,
-    });
+    }), 0);
   }, 1000 / fps, { leading: true, trailing: true }), [
-    fps, sendMsg, isPresenting, left, right, gaze, useLeft, useRight ]);
+    fps, sendMsg, isPresenting, left, right, gaze, useLeft, useRight, stream ]);
 
   useFrame(function (state) {
     // render hand components
@@ -120,7 +131,7 @@ function Hands({
     if (rightVisual) rightVisual.visible = rightVisible;
     if (!left?.hand.visible && !right?.hand.visible) return;
 
-    return HAND_MODEL_JOINT_KEYS.forEach((k, i) => {
+    HAND_MODEL_JOINT_KEYS.forEach((k, i) => {
       if (leftJoints && leftVisual) {
         leftVisual.children[i].position.copy(
           leftJoints[k]?.position
@@ -144,40 +155,38 @@ function Hands({
 
   useLayoutEffect(() => {
 
-    if (!isPresenting) return;
+    if (!isPresenting || !session) return;
+
+    console.log(session, referenceSpace);
 
     const dispose = [];
 
     for (const etype of eventTypes) {
-      const [ eKey, cKey ] = etype.split("@") as [ XRControllerEventTypes, Chirality ];
-
-      const controller: XRController = ctrlMap[cKey];
-
-      const listener = throttle((e: XRInputSourceEvent): void => {
+      const listener = (e: XRInputSourceEvent): void => {
         const frame = e.frame;
-        const space = controller.inputSource?.targetRaySpace || controller.inputSource?.gripSpace;
-        const pose = frame.getPose(space, referenceSpace);
-        sendMsg({
-          etype: "HAND_" + eKey.toUpperCase(),
-          key: cKey,
-          value: { eKey, pose },
-        });
-      }, 1000 / fps, { leading: true, trailing: true });
+        const space = e.inputSource?.targetRaySpace || e.inputSource?.gripSpace;
+        const pose = frame.getPose(space, referenceSpace as XRReferenceSpace);
 
-      // @ts-ignore: this is a valid event type
-      controller.addEventListener(eType, listener);
-      // @ts-ignore: this is a valid event type
-      dispose.push(() => controller.removeEventListener(eType, listener));
+        setTimeout(() => {
+          sendMsg({
+            etype: "HAND_" + etype.toUpperCase(),
+            key: _key,
+            value: { pose },
+          });
+        }, 0)
+      }
 
+      session.addEventListener(etype, listener);
+      dispose.push(() => session.removeEventListener(etype, listener));
     }
 
     return () => {
       dispose.forEach(d => d());
     }
-  }, [ isPresenting, fps, sendMsg, left, right, gaze ])
+  }, [ session, isPresenting, fps, sendMsg, left, right, gaze, eventTypes ])
 
   // if (!left && !right) return <DreiHands/>;
-  if (!left && !right) return null;
+  if (!isPresenting || !left && !right) return null;
   return <group>
     {useRight ? null
       : <group ref={leftHandRef}>
