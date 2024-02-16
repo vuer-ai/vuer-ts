@@ -58,10 +58,7 @@ function Hands({
 }: HandsProps): JSX.Element {
 
   const { sendMsg } = useContext(SocketContext) as SocketContextType;
-  const { session, isPresenting, referenceSpace } = useXR() as {
-    // fix three type bug.
-    session: XRSession, isPresenting: boolean, referenceSpace: XRReferenceSpace
-  };
+  const { isPresenting } = useXR();
 
   const leftHandRef = useRef() as MutableRefObject<Group>;
   const rightHandRef = useRef() as MutableRefObject<Group>;
