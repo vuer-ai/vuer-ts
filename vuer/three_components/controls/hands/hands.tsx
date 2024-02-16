@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback, useContext, useLayoutEffect, useRef } from "react";
+import { MutableRefObject, useCallback, useContext, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import throttle from "lodash.throttle";
 import { useController, useXR } from '@react-three/xr';
@@ -6,14 +6,6 @@ import { useController, useXR } from '@react-three/xr';
 import { VuerProps } from "../../../interfaces";
 import { SocketContext, SocketContextType } from "../../../html_components/contexts/websocket";
 import { Group } from "three";
-
-
-type Chirality = "left" | "right" | "gaze";
-type XRControllerEventTypes = "select" | "selectStart" | "selectEnd" | "squeeze" | "squeezeStart" | "squeezeEnd";
-type EventType = XRControllerEventTypes | "select@right" | "selectStart@right" | "selectEnd@right" | "squeeze@right" |
-  "squeezeStart@right" | "squeezeEnd@right" | "select@left" | "selectStart@left" | "selectEnd@left" | "squeeze@left" |
-  "squeezeStart@left" | "squeezeEnd@left";
-
 
 const HAND_MODEL_JOINT_KEYS = [
   "wrist", "thumb-metacarpal", "thumb-phalanx-proximal", "thumb-phalanx-distal", "thumb-tip",
@@ -32,17 +24,9 @@ function getPoses(hand): number[][] {
   return HAND_MODEL_JOINT_KEYS.map(k => hand.joints[k]?.position?.toArray());
 }
 
-function getPositionRotation(hand): Record<"position" | "rotation", number[]>[] {
-  if (!hand?.joints) return [];
-  return HAND_MODEL_JOINT_KEYS.map(k => ({
-    position: hand.joints[k]?.position?.toArray(),
-    rotation: hand.joints[k]?.rotation?.toArray(),
-  }));
-}
 
 type HandsProps = VuerProps<{
   fps?: number,
-  eventTypes?: EventType[],
   left?: boolean,
   right?: boolean,
   stream?: boolean,
@@ -61,14 +45,12 @@ type HandsProps = VuerProps<{
  * @param {boolean} right - If selected, suppresses the left hand.
  * @param {boolean} stream - whether to stream the hand data to the server. Off by default.
  * @param {number} fps - the frames per second for the hand data.
- * @param {EventType[]} eventTypes - the event types to listen for.
  * @param {VuerProps} _ - the rest of the props.
  * */
 function Hands({
   _key = "hands",
   children,
   fps = 30,
-  eventTypes = [],
   left: useLeft,
   right: useRight,
   stream = false,
@@ -152,38 +134,6 @@ function Hands({
     if (!stream) return;
     onFrame()
   })
-
-  useLayoutEffect(() => {
-
-    if (!isPresenting || !session) return;
-
-    console.log(session, referenceSpace);
-
-    const dispose = [];
-
-    for (const etype of eventTypes) {
-      const listener = (e: XRInputSourceEvent): void => {
-        const frame = e.frame;
-        const space = e.inputSource?.targetRaySpace || e.inputSource?.gripSpace;
-        const pose = frame.getPose(space, referenceSpace as XRReferenceSpace);
-
-        setTimeout(() => {
-          sendMsg({
-            etype: "HAND_" + etype.toUpperCase(),
-            key: _key,
-            value: { pose },
-          });
-        }, 0)
-      }
-
-      session.addEventListener(etype, listener);
-      dispose.push(() => session.removeEventListener(etype, listener));
-    }
-
-    return () => {
-      dispose.forEach(d => d());
-    }
-  }, [ session, isPresenting, fps, sendMsg, left, right, gaze, eventTypes ])
 
   // if (!left && !right) return <DreiHands/>;
   if (!isPresenting || !left && !right) return null;
