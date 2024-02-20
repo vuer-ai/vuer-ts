@@ -25,51 +25,42 @@ const useDepthRender = (disable = false) => {
         float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
         return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
       }
-
+      
       void main() {
         float depth = readDepth( tDepth, vUv );
         
-        // gl_FragColor.rgb = 1.0 - vec3( depth );
+        gl_FragColor.rgb = 1.0 - vec3( depth );
         gl_FragColor.a = 1.0;
 
-        // todo: implement inverse color mapping.
-        // link: https://dev.intelrealsense.com/docs/depth-image-compression-by-colorization-for-intel-realsense-depth-cameras
-        // link: https://stackoverflow.com/questions/6652253/getting-the-true-z-value-from-the-depth-buffer
-        
-        // float disp = 1.0 / depth;
-        // float disp_max = 1.0 / cameraNear;
-        // float disp_min = 1.0 / cameraFar;
-        // float d_normal = (disp - disp_min) / (disp_max - disp_min);
-        // float d_normal = 1.0 / depth;
-        
-        float d_normal = depth;
-        
-        // Initialize the color as black
-        vec3 color = vec3(0.0);
+        // this works. 
+        // float d_normal = depth;
+        // 
+        // // Initialize the color as black
+        // vec3 color = vec3(0.0);
 
-        // Calculate RGB values based on the normalized depth
-        if (d_normal <= 0.167) {
-          color.r = 1.0;
-          color.g = d_normal;
-        } else if (d_normal < 0.333) {
-          color.r = 0.333 - d_normal;
-          color.g = 1.0;
-        } else if (d_normal < 0.5) {
-          color.g = 1.0;
-          color.b = d_normal - 0.5;
-        } else if (d_normal < 0.667) {
-          color.g = 0.667 - d_normal;
-          color.b = 1.0;
-        } else if (d_normal < 0.833) {
-          color.r = d_normal - 0.833;
-          color.b = 1.0;
-        } else {
-          color.r = 1.0;
-          color.b = 1.0 - d_normal;
-        }
+        // // Calculate RGB values based on the normalized depth
+        // if (d_normal <= 0.167) {
+        //   color.r = 1.0;
+        //   color.g = d_normal;
+        // } else if (d_normal < 0.333) {
+        //   color.r = 0.333 - d_normal;
+        //   color.g = 1.0;
+        // } else if (d_normal < 0.5) {
+        //   color.g = 1.0;
+        //   color.b = d_normal - 0.5;
+        // } else if (d_normal < 0.667) {
+        //   color.g = 0.667 - d_normal;
+        //   color.b = 1.0;
+        // } else if (d_normal < 0.833) {
+        //   color.r = d_normal - 0.833;
+        //   color.b = 1.0;
+        // } else {
+        //   color.r = 1.0;
+        //   color.b = 1.0 - d_normal;
+        // }
 
-        // Set the fragment's color
-        gl_FragColor.rgb = color;
+        // // Set the fragment's color
+        // gl_FragColor.rgb = color;
         
       }`,
       uniforms: {
