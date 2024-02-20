@@ -18,6 +18,8 @@ import { useControls } from "leva";
 import { VuerProps } from "../../interfaces";
 import { SocketContext, SocketContextType } from "../../html_components/contexts/websocket";
 import { GrabRenderEvent } from "./GrabRender";
+import { useDepthRender } from "./depthHelper";
+import { useRender } from "./renderHelper";
 
 type CameraViewProps = VuerProps<{
   hide?: boolean;
@@ -33,6 +35,7 @@ type CameraViewProps = VuerProps<{
   right?: number;
   near?: number;
   far?: number;
+  renderDepth?: boolean;
   origin?: 'bottom-left' | 'top-left' | 'bottom-right' | 'top-right';
   distanceToCamera?: number;
   ctype?: 'perspective' | 'orthographic';
@@ -66,6 +69,20 @@ type ComonP = {
   showFrustum: boolean;
 };
 
+async function grabFrame({ renderer, quality }) {
+  const ctx = renderer.getContext();
+  const w = renderer.domElement.width;
+  const h = renderer.domElement.height;
+
+  const rgbArrayBuffer = new Uint8Array(w * h * 4);
+  ctx.readPixels(0, 0, w, h, ctx.RGBA, ctx.UNSIGNED_BYTE, rgbArrayBuffer);
+  // @ts-ignore: this is okay.
+  const canvas = renderer.domElement as OffscreenCanvas;
+  const blob = await canvas.convertToBlob({ quality, type: "image/jpeg" });
+  const frame = await blob.arrayBuffer().then((array: ArrayBuffer) => new Uint8Array(array))
+  return frame
+}
+
 export function CameraView(
   {
     _ref,
@@ -86,6 +103,7 @@ export function CameraView(
     // near and far clipping plane, affects the value of the depth material
     near = 0.1,
     far = 20,
+    renderDepth = false,
     // used for positioning of the view
     origin = 'top-left', // "bottom-left" | "top-left" | "bottom-right" | "top-right"
     distanceToCamera = 0.5,
@@ -117,7 +135,7 @@ export function CameraView(
   }
   const dpr = window.devicePixelRatio || 1;
   // the output buffer size does not depend on this resolution.
-  const fbo = useFBO(width * dpr, height * dpr,);
+  const fbo = useFBO(width * dpr, height * dpr, { depth: true });
 
   const offset = useMemo(() => new Vector3(), []);
   const { sendMsg, downlink, uplink } = useContext(SocketContext) as SocketContextType;
@@ -152,9 +170,12 @@ export function CameraView(
   const renderer = useMemo(() => {
     const r = new WebGLRenderer({
       canvas: new OffscreenCanvas(width / downsample, height / downsample),
-      antialias: true, precision: 'highp', preserveDrawingBuffer: true,
+      antialias: false,
+      precision: 'highp',
+      preserveDrawingBuffer: true,
       depth: true,
     });
+    r.autoClear = false;
     r.setPixelRatio(dpr)
     return r;
   }, [ dpr, height, width, downsample ]);
@@ -176,14 +197,6 @@ export function CameraView(
     /* Remember to also update the FBO */
     fbo.setSize(aspect * height * dpr, height * dpr);
   }, [ dpr, height, width, downsample, persp.aspect, ortho.top, ortho.bottom, ortho.left, ortho.right, ctrl.camType ]);
-
-  // useLayoutEffect(() => {
-  //   if (!cameraRef.current) return;
-  //   const cam = cameraRef.current;
-  //   // @ts-ignore: aspect is only available on the PerspectiveCamera.
-  //   cam.aspect = width / height;
-  //   cameraRef.current.updateProjectionMatrix();
-  // }, [ width, height, cameraRef.current ]);
 
   useLayoutEffect(() => {
     if (!cameraRef.current || !matrix || matrix.length !== 16) return;
@@ -326,12 +339,15 @@ export function CameraView(
 
   }, 1);
 
+  const renderFn = useRender();
+  const depthRenderFn = useDepthRender(!renderDepth);
+
   useEffect(() => {
     if (!downlink) return;
     // Only add the render listener if we are in ondemand mode.
     if (stream !== 'ondemand') return;
 
-    const remove_handler = downlink.subscribe("GRAB_RENDER", ({
+    return downlink.subscribe("GRAB_RENDER", async ({
       key,
       rtype,
       data: { quality = 1 }
@@ -339,40 +355,30 @@ export function CameraView(
       if (!cameraRef.current) return;
       if (key !== _key) return;
 
-      const ctx = renderer.getContext();
-      const w = renderer.domElement.width;
-      const h = renderer.domElement.height;
-
       if (planeRef?.current) planeRef.current.visible = false;
       if (frustum?.current) frustum.current.visible = false;
+
+      renderer.setRenderTarget(fbo);
       renderer.render(scene, cameraRef.current);
 
-      const rgbArrayBuffer = new Uint8Array(w * h * 4);
-      ctx.readPixels(0, 0, w, h, ctx.RGBA, ctx.UNSIGNED_BYTE, rgbArrayBuffer);
-      // @ts-ignore: this is okay.
-      const canvas = renderer.domElement as OffscreenCanvas;
-      canvas.convertToBlob({ quality, type: "image/jpeg" }).then((blob) => {
-        blob.arrayBuffer().then((array: ArrayBuffer) => {
-          const payload = {
-            etype: rtype || `GRAB_RENDER_RESPONSE`,
-            key,
-            value: {
-              dpr,
-              // todo: need to add timing
-              // delta,
-              width,
-              height,
-              frame: new Uint8Array(array),
-            },
-          };
-          sendMsg(payload);
-        })
-      })
+      const payload = {
+        etype: rtype || `GRAB_RENDER_RESPONSE`,
+        key,
+        value: { dpr, width, height, frame: null, depthFrame: null },
+      };
+
+      renderFn({ renderer, texture: fbo.texture });
+      payload.value.frame = await grabFrame({ renderer, quality });
+
+      if (renderDepth) {
+        depthRenderFn({ renderer, depthTexture: fbo.depthTexture, near, far });
+        payload.value.depthFrame = await grabFrame({ renderer, quality })
+      }
+
+      sendMsg(payload);
     });
 
-    return remove_handler;
-
-  }, [ sendMsg, downlink, uplink, downsample, renderer.domElement ]);
+  }, [ sendMsg, downlink, uplink, downsample, renderer, renderer.domElement, fbo ]);
 
 
   if (hide) return null;
