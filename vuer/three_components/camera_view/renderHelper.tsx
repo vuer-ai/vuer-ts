@@ -1,8 +1,9 @@
-import { Mesh, MeshBasicMaterial, OrthographicCamera, PlaneGeometry, Scene } from "three";
 import { useMemo } from "react";
+import { Mesh, MeshBasicMaterial, OrthographicCamera, PlaneGeometry, Scene } from "three";
 
-const useDepthRender = () => {
+const useRender = (disable = false) => {
   const [ postScene, postMaterial, postCamera ] = useMemo(() => {
+    if (disable) return [ null, null, null ];
     const pcam = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const pmat = new MeshBasicMaterial();
 
@@ -16,8 +17,17 @@ const useDepthRender = () => {
 
   }, [])
 
+  // todo: clean up.
+
   // depthTexture contains the relevant info
-  async function renderFn({ renderer, near, far, texture }) {
+  function renderFn({ renderer, texture }) {
+    if (postMaterial.map !== texture) {
+      postMaterial.map?.dispose();
+      postMaterial.map = texture;
+      postMaterial.needsUpdate = true;
+    }
+
+    renderer.setRenderTarget(null);
     renderer.render(postScene, postCamera);
   }
 
@@ -25,4 +35,4 @@ const useDepthRender = () => {
 
 }
 
-export { useDepthRender };
+export { useRender };
