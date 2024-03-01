@@ -1,6 +1,4 @@
-import {
-  createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState,
-} from 'react';
+import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState, } from 'react';
 import useWebSocket from 'react-use-websocket';
 import { button, useControls } from 'leva';
 import useStateRef from 'react-usestateref';
@@ -19,6 +17,18 @@ export type SocketContextType = {
 };
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
+
+const DEFAULT_PORT = 8012;
+
+function getSocketURI(queryWS?: string): string {
+  // queries.ws || `${window.location.hostname}:${window.location.port}` || 'ws://localhost:8012',
+  const queries = queryString.parse(document.location.search);
+  if (!!queries.ws) return queries.ws as string;
+  if (window.location.hostname == "vuer.ai") return `ws://localhost:${DEFAULT_PORT}`;
+  if (window.location.protocol == "https:") return `wss://${window.location.hostname}:${window.location.port || DEFAULT_PORT}`;
+  return `ws://${window.location.hostname}:${window.location.port || DEFAULT_PORT}`;
+}
+
 type WebSocketProviderProps = PropsWithChildren<{
   onMessage?: (event: ServerEvent) => void;
 }>;
@@ -27,6 +37,7 @@ type wsQueries = {
   reconnect?: string; // should get turned into numbers
   interval?: string; // should get turned into numbers
 };
+
 export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebSocketProviderProps) {
   const [ isConnected, setIsConnected ] = useStateRef(false);
   const [ connectWS, setConnectWS ] = useState(true);
@@ -39,7 +50,7 @@ export function WebSocketProvider({ onMessage: paramsOnMessage, children }: WebS
 
   const { socketURI } = useControls('Connection', {
     socketURI: {
-      value: queries.ws || 'ws://localhost:8012',
+      value: getSocketURI(queries.ws),
       order: 0,
       label: 'Socket URI',
     },
