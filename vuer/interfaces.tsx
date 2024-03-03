@@ -7,6 +7,9 @@ export type VuerProps<P = {}, E = unknown> = P & {
   [key: string]: unknown;
 };
 
+export type Matrix16T = [ number, number, number, number, number, number, number, number, number,
+  number, number, number, number, number, number, number ];
+
 export interface EventType {
   etype: string;
 }
