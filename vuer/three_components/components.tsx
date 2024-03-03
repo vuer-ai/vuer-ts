@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useState } from 'react';
+import { MutableRefObject, useEffect, useLayoutEffect, useState } from 'react';
 import { Center, PivotControls, Sphere } from '@react-three/drei';
 import {
   BufferGeometry,
@@ -177,9 +177,10 @@ function dispose(node: Object3D): void {
 
 export function UrdfView(
   {
-    robot, _ref, jointValues = {}, ...rest
+    robot, _ref, jointValues = {}, matrix = [], ...rest
   }: VuerProps<{
     robot: URDFRobot;
+    matrix: [ number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number ];
     jointValues;
   }, Group>,
 ) {
@@ -192,13 +193,19 @@ export function UrdfView(
         // Object.values(robot.joints).forEach(dispose)
         // Object.values(robot.colliders).forEach(dispose)
         // Object.values(robot.visual).forEach(dispose)
-        // // Object.values(robot.frames).forEach(dispose)
+        // Object.values(robot.frames).forEach(dispose)
         scene.remove(robot)
       };
     },
     [ robot, jointValues ],
-  )
-  ;
+  );
+  useLayoutEffect(() => {
+    if (matrix && matrix.length === 16) {
+      robot.matrix.fromArray(matrix);
+      robot.matrix.decompose(robot.position, robot.quaternion, robot.scale);
+    }
+  }, [ matrix ])
+
   return <primitive ref={_ref} object={robot} {...rest} />;
 }
 

@@ -25,12 +25,23 @@ function getPoses(hand): number[][] {
 }
 
 
-type HandsProps = VuerProps<{
+export type HandsProps = VuerProps<{
   fps?: number,
   left?: boolean,
   right?: boolean,
   stream?: boolean,
 }>
+
+export type HandsData = Record<
+  "keys" |
+  "leftLandmarks" |
+  "leftHand" |
+  "leftState" |
+  "rightLandmarks" |
+  "rightHand" |
+  "rightState",
+  object | number[][]
+>;
 
 /**
  * Hands component
@@ -74,14 +85,16 @@ function Hands({
   const onFrame = useCallback(throttle((): void => {
     const poseData = {
       keys: HAND_MODEL_JOINT_KEYS,
-    } as Record<"keys" | "leftHand" | "rightHand" | "leftState" | "rightState", object | number[][]>;
+    } as HandsData;
     // these two are exclusive
     if (!useRight) {
-      poseData.leftHand = getPoses(left?.hand)
+      poseData.leftLandmarks = getPoses(left?.hand)
+      poseData.leftHand = left?.hand?.joints.wrist?.matrix?.toArray()
       poseData.leftState = left?.hand?.inputState
     }
     if (!useLeft) {
-      poseData.rightHand = getPoses(right?.hand)
+      poseData.rightLandmarks = getPoses(right?.hand)
+      poseData.rightHand = right?.hand?.joints.wrist?.matrix?.toArray()
       poseData.rightState = right?.hand?.inputState
     }
 
