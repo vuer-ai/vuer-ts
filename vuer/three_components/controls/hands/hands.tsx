@@ -29,6 +29,8 @@ export type HandsProps = VuerProps<{
   fps?: number,
   left?: boolean,
   right?: boolean,
+  showLeft?: boolean,
+  showRight?: boolean,
   stream?: boolean,
 }>
 
@@ -64,6 +66,8 @@ function Hands({
   fps = 30,
   left: useLeft,
   right: useRight,
+  showLeft = true,
+  showRight = true,
   stream = false,
   ..._
 }: HandsProps): JSX.Element {
@@ -117,7 +121,7 @@ function Hands({
     const rightVisual = rightHandRef.current as Group;
 
     const leftVisible = !useRight && !!left?.hand.visible;
-    const rightVisible = !useLeft && !!right?.hand.visible
+    const rightVisible = !useLeft && !!right?.hand.visible;
 
     if (leftVisual) leftVisual.visible = leftVisible;
     if (rightVisual) rightVisual.visible = rightVisible;
@@ -148,7 +152,7 @@ function Hands({
   // if (!left && !right) return <DreiHands/>;
   if (!isPresenting || !left && !right) return null;
   return <group>
-    {useRight ? null
+    {(useRight || !showLeft) ? null
       : <group ref={leftHandRef}>
         {HAND_MODEL_JOINT_KEYS.map((jointName, i) =>
           <mesh key={jointName}>
@@ -158,7 +162,7 @@ function Hands({
         )}
       </group>
     }
-    {useLeft ? null
+    {(useLeft || !showRight) ? null
       : <group ref={rightHandRef}>
         {HAND_MODEL_JOINT_KEYS.map((jointName, i) =>
           <mesh key={jointName}>
