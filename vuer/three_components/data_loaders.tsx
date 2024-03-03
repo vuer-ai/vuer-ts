@@ -12,7 +12,7 @@ import {
 } from 'three-stdlib';
 import URDFLoader, { URDFRobot } from 'urdf-loader';
 import { BufferGeometry, Group, LoadingManager, Mesh, MeshStandardMaterial, Object3D, Points } from 'three'; // todo: pass reference
-import { GltfView, ObjView, PcdView, PlyView, UrdfView, } from './components';
+import { GltfView, ObjView, PcdView, PlyView, UrdfView, UrdfViewProps, } from './components';
 import { AppContext } from "../index";
 import { SocketContext } from "../html_components/contexts/websocket";
 
@@ -166,7 +166,7 @@ type URDFProps = Props & {
   parseVisual?: boolean;
   parseCollision?: boolean;
   packages?: string | { [key: string]: string } | ((targetPkg: string) => string);
-}
+} & UrdfViewProps;
 
 export function Urdf({
   _key,

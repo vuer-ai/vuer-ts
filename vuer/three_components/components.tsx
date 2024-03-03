@@ -218,14 +218,16 @@ function dispose(node: Object3D): void {
   n.material?.map?.dispose();
 }
 
+export type UrdfViewProps = VuerProps<{
+  robot: URDFRobot;
+  matrix: Matrix16T;
+  jointValues;
+}, Group>
+
 export function UrdfView(
   {
     robot, _ref, jointValues = {}, matrix, ...rest
-  }: VuerProps<{
-    robot: URDFRobot;
-    matrix: Matrix16T;
-    jointValues;
-  }, Group>,
+  }: UrdfViewProps,
 ) {
   const { scene } = useThree();
   useLayoutEffect(() => {
