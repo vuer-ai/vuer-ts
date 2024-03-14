@@ -22,10 +22,9 @@ const DEFAULT_PORT = 8012;
 
 function getSocketURI(queryWS?: string): string {
   // queries.ws || `${window.location.hostname}:${window.location.port}` || 'ws://localhost:8012',
-  const queries = queryString.parse(document.location.search);
-  if (!!queries.ws) return queries.ws as string;
+  if (!!queryWS) return queryWS as string;
   if (window.location.hostname == "vuer.ai") return `ws://localhost:${DEFAULT_PORT}`;
-  if (window.location.protocol == "https:") return `wss://${window.location.hostname}:${window.location.port || DEFAULT_PORT}`;
+  if (window.location.protocol == "https:") return `wss://${window.location.hostname}`;
   return `ws://${window.location.hostname}:${window.location.port || DEFAULT_PORT}`;
 }
 
