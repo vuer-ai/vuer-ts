@@ -10,7 +10,6 @@ import {
   OrthographicCamera,
   PerspectiveCamera,
   PlaneGeometry,
-  Quaternion,
   Side,
   Texture,
   Vector3,
@@ -98,6 +97,12 @@ export default function ImagePlane(
       else if (rotation) plane.rotation.set(...rotation);
       if (position) plane.position.set(...position);
       return;
+    }
+
+    if (matrix) {
+      plane.matrix.fromArray(matrix);
+      plane.matrix.multiply(camera.matrixWorld);
+      return
     }
 
     // @ts-ignore: use placeholder for scale.
