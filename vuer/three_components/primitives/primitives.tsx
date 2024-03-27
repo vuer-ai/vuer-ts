@@ -1,8 +1,9 @@
 import React, { Ref, useLayoutEffect, useRef, } from 'react';
 import { Mesh, RepeatWrapping, Texture, TextureLoader } from 'three';
 import { useLoader } from "@react-three/fiber";
-import { HeightMaterial, MaterialTypes } from './height_map_materials';
+import { HeightMaterial } from './height_map_materials';
 import { Outlines } from "@react-three/drei";
+import { MaterialTypes } from "./three_materials";
 
 type MaterialProps = {
   map?: string | string[];
@@ -19,8 +20,8 @@ type PrimitiveProps = {
   children?;
   hide?: boolean;
   args?: number[];
-  materialType?: MaterialTypes;
   material?: MaterialProps;
+  materialType?: MaterialTypes;
   outlines?;
   [key: string]: unknown;
 };
@@ -141,14 +142,6 @@ export function Shape(params: PrimitiveProps) {
   return <Primitive geometry="shapeGeometry" {...params} />;
 }
 
-type SphereProps = {
-  _ref?: Ref<Mesh>;
-  _key?: string;
-  args?: number[];
-  color?: string;
-  materialType?: 'basic' | 'standard' | 'phong' | 'lambert';
-  [key: string]: unknown;
-};
 
 export function Sphere(params: PrimitiveProps) {
   return <Primitive geometry={'sphereGeometry'} {...params} />;

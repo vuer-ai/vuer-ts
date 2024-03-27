@@ -6,14 +6,15 @@ import {
   ColorRepresentation,
   Group,
   Mesh,
-  MeshStandardMaterial,
-  Object3D,
+  MeshBasicMaterial,
+  MeshBasicMaterialParameters,
   Points,
 } from 'three';
 import { URDFRobot } from 'urdf-loader';
-import { ThreeEvent, useThree } from '@react-three/fiber';
+import { MaterialProps, ThreeEvent, useThree } from '@react-three/fiber';
 import { Matrix16T, VuerProps } from "../interfaces";
 import { GLTF } from "three-stdlib";
+import { ALL_MATERIALS, MaterialTypes } from "./primitives/three_materials";
 
 export type PcdProps = VuerProps<{
   data?: Points;
@@ -63,11 +64,14 @@ export type ObjProps = VuerProps<{
   hide?: boolean;
   color?: string;
   matrix?: Matrix16T;
+  wireframe?: boolean;
+  materialType?: MaterialTypes;
+  material?: MaterialProps;
 }, Points>;
 
 export function ObjView(
   {
-    data, _ref, wireframe = false, color = null, matrix, hide, ...rest
+    data, _ref, wireframe = false, color = null, matrix, material, materialType, hide, ...rest
   }: ObjProps & { wireframe?: boolean, color?: ColorRepresentation }
 ) {
   const __ref = useRef();
@@ -79,26 +83,34 @@ export function ObjView(
     }
   }, [ matrix ]);
   const { scene } = useThree();
-  useEffect(() => {
-    const color3 = color ? new Color(color) : null;
-    data?.children.forEach((mesh: Mesh<BufferGeometry, MeshStandardMaterial>) => {
+  useLayoutEffect(() => {
+    let mat;
+    if (materialType) {
+      const MatCls = ALL_MATERIALS[materialType] as typeof MeshBasicMaterial;
+      mat = new MatCls({ color, ...material } as MeshBasicMaterialParameters);
+    }
+    data?.traverse((mesh: Mesh<BufferGeometry, MeshBasicMaterial>) => {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
+      if (mat) mesh.material = mat;
       mesh.material.wireframe = wireframe;
-      if (color3) mesh.material.color = color3;
+      mesh.material.needsUpdate = true;
     })
     return () => {
       scene.remove(data)
+      mat?.dispose();
     };
-  }, [ data, color, wireframe ])
+  }, [ data, color, wireframe, materialType, material ])
+
+
   // done: offer wireframe and color-override options.
   // todo: add key to avoid GL error during fast update
   if (!data || hide) return null;
   return (
     <primitive
       ref={ref}
-      receiveShadow
-      castShadow
+      receiveShadow={true}
+      castShadow={true}
       object={data}
       {...rest}
     />
@@ -188,10 +200,13 @@ export function PlyView(
 export type GltfProps = VuerProps<{
   data: GLTF;
   matrix?: Matrix16T;
+  color?: ColorRepresentation;
+  materialType?: MaterialTypes;
+  material?: MaterialProps;
 }, Group>;
 
 // GLB is a binary container format of GLTF.
-export function GltfView({ data, _ref, matrix, ...rest }: GltfProps) {
+export function GltfView({ data, _ref, matrix, color, materialType, material, ...rest }: GltfProps) {
   const { scene } = useThree();
 
   useLayoutEffect(() => {
@@ -199,7 +214,20 @@ export function GltfView({ data, _ref, matrix, ...rest }: GltfProps) {
       data.scene.matrix.fromArray(matrix);
       data.scene.matrix.decompose(data.scene.position, data.scene.quaternion, data.scene.scale);
     }
-  }, []);
+  }, [ data, matrix ]);
+
+  useLayoutEffect(() => {
+    if (materialType) {
+      const MatCls = ALL_MATERIALS[materialType] as typeof MeshBasicMaterial;
+      const mat = new MatCls({ color, ...material } as MeshBasicMaterialParameters);
+      data.scene.traverse((obj: Mesh) => {
+        obj.material = mat;
+      });
+      return () => mat.dispose();
+    } else if (color) data.scene.traverse((obj: Mesh) => {
+      if (obj?.isMesh) (obj.material as MeshBasicMaterial)?.color?.set(color);
+    });
+  }, [ data, color, materialType, material ]);
 
   useEffect(() => {
     return () => {
@@ -210,23 +238,22 @@ export function GltfView({ data, _ref, matrix, ...rest }: GltfProps) {
   return <primitive ref={_ref} object={data.scene} {...rest} />;
 }
 
-function dispose(node: Object3D): void {
-  const n = node as Mesh<BufferGeometry, MeshStandardMaterial>;
-  n.geometry?.dispose();
-  n.material?.dispose();
-  // todo: need to go through the materials to remove texture
-  n.material?.map?.dispose();
-}
 
 export type UrdfViewProps = VuerProps<{
   robot: URDFRobot;
   matrix: Matrix16T;
-  jointValues;
+  jointValues?: { [key: string]: number };
+  color?: ColorRepresentation;
+  materialType?: MaterialTypes;
+  material?: MaterialProps;
 }, Group>
 
 export function UrdfView(
   {
-    robot, _ref, jointValues = {}, matrix, ...rest
+    robot, _ref, jointValues = {}, matrix,
+    color
+    , materialType, material,
+    ...rest
   }: UrdfViewProps,
 ) {
   const { scene } = useThree();
@@ -235,7 +262,20 @@ export function UrdfView(
       robot.matrix.fromArray(matrix);
       robot.matrix.decompose(robot.position, robot.quaternion, robot.scale);
     }
-  }, [ matrix ])
+  }, [ robot, matrix ])
+
+  useLayoutEffect(() => {
+    if (materialType) {
+      const MatCls = ALL_MATERIALS[materialType] as typeof MeshBasicMaterial;
+      const mat = new MatCls({ color, ...material } as MeshBasicMaterialParameters);
+      robot.traverse((obj: Mesh) => {
+        obj.material = mat;
+      });
+      return () => mat.dispose();
+    } else if (color) robot.traverse((obj: Mesh) => {
+      if (obj?.isMesh) (obj.material as MeshBasicMaterial)?.color?.set(color);
+    });
+  }, [ robot, color, materialType, material ]);
   useEffect(
     () => {
       if (jointValues) robot?.setJointValues(jointValues);
