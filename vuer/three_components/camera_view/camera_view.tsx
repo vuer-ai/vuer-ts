@@ -135,7 +135,7 @@ export function CameraView(
   }
   const dpr = window.devicePixelRatio || 1;
   // the output buffer size does not depend on this resolution.
-  const fbo = useFBO(width * dpr, height * dpr, { depth: true });
+  const fbo = useFBO(width * dpr, height * dpr, { depth: renderDepth });
 
   const offset = useMemo(() => new Vector3(), []);
   const { sendMsg, downlink, uplink } = useContext(SocketContext) as SocketContextType;

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Mesh, MeshBasicMaterial, OrthographicCamera, PlaneGeometry, Scene } from "three";
 
 const useRender = (disable = false) => {
@@ -18,9 +18,10 @@ const useRender = (disable = false) => {
   }, [])
 
   // todo: clean up.
-
   // depthTexture contains the relevant info
-  function renderFn({ renderer, texture }) {
+  const renderFn = useCallback(({ renderer, texture }) => {
+    if (!postMaterial) return;
+
     if (postMaterial.map !== texture) {
       postMaterial.map?.dispose();
       postMaterial.map = texture;
@@ -29,7 +30,7 @@ const useRender = (disable = false) => {
 
     renderer.setRenderTarget(null);
     renderer.render(postScene, postCamera);
-  }
+  }, [ disable ])
 
   return renderFn;
 

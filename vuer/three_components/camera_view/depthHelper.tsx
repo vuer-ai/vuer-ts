@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Mesh, OrthographicCamera, PlaneGeometry, Scene, ShaderMaterial } from "three";
 
 const useDepthRender = (disable = false) => {
@@ -80,14 +80,16 @@ const useDepthRender = (disable = false) => {
 
   }, [ disable ])
 
-  function renderFn({ renderer, depthTexture, near, far }) {
+  const renderFn = useCallback(({ renderer, depthTexture, near, far }) => {
+    if (!postMaterial) return;
+
     postMaterial.uniforms.tDepth.value = depthTexture;
     postMaterial.uniforms.cameraNear.value = near
     postMaterial.uniforms.cameraFar.value = far
 
     renderer.setRenderTarget(null);
     renderer.render(postScene, postCamera);
-  }
+  }, [ disable ]);
 
   return renderFn;
 
