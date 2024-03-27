@@ -10,6 +10,8 @@ export type VuerProps<P = {}, E = unknown> = P & {
 export type Matrix16T = [ number, number, number, number, number, number, number, number, number,
   number, number, number, number, number, number, number ];
 
+export type QuaternionT = [ number, number, number, number ];
+
 export interface EventType {
   etype: string;
 }

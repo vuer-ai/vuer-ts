@@ -1,6 +1,7 @@
 import { useMemo, useRef, } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
+  Euler,
   LinearFilter,
   Mesh,
   MeshBasicMaterial,
@@ -9,11 +10,13 @@ import {
   OrthographicCamera,
   PerspectiveCamera,
   PlaneGeometry,
+  Quaternion,
   Side,
   Texture,
   Vector3,
 } from 'three';
 import { Plane } from '@react-three/drei';
+import { Matrix16T, QuaternionT } from "../interfaces";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -35,6 +38,10 @@ export type ImagePlaneProps = {
   depthBias?: number;
   distanceToCamera?: number;
   opacity?: number;
+  position?: [ number, number, number ];
+  rotation?: [ number, number, number ];
+  quaternion?: QuaternionT;
+  matrix?: Matrix16T;
   fixed?: boolean | undefined;
   side?: number;
   wireframe?: boolean;
@@ -50,6 +57,10 @@ export default function ImagePlane(
     depthScale = 1,
     depthBias = 0,
     distanceToCamera = 10,
+    position,
+    rotation,
+    quaternion,
+    matrix,
     opacity = 1.0,
     fixed = false,
     side = 2,
@@ -81,14 +92,27 @@ export default function ImagePlane(
     } else {
       console.warn('Unsupported camera type', camera.type);
     }
-    if (fixed) return;
-    const dirVec = new Vector3(0, 0, -1)
-      .applyEuler(camera.rotation)
-      .normalize();
-    plane.position
-      .copy(camera.position)
-      .addScaledVector(dirVec, distanceToCamera);
-    plane.lookAt(camera.position);
+    if (fixed) {
+      if (matrix) return plane.matrix.fromArray(matrix);
+      if (quaternion) plane.quaternion.fromArray(quaternion);
+      else if (rotation) plane.rotation.set(...rotation);
+      if (position) plane.position.set(...position);
+      return;
+    }
+
+    // @ts-ignore: use placeholder for scale.
+    camera.matrixWorld.decompose(plane.position, camera.quaternion, []);
+    if (quaternion) {
+      plane.quaternion.fromArray(quaternion);
+      plane.quaternion.premultiply(camera.quaternion);
+    } else if (rotation) {
+      plane.quaternion.setFromEuler(new Euler().fromArray(rotation))
+      plane.quaternion.premultiply(camera.quaternion)
+    }
+
+    const [ x, y, z ] = position || [ 0, 0, 0 ]
+    const dirVec = new Vector3(x, y, z - distanceToCamera).applyQuaternion(camera.quaternion);
+    plane.position.add(dirVec)
   });
 
   const matProp = useMemo(() => {
