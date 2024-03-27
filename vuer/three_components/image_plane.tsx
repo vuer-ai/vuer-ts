@@ -92,7 +92,11 @@ export default function ImagePlane(
       console.warn('Unsupported camera type', camera.type);
     }
     if (fixed) {
-      if (matrix) return plane.matrix.fromArray(matrix);
+      if (matrix) {
+        plane.matrix.fromArray(matrix);
+        plane.matrixAutoUpdate = false;
+        return
+      }
       if (quaternion) plane.quaternion.fromArray(quaternion);
       else if (rotation) plane.rotation.set(...rotation);
       if (position) plane.position.set(...position);
@@ -100,8 +104,9 @@ export default function ImagePlane(
     }
 
     if (matrix) {
+      plane.matrixAutoUpdate = false;
       plane.matrix.fromArray(matrix);
-      plane.matrix.multiply(camera.matrixWorld);
+      plane.matrix.premultiply(camera.matrixWorld);
       return
     }
 
@@ -113,6 +118,8 @@ export default function ImagePlane(
     } else if (rotation) {
       plane.quaternion.setFromEuler(new Euler().fromArray(rotation))
       plane.quaternion.premultiply(camera.quaternion)
+    } else {
+      plane.quaternion.copy(camera.quaternion);
     }
 
     const [ x, y, z ] = position || [ 0, 0, 0 ]
