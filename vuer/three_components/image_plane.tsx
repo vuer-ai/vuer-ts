@@ -42,6 +42,7 @@ export type ImagePlaneProps = {
   quaternion?: QuaternionT;
   matrix?: Matrix16T;
   fixed?: boolean | undefined;
+  aspect?: number;
   side?: number;
   wireframe?: boolean;
   material?;
@@ -62,6 +63,8 @@ export default function ImagePlane(
     matrix,
     opacity = 1.0,
     fixed = false,
+    // unique to ImagePlane, not applicable to ImageSphere
+    aspect,
     side = 2,
     wireframe = false,
     material = {},
@@ -77,7 +80,11 @@ export default function ImagePlane(
     // note: only works with perspective camera
     let h: number;
     let w: number;
-    if (camera.type === 'PerspectiveCamera') {
+    if (typeof aspect === "number") {
+      h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
+      w = h * aspect;
+      plane.scale.set(w, h, 1);
+    } else if (camera.type === 'PerspectiveCamera') {
       const c = camera as PerspectiveCamera;
       h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
       w = c.aspect * h;
