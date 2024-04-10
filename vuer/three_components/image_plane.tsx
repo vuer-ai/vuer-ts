@@ -36,13 +36,14 @@ export type ImagePlaneProps = {
   depthScale?: number;
   depthBias?: number;
   distanceToCamera?: number;
+  aspect?: number;
+  height?: number;
   opacity?: number;
   position?: [ number, number, number ];
   rotation?: [ number, number, number ];
   quaternion?: QuaternionT;
   matrix?: Matrix16T;
   fixed?: boolean | undefined;
-  aspect?: number;
   side?: number;
   wireframe?: boolean;
   material?;
@@ -57,6 +58,8 @@ export default function ImagePlane(
     depthScale = 1,
     depthBias = 0,
     distanceToCamera = 10,
+    aspect,
+    height,
     position,
     rotation,
     quaternion,
@@ -64,7 +67,6 @@ export default function ImagePlane(
     opacity = 1.0,
     fixed = false,
     // unique to ImagePlane, not applicable to ImageSphere
-    aspect,
     side = 2,
     wireframe = false,
     material = {},
@@ -80,14 +82,20 @@ export default function ImagePlane(
     // note: only works with perspective camera
     let h: number;
     let w: number;
-    if (typeof aspect === "number") {
-      h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
-      w = h * aspect;
-      plane.scale.set(w, h, 1);
-    } else if (camera.type === 'PerspectiveCamera') {
+    let asp: number;
+    if (camera.type === 'PerspectiveCamera') {
       const c = camera as PerspectiveCamera;
-      h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
-      w = c.aspect * h;
+      if (typeof height === "number") {
+        h = height;
+      } else {
+        h = 2 * Math.tan((c.fov / 360) * Math.PI) * distanceToCamera;
+      }
+      if (typeof aspect === "number") {
+        asp = aspect;
+      } else {
+        asp = c.aspect;
+      }
+      w = asp * h;
       plane.scale.set(w, h, 1);
     } else if (camera.type === 'OrthographicCamera') {
       // handle Orthographic Camera
