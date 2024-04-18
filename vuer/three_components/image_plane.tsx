@@ -83,7 +83,9 @@ export default function ImagePlane(
     let h: number;
     let w: number;
     let asp: number;
-    if (camera.type === 'PerspectiveCamera') {
+    if (typeof height === "number" && typeof aspect === "number") {
+      plane.scale.set(height * aspect, height, 1);
+    } else if (camera.type === 'PerspectiveCamera') {
       const c = camera as PerspectiveCamera;
       if (typeof height === "number") {
         h = height;
