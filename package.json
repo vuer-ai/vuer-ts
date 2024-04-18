@@ -33,8 +33,7 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "preview": "vite preview",
-    "publish": "yarn publish --access=public"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@lumaai/luma-web": "^0.1.14",
