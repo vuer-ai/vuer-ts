@@ -1,4 +1,4 @@
-import { useMemo, useRef, } from 'react';
+import { useLayoutEffect, useMemo, useRef, } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
   Euler,
@@ -16,6 +16,7 @@ import {
 } from 'three';
 import { Plane } from '@react-three/drei';
 import { Matrix16T, QuaternionT } from "../interfaces";
+import { useXR } from "@react-three/xr";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -45,6 +46,7 @@ export type ImagePlaneProps = {
   matrix?: Matrix16T;
   fixed?: boolean | undefined;
   side?: number;
+  layers?: number;
   wireframe?: boolean;
   material?;
 };
@@ -66,8 +68,8 @@ export default function ImagePlane(
     matrix,
     opacity = 1.0,
     fixed = false,
-    // unique to ImagePlane, not applicable to ImageSphere
     side = 2,
+    layers = null,
     wireframe = false,
     material = {},
   }: ImagePlaneProps,
@@ -76,8 +78,27 @@ export default function ImagePlane(
 
   const { camera }: { camera: PerspectiveCamera | OrthographicCamera } = useThree();
 
+  const isPresenting = useXR((state) => state.isPresenting)
+  useLayoutEffect(() => {
+    if (!planeRef.current || !isPresenting) return;
+    if (typeof layers === "number") planeRef.current.layers.set(layers)
+  }, [ layers ]);
+
+  useLayoutEffect(() => {
+    if (!planeRef.current || !fixed) return;
+    const plane = planeRef.current;
+    if (matrix) {
+      plane.matrix.fromArray(matrix);
+      plane.matrixAutoUpdate = false;
+      return
+    } else {
+      if (quaternion) plane.quaternion.fromArray(quaternion);
+      else if (rotation) plane.rotation.set(...rotation);
+      if (position) plane.position.set(...position);
+    }
+  }, [ matrix, quaternion, rotation, position, fixed ]);
+
   useFrame(() => {
-    if (!planeRef.current) return;
     const plane = planeRef.current;
     // note: only works with perspective camera
     let h: number;
@@ -108,17 +129,8 @@ export default function ImagePlane(
     } else {
       console.warn('Unsupported camera type', camera.type);
     }
-    if (fixed) {
-      if (matrix) {
-        plane.matrix.fromArray(matrix);
-        plane.matrixAutoUpdate = false;
-        return
-      }
-      if (quaternion) plane.quaternion.fromArray(quaternion);
-      else if (rotation) plane.rotation.set(...rotation);
-      if (position) plane.position.set(...position);
-      return;
-    }
+
+    if (fixed) return;
 
     if (matrix) {
       plane.matrixAutoUpdate = false;

@@ -43,9 +43,6 @@ export function Arrow({
   const quat = useMemo(() =>
     new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dir.clone().normalize()), [ dir ]);
 
-
-  console.log(direction, dir.length())
-
   /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
     const coneIMesh = coneRef.current;

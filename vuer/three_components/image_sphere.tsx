@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
   LinearFilter,
@@ -12,8 +12,7 @@ import {
   Texture,
 } from 'three';
 import { Args, Sphere } from '@react-three/drei';
-import * as THREE from "three";
-import { ShapeProps } from "@react-three/drei/core/shapes";
+import { useXR } from "@react-three/xr";
 
 function interpolateTexture(texture: Texture, interpolate: boolean) {
   if (!texture) return;
@@ -36,6 +35,7 @@ export type ImageSphereProps = {
   distanceToCamera?: number;
   opacity?: number;
   fixed?: boolean | undefined;
+  layers?: number;
   side?: number;
   wireframe?: boolean;
   material?;
@@ -52,6 +52,7 @@ export default function ImageSphere(
     distanceToCamera = 1.0, // default to 1. for occlusion.
     opacity = 1.0,
     fixed = false,
+    layers = null,
     side = 2,
     wireframe = false,
     material = {},
@@ -61,6 +62,12 @@ export default function ImageSphere(
 
   // make new component for just the projection.
   const { camera }: { camera: PerspectiveCamera } = useThree();
+
+  const isPresenting = useXR((state) => state.isPresenting)
+  useLayoutEffect(() => {
+    if (!sphereRef.current || !isPresenting) return;
+    if (typeof layers === "number") sphereRef.current.layers.set(layers)
+  }, [ layers ]);
 
   /**
    * This is the uv mapping for the stereoscopic projection. Should move

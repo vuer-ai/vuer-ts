@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, }
 import { Mesh, Object3D, Vector3 } from 'three';
 import { Canvas } from '@react-three/fiber';
 import { GizmoHelper, GizmoViewport } from '@react-three/drei';
-import { Controllers, Hands as DreiHands, VRButton, XR } from '@react-three/xr';
+import { Controllers, XR, XRButton } from '@react-three/xr';
 import { acceleratedRaycast } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
@@ -16,7 +16,6 @@ import { ClientEvent, VuerProps } from "../interfaces";
 import { SocketContext, SocketContextType } from "../html_components/contexts/websocket";
 // @ts-ignore: no type definition for three-stdlib
 import { OrbitControls as tOrbitControls } from "three-stdlib/controls/OrbitControls";
-import { Hands } from "./controls/hands/hands";
 
 // question: what does this do? - Ge
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -34,6 +33,7 @@ export type SceneProps = VuerProps<{
   canvasRef?;
   className?: string;
   style?;
+  xrMode?: "inline" | "AR" | "VR";
   up?: [ number, number, number ];
   bgChildren?: JSX.Element | JSX.Element[];
   rawChildren?: JSX.Element | JSX.Element[];
@@ -50,6 +50,7 @@ export type SceneProps = VuerProps<{
  * @param canvasRef - the reference to the canvas element
  * @param className - the class name of the scene component
  * @param style - the style of the scene component
+ * @param xrMode - the mode of the immersive session
  * @param children - the children of the scene component
  * @param bgChildren - the children of the scene component that are rendered in the background
  * @param rawChildren - the children of the scene component that are rendered as is
@@ -65,6 +66,7 @@ export function Scene({
   canvasRef: _canvasRef,
   className,
   style,
+  xrMode = "VR",
   children,
   bgChildren,
   // these are not transformed.
@@ -119,7 +121,7 @@ export function Scene({
   return (
     <>
       <div style={divStyle} className={className}>
-        <VRButton/>
+        <XRButton mode={xrMode}/>
         <Canvas
           ref={canvasRef}
           shadows

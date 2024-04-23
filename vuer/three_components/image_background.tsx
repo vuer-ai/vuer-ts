@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, } from 'react';
+import React, { useEffect, useMemo, useRef, useState, } from 'react';
 import { useThree } from '@react-three/fiber';
 import {
   LinearFilter,
@@ -26,6 +26,7 @@ function interpolateTexture(texture: Texture, interpolate: boolean) {
 
 export type ImageBackgroundProps = {
   _key?: string;
+  geometry?: 'plane' | 'sphere' | null;
   src?: string | Blob;
   alphaSrc?: string | Blob;
   depthSrc?: string | Blob;
@@ -38,6 +39,7 @@ export type ImageBackgroundProps = {
 export function ImageBackground(
   {
     _key,
+    geometry,
     src,
     alphaSrc,
     depthSrc,
@@ -68,7 +70,7 @@ export function ImageBackground(
     return { imageOrientation: 'flipY' };
   }, [ camera.type, depthTexture ]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!src) {
       setRGB(undefined);
     } else if (typeof src === 'string') {
@@ -85,7 +87,7 @@ export function ImageBackground(
     }
   }, [ src, blobOpts ]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!alphaSrc) {
       setAlpha(undefined);
     } else if (typeof alphaSrc === 'string') {
@@ -102,7 +104,7 @@ export function ImageBackground(
     }
   }, [ alphaSrc, blobOpts ]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!depthSrc) {
       setDepth(undefined);
     } else if (typeof depthSrc === 'string') {
@@ -134,13 +136,20 @@ export function ImageBackground(
     depthBias: { value: depthBias, step: 0.01, label: "Depth Offset" },
   }, [ fixed, depthScale, depthBias ]);
 
-  if (!depthTexture) {
+  if (geometry === 'plane') {
+    return <ImagePlane matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture}
+                       depth={depthTexture} {...ctrl} {...rest}/>;
+  } else if (geometry === 'sphere') {
+    return <ImageSphere matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl}
+                        depth={depthTexture} {...rest}/>;
+  } else if (!depthTexture) {
     return <ImagePlane matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl} {...rest}/>;
   } else if (camera.type === 'OrthographicCamera') {
-    return <ImagePlane matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} depth={depthTexture} {...ctrl} {...rest}/>;
+    return <ImagePlane matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture}
+                       depth={depthTexture} {...ctrl} {...rest}/>;
   } else if (camera.type === 'PerspectiveCamera') {
     return <ImageSphere matRef={meshRef} rgb={rgbTexture} alpha={alphaTexture} {...ctrl}
-      depth={depthTexture} {...rest}/>;
+                        depth={depthTexture} {...rest}/>;
   }
   return null;
 }
