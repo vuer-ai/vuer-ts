@@ -118,10 +118,11 @@ export function Scene({
 
   const camCtrlRef = useRef<tOrbitControls>();
 
+  // {xrMode === "AR" ? <ARButton/> : <VRButton/>}
   return (
     <>
       <div style={divStyle} className={className}>
-        {xrMode === "AR" ? <ARButton/> : <VRButton/>}
+        <VRButton/>
         <Canvas
           ref={canvasRef}
           shadows
