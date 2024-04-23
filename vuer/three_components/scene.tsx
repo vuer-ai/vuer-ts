@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, }
 import { Mesh, Object3D, Vector3 } from 'three';
 import { Canvas } from '@react-three/fiber';
 import { GizmoHelper, GizmoViewport } from '@react-three/drei';
-import { Controllers, XR, XRButton } from '@react-three/xr';
+import { ARButton, Controllers, VRButton, XR } from '@react-three/xr';
 import { acceleratedRaycast } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
@@ -66,7 +66,7 @@ export function Scene({
   canvasRef: _canvasRef,
   className,
   style,
-  xrMode = "VR",
+  xrMode = "AR",
   children,
   bgChildren,
   // these are not transformed.
@@ -121,7 +121,7 @@ export function Scene({
   return (
     <>
       <div style={divStyle} className={className}>
-        <XRButton mode={xrMode}/>
+        {xrMode === "AR" ? <ARButton/> : <VRButton/>}
         <Canvas
           ref={canvasRef}
           shadows
