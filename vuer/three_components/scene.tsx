@@ -66,7 +66,7 @@ export function Scene({
   canvasRef: _canvasRef,
   className,
   style,
-  xrMode = "VR",
+  xrMode,
   children,
   bgChildren,
   // these are not transformed.
@@ -119,15 +119,16 @@ export function Scene({
   const camCtrlRef = useRef<tOrbitControls>();
 
   let button;
-  if (xrMode === "AR") {
+  let mode = xrMode || queries.xrMode || "VR";
+
+  if (mode === "AR") {
     button = <ARButton/>;
-  } else if (xrMode === "VR") {
+  } else if (mode === "VR") {
     button = <VRButton/>;
-  } else if (xrMode === "hidden") {
+  } else if (mode === "hidden") {
     button = null;
   }
 
-  // {xrMode === "AR" ? <ARButton/> : <VRButton/>}
   return (
     <>
       <div style={divStyle} className={className}>
