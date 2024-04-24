@@ -1,7 +1,6 @@
 import React, {
   ChangeEvent,
   ChangeEventHandler,
-  HTMLInputTypeAttribute,
   KeyboardEvent,
   KeyboardEventHandler,
   MouseEvent,
@@ -59,6 +58,7 @@ export function Slider({
 }
 
 export type ImgProps = VuerProps<{ alt: string }>;
+
 export function Img({ _key: key, children, alt, ...props }: ImgProps) {
   const { sendMsg } = useContext(SocketContext);
   return (
@@ -118,6 +118,7 @@ export function Input(
   const onChange = useMemo<ChangeEventHandler<HTMLTextAreaElement>>(() => ({ target }) => {
     setValue(target.value);
   }, []);
+
   const onKeyUp = useMemo<KeyboardEventHandler<HTMLTextAreaElement>>(() => (e: KeyboardEvent) => {
     // info: choose default
     if (e.keyCode == 39 && !value) {
@@ -133,7 +134,7 @@ export function Input(
       sendMsg({ etype: 'INPUT', key, value });
       if (clearOnSubmit) setValue('');
     }
-  }, []);
+  }, [ value ]);
 
   return (
     <form

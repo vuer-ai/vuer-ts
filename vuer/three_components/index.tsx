@@ -44,7 +44,7 @@ interface SceneType {
 
 export type SceneContainerP = PropsWithChildren<{
   up: [ number, number, number ];
-  xrMode: "AR" | "VR";
+  xrMode: "AR" | "VR" | "hidden";
   children?: JSX.Element | JSX.Element[];
   rawChildren?: JSX.Element | JSX.Element[];
   htmlChildren?: JSX.Element | JSX.Element[];

@@ -16,7 +16,7 @@ export interface Node {
 
 interface QueryParams {
   collapseMenu?: string;
-  xrMode?: "inline" | "AR" | "VR";
+  xrMode?: "inline" | "AR" | "VR" | "hidden";
 }
 
 type VuerRootProps = PropsWithRef<{ style?: object} & SceneContainerP>;

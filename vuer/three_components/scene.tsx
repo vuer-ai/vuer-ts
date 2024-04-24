@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, }
 import { Mesh, Object3D, Vector3 } from 'three';
 import { Canvas } from '@react-three/fiber';
 import { GizmoHelper, GizmoViewport } from '@react-three/drei';
-import { ARButton, Controllers, VRButton, XR, XRButton } from '@react-three/xr';
+import { ARButton, Controllers, VRButton, XR } from '@react-three/xr';
 import { acceleratedRaycast } from 'three-mesh-bvh';
 import { Perf } from 'r3f-perf';
 import queryString, { ParsedQuery } from 'query-string';
@@ -33,7 +33,7 @@ export type SceneProps = VuerProps<{
   canvasRef?;
   className?: string;
   style?;
-  xrMode?: "AR" | "VR";
+  xrMode?: "AR" | "VR" | "hidden";
   up?: [ number, number, number ];
   bgChildren?: JSX.Element | JSX.Element[];
   rawChildren?: JSX.Element | JSX.Element[];
@@ -118,11 +118,20 @@ export function Scene({
 
   const camCtrlRef = useRef<tOrbitControls>();
 
+  let button;
+  if (xrMode === "AR") {
+    button = <ARButton/>;
+  } else if (xrMode === "VR") {
+    button = <VRButton/>;
+  } else if (xrMode === "hidden") {
+    button = null;
+  }
+
   // {xrMode === "AR" ? <ARButton/> : <VRButton/>}
   return (
     <>
       <div style={divStyle} className={className}>
-        {((queries.xrMode || xrMode) === "AR") ? <ARButton/> : <VRButton/>}
+        {button}
         <Canvas
           ref={canvasRef}
           shadows
