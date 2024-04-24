@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
   Euler,
@@ -14,7 +14,6 @@ import {
   Texture,
   Vector3,
 } from 'three';
-import { Plane } from '@react-three/drei';
 import { Matrix16T, QuaternionT } from "../interfaces";
 import { useXR } from "@react-three/xr";
 
@@ -79,10 +78,13 @@ export default function ImagePlane(
   const { camera }: { camera: PerspectiveCamera | OrthographicCamera } = useThree();
 
   const isPresenting = useXR((state) => state.isPresenting)
-  useLayoutEffect(() => {
-    if (!planeRef.current || !isPresenting) return;
-    if (typeof layers === "number") planeRef.current.layers.set(layers)
-  }, [ layers ]);
+
+  useEffect(() => {
+    if (!planeRef.current) return;
+    if (typeof layers === "number" && isPresenting) {
+      planeRef.current.layers.set(layers)
+    }
+  }, [ layers, planeRef.current, isPresenting ]);
 
   useLayoutEffect(() => {
     if (!planeRef.current || !fixed) return;
@@ -165,11 +167,11 @@ export default function ImagePlane(
 
   if (depth?.image) {
     return (
-      <Plane
+      <mesh
         ref={planeRef}
-        args={[ 1, 1, img?.width, img?.height ]}
         scale={[ 1, 1, 1 ]}
       >
+        <planeGeometry args={[ 1, 1, img?.width, img?.height ]}/>
         <meshStandardMaterial
           attach="material"
           ref={matRef}
@@ -185,14 +187,14 @@ export default function ImagePlane(
           side={side as Side}
           {...matProp}
         />
-      </Plane>
+      </mesh>
     );
   } else return (
-    <Plane
+    <mesh
       ref={planeRef}
-      args={[ 1, 1, img?.width, img?.height ]}
       scale={[ 1, 1, 1 ]}
     >
+      <planeGeometry args={[ 1, 1, img?.width, img?.height ]}/>
       <meshBasicMaterial
         attach="material"
         ref={matRef}
@@ -207,6 +209,6 @@ export default function ImagePlane(
         // do not add the displacementMap color space attribute
         {...material}
       />
-    </Plane>
+    </mesh>
   );
 }

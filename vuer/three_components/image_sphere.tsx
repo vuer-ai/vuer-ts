@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, } from 'react';
+import { useEffect, useMemo, useRef, } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
   LinearFilter,
@@ -64,43 +64,45 @@ export default function ImageSphere(
   const { camera }: { camera: PerspectiveCamera } = useThree();
 
   const isPresenting = useXR((state) => state.isPresenting)
-  useLayoutEffect(() => {
-    if (!sphereRef.current || !isPresenting) return;
-    if (typeof layers === "number") sphereRef.current.layers.set(layers)
-  }, [ layers ]);
+  useEffect(() => {
+    if (!sphereRef.current) return;
+    if (typeof layers === "number" && isPresenting) {
+      sphereRef.current.layers.set(layers)
+    }
+  }, [ layers, sphereRef.current, isPresenting ]);
 
   /**
    * This is the uv mapping for the stereoscopic projection. Should move
    * this to the GPU since it is expensive.
    * */
-  useEffect(() => {
-    if (camera.type !== "PerspectiveCamera") {
-      console.warn("ImageSphere only works with perspective camera");
-      return;
-    }
-    const c = camera as PerspectiveCamera;
-
-    const cyRad = c.fov / 360 * Math.PI
-    const cxRad = Math.atan(Math.tan(cyRad) * c.aspect)
-
-    const {
-      uv: uvAttribute,
-      normal
-    } = sphereRef.current.geometry.attributes;
-
-    for (let i = 0; i < normal.count; i += 1) {
-      const nY = normal.getY(i);
-      const nX = normal.getX(i);
-      const nZ = normal.getZ(i);
-
-      const u = -0.5 * nX / nZ / Math.sin(cxRad) * Math.sqrt(1 - Math.sin(cxRad) ** 2);
-      const v = 0.5 * nY / nZ / Math.sin(cyRad) * Math.sqrt(1 - Math.sin(cyRad) ** 2);
-
-      uvAttribute.setXY(i, u + 0.5, v + 0.5);
-    }
-    uvAttribute.needsUpdate = true;
-
-  }, [ camera.fov, camera.aspect ])
+  // useEffect(() => {
+  //   if (camera.type !== "PerspectiveCamera") {
+  //     console.warn("ImageSphere only works with perspective camera");
+  //     return;
+  //   }
+  //   const c = camera as PerspectiveCamera;
+  //
+  //   const cyRad = c.fov / 360 * Math.PI
+  //   const cxRad = Math.atan(Math.tan(cyRad) * c.aspect)
+  //
+  //   const {
+  //     uv: uvAttribute,
+  //     normal
+  //   } = sphereRef.current.geometry.attributes;
+  //
+  //   for (let i = 0; i < normal.count; i += 1) {
+  //     const nY = normal.getY(i);
+  //     const nX = normal.getX(i);
+  //     const nZ = normal.getZ(i);
+  //
+  //     const u = -0.5 * nX / nZ / Math.sin(cxRad) * Math.sqrt(1 - Math.sin(cxRad) ** 2);
+  //     const v = 0.5 * nY / nZ / Math.sin(cyRad) * Math.sqrt(1 - Math.sin(cyRad) ** 2);
+  //
+  //     uvAttribute.setXY(i, u + 0.5, v + 0.5);
+  //   }
+  //   uvAttribute.needsUpdate = true;
+  //
+  // }, [ camera.fov, camera.aspect ])
 
   // note: only works with perspective camera
   const args: Args<typeof SphereGeometry> = useMemo(() => {
@@ -132,8 +134,9 @@ export default function ImageSphere(
     if (!sphereRef.current) return;
     if (fixed) return;
     const sphere = sphereRef.current;
-    sphere.rotation.copy(camera.rotation)
-    sphere.position.copy(camera.position)
+    // @ts-ignore: use placeholder for scale.
+    camera.matrixWorld.decompose(sphere.position, camera.quaternion, []);
+    sphere.quaternion.copy(camera.quaternion);
   });
 
   const matProp = useMemo(() => {
@@ -144,7 +147,8 @@ export default function ImageSphere(
 
   if (depth?.image) {
     return (
-      <Sphere ref={sphereRef} args={args} scale={[ 1, 1, 1 ]}>
+      <mesh ref={sphereRef}  scale={[ 1, 1, 1 ]}>
+        <sphereGeometry args={args}/>
         <meshStandardMaterial
           ref={matRef}
           attach="material"
@@ -160,10 +164,11 @@ export default function ImageSphere(
           side={side as Side}
           {...matProp}
         />
-      </Sphere>
+      </mesh>
     );
   } else return (
-    <Sphere ref={sphereRef} args={args} scale={[ 1, 1, 1 ]}>
+    <mesh ref={sphereRef}  scale={[ 1, 1, 1 ]}>
+      <sphereGeometry args={args}/>
       <meshBasicMaterial
         ref={matRef}
         attach="material"
@@ -178,6 +183,6 @@ export default function ImageSphere(
         // do not add the displacementMap color space attribute
         {...material}
       />
-    </Sphere>
+    </mesh>
   );
 }
