@@ -122,7 +122,7 @@ export function Scene({
   return (
     <>
       <div style={divStyle} className={className}>
-        {((queries.xrMode || xrMode) === "XR") ? <ARButton/> : <VRButton/>}
+        {((queries.xrMode || xrMode) === "AR") ? <ARButton/> : <VRButton/>}
         <Canvas
           ref={canvasRef}
           shadows
