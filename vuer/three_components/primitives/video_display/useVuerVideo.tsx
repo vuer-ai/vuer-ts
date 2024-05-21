@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { suspend } from 'suspend-react';
+import { useXR } from "@react-three/xr";
 
 
 export type useVideoProps = {
@@ -36,12 +37,14 @@ export function useVideo(src, {
     video.addEventListener(unsuspend, () => res(video));
   }), [ src ]) as HTMLVideoElement;
 
+  const isPresenting = useXR().isPresenting;
+
   useEffect(() => {
     if (!video) return
     if (!start) return
     video.play();
     return () => video.pause();
-  }, [ video ]);
+  }, [ video, start, isPresenting ]);
 
   return video;
 }

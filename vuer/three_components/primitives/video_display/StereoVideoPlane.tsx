@@ -24,7 +24,7 @@ export const WebRTCStereoVideoPlane = ({
 
   const srcObj = useWebRTC(src, { iceServer, ...rtcOptions });
 
-  const video = useVideo(srcObj)
+  const video = useVideo(srcObj, { start: true })
   const leftTexture = useVuerVideoTexture(video, { repeat: [ 0.5, 1 ], offset: [ 0, 0 ] });
   const rightTexture = useVuerVideoTexture(video, { repeat: [ 0.5, 1 ], offset: [ 0.5, 0 ] });
 

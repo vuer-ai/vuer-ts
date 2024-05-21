@@ -1,6 +1,7 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { Vector2, VideoTexture } from "three";
+import { useXR } from "@react-three/xr";
 
 export type TexturePT = {
   start?: boolean;
@@ -30,12 +31,14 @@ export function useVuerVideoTexture(video, { start = false, repeat, offset }: Te
     if (offset) texture.offset = new Vector2(...offset);
   }, [ repeat, offset ])
 
+  const isPresenting = useXR().isPresenting;
+
   useEffect(() => {
     if (!texture) return;
     if (!start) return;
     texture.image.play();
     return () => texture.image.pause();
-  }, [ texture, start ]);
+  }, [ texture, start, isPresenting ]);
 
 
   return texture;
