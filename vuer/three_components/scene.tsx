@@ -33,6 +33,7 @@ export type SceneProps = VuerProps<{
   canvasRef?;
   className?: string;
   style?;
+  frameloop?: "always" | "demand";
   xrMode?: "AR" | "VR" | "hidden";
   up?: [ number, number, number ];
   bgChildren?: JSX.Element | JSX.Element[];
@@ -65,6 +66,7 @@ export type SceneProps = VuerProps<{
 export function Scene({
   canvasRef: _canvasRef,
   className,
+  frameloop = 'demand',
   style,
   xrMode,
   children,
@@ -138,7 +140,8 @@ export function Scene({
           shadows
           // preserve buffer needed for download and grab image data
           gl={{ antialias: true, preserveDrawingBuffer: true }}
-          frameloop="demand"
+          frameloop={frameloop}
+          // frameloop="demand"
           // why set it to 1: https://stackoverflow.com/a/32936969/1560241
           tabIndex={1}
         >

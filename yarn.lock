@@ -4654,6 +4654,11 @@ react-usestateref@^1.0.8:
   resolved "https://registry.yarnpkg.com/react-usestateref/-/react-usestateref-1.0.8.tgz#b40519af0d6f3b3822c70eb5db80f7d47f1b1ff5"
   integrity sha512-whaE6H0XGarFKwZ3EYbpHBsRRCLZqdochzg/C7e+b6VFMTA3LS3K4ZfpI4NT40iy83jG89rGXrw70P9iDfOdsA==
 
+react-webrtc@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-webrtc/-/react-webrtc-1.0.0.tgz#8efffe338f341605ff7aec6db229e85e71e08fb7"
+  integrity sha512-lhh1Ivwe9pRm7D5+02Bn2VM/YmtQeblDb+R+iikYvZ9uU64fbVL5Y6pVQiJSuNzPW/6OooXwIXCP1zs9//wn9Q==
+
 react@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"

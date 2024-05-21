@@ -32,9 +32,14 @@ function makeProps(props?) {
 
 interface QueryParams {
   scene?: string;
+  frameloop?: "demand" | "always";
+  xrMode?: "AR" | "VR" | "hidden";
 }
 
 interface SceneType {
+  up: [ number, number, number ];
+  xrMode: "AR" | "VR" | "hidden";
+  frameloop: "demand" | "always";
   children: Node[];
   htmlChildren: Node[];
   rawChildren: Node[];
@@ -77,10 +82,14 @@ export default function SceneContainer({
   const { response } = useFetch(queries.scene, []);
 
   const [ scene, setScene, sceneRef ] = useStateRef<SceneType>({
+    up: null,
+    xrMode: queries.xrMode || "VR",
+    frameloop: queries.frameloop || "demand" ,
     children: [],
     htmlChildren: [],
     rawChildren: [],
     bgChildren: [],
+    ...rest,
   });
 
   const [ menu, setMenu ] = useState({});
@@ -248,7 +257,6 @@ export default function SceneContainer({
       bgChildren={sceneBackgroundChildren.length
         ? toProps(sceneBackgroundChildren)
         : (bgChildren || [])}
-      {...rest}
       {..._scene}
     >
       {sceneChildren.length ? toProps(sceneChildren) : (children || [])}

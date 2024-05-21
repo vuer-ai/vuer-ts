@@ -45,6 +45,10 @@ import { TriMesh } from './three_components/primitives/trimesh';
 import { Gamepad } from './three_components/controls/gamepad';
 import { Hands } from './three_components/controls/hands/hands';
 import { SceneBackground } from './three_components/scene_background';
+import { VideoPlane, HUDPlane, WebRTCVideoPlane } from './three_components/video_plane';
+import { StereoVideoPlane, WebRTCStereoVideoPlane } from './three_components/primitives/video_display/StereoVideoPlane';
+import { WebRTCVideoMaterial } from "./three_components/primitives/video_display/WebRTCVideoMaterial";
+import { VideoMaterial } from "./three_components/primitives/video_display/WebRTCVideoMaterial";
 import { ImageBackground } from './three_components/image_background';
 import { Arrow, CoordsMarker } from "./three_components/primitives/CoordsMarker";
 import { Button, Div, ImageUpload, Img, Input, Slider, Text } from "./html_components/input_components";
@@ -119,6 +123,13 @@ export const comp_list: CompList = {
   TimelineControls,
   PointerControls,
   Grid,
+  StereoVideoPlane,
+  WebRTCStereoVideoPlane,
+  HUDPlane,
+  VideoPlane,
+  WebRTCVideoPlane,
+  WebRTCVideoMaterial,
+  VideoMaterial,
   Splats: React.lazy(() => import( './third_party/luma_splats' )),
   BBox,
   Render,
