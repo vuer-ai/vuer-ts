@@ -28,6 +28,7 @@ export function useVideo(src, {
     const video = Object.assign(document.createElement('video'), {
       src: typeof src === 'string' && src || undefined,
       srcObject: src instanceof MediaStream && src || undefined,
+      autoplay: start,
       crossOrigin,
       loop,
       muted,
@@ -37,7 +38,7 @@ export function useVideo(src, {
     video.addEventListener(unsuspend, () => res(video));
   }), [ src ]) as HTMLVideoElement;
 
-  const isPresenting = useXR().isPresenting;
+  const { isPresenting } = useXR();
 
   useEffect(() => {
     if (!video) return

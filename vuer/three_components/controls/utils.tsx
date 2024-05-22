@@ -10,7 +10,7 @@ type SqueezeRayGrabProps = VuerProps<{
   onSqueezeEnd?: (e?: XRInteractionEvent) => void;
   onMove?: (e?: { world: Matrix4; local: Matrix4 }) => void;
   onSelect?: (e?: XRInteractionEvent) => void;
-  bigChildren?: ReactNode | ReactNode[];
+  bgChildren?: ReactNode | ReactNode[];
   [key: string]: unknown;
 }, Group>;
 
@@ -21,7 +21,7 @@ export const SqueezeRayGrab = forwardRef((
     onSqueezeEnd,
     onSelect,
     children,
-    bigChildren,
+    bgChildren,
     ...rest
   }: SqueezeRayGrabProps,
   forwardedRef: ForwardedRef<Group>,
@@ -50,7 +50,7 @@ export const SqueezeRayGrab = forwardRef((
 
   return (
     <group ref={groupRef}>
-      {bigChildren}
+      {bgChildren}
       <Interactive
         onSqueezeStart={(e: XRInteractionEvent) => {
           // @ts-expect-error: not sure how to fix this

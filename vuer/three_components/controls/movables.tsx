@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Euler, Group, Matrix4, Mesh, Object3D, Quaternion, Vector3, } from 'three';
+import { Euler, Group, Matrix4, Mesh, Quaternion, Vector3, } from 'three';
 import { MeshProps, Vector3 as rVector3 } from '@react-three/fiber';
 import { PivotControls } from '@react-three/drei';
 import { useXR } from '@react-three/xr';
@@ -261,9 +261,16 @@ export function PivotXR(
     });
   }, []);
 
+  const render = () => (
+    <group position={position} rotation={rotation}>
+      {children}
+    </group>
+  )
 
   return (
-    <SqueezeRayGrab onSqueezeEnd={onSqueezeEnd} onMove={onMoveHandle} bigChildren={children}>
+    <SqueezeRayGrab
+      onSqueezeEnd={onSqueezeEnd} onMove={onMoveHandle} position={position} rotation={rotation}
+      bgChildren={render()}>
       <HandleBox
         ref={localRef}
         size={[ scale, scale, scale ]}
