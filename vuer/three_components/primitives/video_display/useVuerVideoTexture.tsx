@@ -28,6 +28,7 @@ export function useVuerVideoTexture(video, { start = false, repeat, offset }: Te
 
   useFrame(() => {
     // this is a safari bug. The video texture needs to be updated every frame.
+    if (!texture) return;
     if (isPresenting && !texture.image.paused) texture.needsUpdate = true;
   })
 

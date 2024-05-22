@@ -36,6 +36,7 @@ export function useVideo(src, {
       ...rest
     });
     video.addEventListener(unsuspend, () => res(video));
+    video.addEventListener('error', () => rej(null));
   }), [ src ]) as HTMLVideoElement;
 
   const { isPresenting } = useXR();
