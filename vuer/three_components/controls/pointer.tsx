@@ -195,7 +195,7 @@ export function PointerControls({
       || position.y !== position.y
       || position.z !== position.z
     ) {
-      console.log('Clicked on free space, return as mouse click event.', _rest);
+      // console.log('Clicked on free space, return as mouse click event.', _rest);
       event = {
         etype: 'MOUSE_CLICK',
         key: parentKey,

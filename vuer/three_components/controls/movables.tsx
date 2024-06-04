@@ -96,8 +96,6 @@ export function Pivot(
     pivot.matrix.fromArray(matrix);
     pivot.matrix.decompose(pivot.position, pivot.quaternion, pivot.scale);
     pivot.rotation.setFromQuaternion(pivot.quaternion);
-    // note: invalidate is not needed here? - Ge
-    // invalidate();
   }, [ matrix, localRef.current ]);
 
   useEffect(() => {

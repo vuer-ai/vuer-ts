@@ -19,8 +19,10 @@ export function useWebRTC(src: string, {
 
   useEffect(() => {
 
+    const servers = (!!iceServer) ? [ iceServer, ...iceServers ] : iceServers;
+
     const peer = new RTCPeerConnection({
-      iceServers: [ iceServer, ...iceServers ],
+      iceServers: servers,
       ...rest
     });
     peer.addEventListener('track', (evt) => {

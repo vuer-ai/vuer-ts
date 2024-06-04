@@ -35,7 +35,14 @@ import { Movable, Pivot } from './three_components/controls/movables';
 import { Camera } from './three_components/camera';
 import { BBox } from './three_components/primitives/bbox';
 import { CameraView } from './three_components/camera_view/camera_view';
-import { AmbientLight, DirectionalLight, PointLight, SpotLight, } from './three_components/lighting';
+import {
+  AmbientLight,
+  DirectionalLight,
+  HemisphereLight,
+  PointLight,
+  RectAreaLight,
+  SpotLight,
+} from './three_components/lighting';
 import { Frustum } from './three_components/frustum';
 import { Render, RenderLayer } from './nerf_components/view';
 import { Markdown } from './html_components/markdown/markdown';
@@ -45,10 +52,10 @@ import { TriMesh } from './three_components/primitives/trimesh';
 import { Gamepad } from './three_components/controls/gamepad';
 import { Hands } from './three_components/controls/hands/hands';
 import { SceneBackground } from './three_components/scene_background';
-import { VideoPlane, HUDPlane, WebRTCVideoPlane } from './three_components/video_plane';
+import ImagePlane from './three_components/image_plane';
+import { HUDPlane, VideoPlane, WebRTCVideoPlane } from './three_components/video_plane';
 import { StereoVideoPlane, WebRTCStereoVideoPlane } from './three_components/primitives/video_display/StereoVideoPlane';
-import { WebRTCVideoMaterial } from "./three_components/primitives/video_display/WebRTCVideoMaterial";
-import { VideoMaterial } from "./three_components/primitives/video_display/WebRTCVideoMaterial";
+import { VideoMaterial, WebRTCVideoMaterial } from "./three_components/primitives/video_display/WebRTCVideoMaterial";
 import { ImageBackground } from './three_components/image_background';
 import { Arrow, CoordsMarker } from "./three_components/primitives/CoordsMarker";
 import { Button, Div, ImageUpload, Img, Input, Slider, Text } from "./html_components/input_components";
@@ -56,11 +63,13 @@ import GrabRender from "./three_components/camera_view/GrabRender";
 import { TimelineControls } from "./uxr_components/TimelineControls";
 import { PointerControls } from "./three_components/controls/pointer";
 import { Grid } from "./three_components/grid";
-import { drei_component_list } from "./drei_components";
+import { drei_component_list } from "./drei_components/drei_components";
+import { VuerGroup } from "./three_components/primitives/better_group";
 import SceneContainer from "./three_components";
 
 // prettier-ignore
 type CompList = Record<string, FC | Component | Promise<Component>>;
+// @ts-ignore: this is a registry of all the components that are available to the user
 export const comp_list: CompList = {
   Slider,
   Input,
@@ -74,6 +83,7 @@ export const comp_list: CompList = {
   Scene,
   SceneBackground,
   ImageBackground,
+  VuerGroup,
   Ply,
   Obj,
   Pcd,
@@ -117,12 +127,15 @@ export const comp_list: CompList = {
   DirectionalLight,
   AmbientLight,
   SpotLight,
+  HemisphereLight,
+  RectAreaLight,
   CameraView,
   Camera,
   GrabRender,
   TimelineControls,
   PointerControls,
   Grid,
+  ImagePlane,
   StereoVideoPlane,
   WebRTCStereoVideoPlane,
   HUDPlane,

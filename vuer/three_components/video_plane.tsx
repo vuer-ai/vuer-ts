@@ -56,8 +56,8 @@ export function HUDPlane(
     const plane = planeRef.current;
     if (matrix) {
       plane.matrix.fromArray(matrix);
-      plane.matrixAutoUpdate = false;
-      return
+      plane.matrix.decompose(plane.position, plane.quaternion, plane.scale);
+      plane.rotation.setFromQuaternion(plane.quaternion);
     } else {
       if (quaternion) plane.quaternion.fromArray(quaternion);
       else if (rotation) plane.rotation.set(...rotation);
@@ -100,9 +100,10 @@ export function HUDPlane(
     if (fixed) return;
 
     if (matrix) {
-      plane.matrixAutoUpdate = false;
       plane.matrix.fromArray(matrix);
       plane.matrix.premultiply(camera.matrixWorld);
+      plane.matrix.decompose(plane.position, plane.quaternion, plane.scale);
+      plane.rotation.setFromQuaternion(plane.quaternion);
       return
     }
 

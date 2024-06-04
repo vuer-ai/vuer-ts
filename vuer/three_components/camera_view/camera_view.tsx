@@ -201,15 +201,15 @@ export function CameraView(
   useLayoutEffect(() => {
     if (!cameraRef.current || !matrix || matrix.length !== 16) return;
     const cam = cameraRef.current;
-    cam.matrixAutoUpdate = false;
-    cam.matrix.fromArray(matrix)
+    cam.matrix.fromArray(matrix);
+    cam.matrix.decompose(cam.position, cam.quaternion, cam.scale);
+    cam.rotation.setFromQuaternion(cam.quaternion);
 
     const f = movable ? frustumHandle?.current : frustum?.current;
     if (!f) return;
-
-    f.matrixAutoUpdate = false;
     f.matrix.fromArray(matrix);
-
+    f.matrix.decompose(f.position, f.quaternion, f.scale);
+    f.rotation.setFromQuaternion(f.quaternion);
   }, [ matrix, cameraRef.current ]);
 
   const onMove = useCallback(() => {
@@ -217,8 +217,9 @@ export function CameraView(
     const cam = cameraRef.current;
     const moveHandle = frustumHandle.current;
 
-    cam.matrixAutoUpdate = false;
     cam.matrix.copy(moveHandle.matrix);
+    cam.matrix.decompose(cam.position, cam.quaternion, cam.scale);
+    cam.rotation.setFromQuaternion(cam.quaternion);
 
     sendMsg({
       etype: "CAMERA_MOVE", key: _key, value: {

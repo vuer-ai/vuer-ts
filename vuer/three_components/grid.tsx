@@ -60,7 +60,7 @@ export function Grid({ _key, far, levaPrefix = 'Scene.', hide }: GridProps): JSX
     [ far, camera.far ],
   );
 
-  const quat = useMemo(() => {
+  const { rot, pos } = useMemo(() => {
     const upVector = new Vector3(0, 1, 0);
 
     // Compute the quaternion
@@ -69,15 +69,15 @@ export function Grid({ _key, far, levaPrefix = 'Scene.', hide }: GridProps): JSX
 
     const euler = new Euler()
     euler.setFromQuaternion(quaternion, 'XYZ');
-
-    return euler;
-  }, [])
+    const position = Object3D.DEFAULT_UP.clone().multiplyScalar(offset);
+    return { rot: euler, pos: position };
+  }, [ Object3D.DEFAULT_UP, offset ])
 
   if (!showGrid) return <></>;
   return (
     <DreiGrid
-      position={Object3D.DEFAULT_UP.clone().multiplyScalar(offset)}
-      rotation={quat}
+      position={pos}
+      rotation={rot}
       args={[ 10, 10 ]}
       fadeDistance={Math.min(camera.far || 5, fadeDistance)}
       {...config}

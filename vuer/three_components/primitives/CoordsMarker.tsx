@@ -1,5 +1,6 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Color, Euler, Group, InstancedMesh, Object3D, Quaternion, Vector3 } from "three";
+import { VuerGroup } from "./better_group";
 
 const instances = [
   { position: new Vector3(1, 0, 0), rotation: new Euler(0, 0, -0.5 * Math.PI), color: new Color(0xff0000) },
@@ -12,10 +13,11 @@ export type ArrowProps = {
   position?: [ number, number, number ],
   rotation?: [ number, number, number ],
   direction?: [ number, number, number ],
-  color: string | Color,
   scale?: number,
   lod?: number,
   headScale?: number,
+  color?: string | Color,
+  opacity?: number,
   wireframe?: boolean,
 }
 
@@ -26,9 +28,10 @@ export function Arrow({
   // todo: use direction vector instead.
   direction = [ 1, 0, 0 ],
   scale = 1.0,
-  color = "red",
   headScale = 1.0,
   lod = 10,
+  color = "red",
+  opacity = 1.0,
   wireframe = false,
 }: ArrowProps) {
   const ref = useRef<Group>();
@@ -64,23 +67,24 @@ export function Arrow({
     }
   }, [])
 
+  // not sure if this is needed given that we are using materials.
   useLayoutEffect(() => {
     coneRef.current?.setColorAt(0, color3)
     cylinderRef.current?.setColorAt(0, color3)
   }, [ color3 ])
 
-  useLayoutEffect(() => {
-    const group = ref.current;
-    if (!group || !matrix) return
-    group.matrix.set(...matrix)
-  }, [ matrix ])
+  const mat = {};
+  if (opacity == 0 || opacity < 1) {
+    mat['transparent'] = true;
+    mat['opacity'] = opacity;
+  }
 
   const material = wireframe
-    ? <meshStandardMaterial wireframe color={color3}/>
-    : <meshBasicMaterial color={color3}/>
+    ? <meshStandardMaterial wireframe {...mat}/>
+    : <meshBasicMaterial {...mat}/>
 
   return (
-    <group ref={ref} position={position} rotation={rotation} scale={scale}>
+    <VuerGroup ref={ref} position={position} rotation={rotation} scale={scale} matrix={matrix}>
       <instancedMesh ref={coneRef} args={[ null, null, 1 ]}>
         <coneGeometry args={[ 0.05 * headScale, 0.1 * headScale, lod, lod ]}/>
         {material}
@@ -89,7 +93,7 @@ export function Arrow({
         <cylinderGeometry args={[ 0.025, 0.025, dir.length(), lod, lod ]}/>
         {material}
       </instancedMesh>
-    </group>
+    </VuerGroup>
   )
 }
 
@@ -101,6 +105,8 @@ export type CoordsMarkerProps = {
   scale?: number,
   lod?: number,
   headScale?: number,
+  color?: string | Color,
+  opacity?: number,
   wireframe?: boolean,
 }
 
@@ -111,12 +117,16 @@ export function CoordsMarker({
   scale = 1.0,
   headScale = 1.0,
   lod = 10,
+  color,
+  opacity = 1.0,
   wireframe = false,
 }: CoordsMarkerProps) {
 
   const ref = useRef<Group>();
   const coneRef = useRef<InstancedMesh>();
   const cylinderRef = useRef<InstancedMesh>();
+
+  const color3 = useMemo(() => color && new Color(color), [ color ])
 
   const obj = useMemo(() => new Object3D(), [])
 
@@ -125,45 +135,46 @@ export function CoordsMarker({
     const coneIMesh = coneRef.current;
     if (!coneIMesh) return
 
-    instances.forEach(({ position, rotation, color }, index) => {
+    instances.forEach(({ position, rotation, color: _color }, index) => {
       obj.position.set(position.x, position.y, position.z)
       obj.rotation.set(rotation.x, rotation.y, rotation.z)
       obj.updateMatrix()
       coneIMesh.setMatrixAt(index, obj.matrix)
-      coneIMesh.setColorAt(index, color)
+      coneIMesh.setColorAt(index, color3 || _color)
     })
-
   }, [])
+
 
   /** these are local within the coords legend. Do NOT need to be recomputed.*/
   useLayoutEffect(() => {
     const cylinderIMesh = cylinderRef.current;
     if (!cylinderIMesh) return
 
-    instances.forEach(({ position, rotation, color }, index) => {
+    instances.forEach(({ position, rotation, color: _color }, index) => {
       obj.position.set(position.x / 2, position.y / 2, position.z / 2)
       obj.rotation.set(rotation.x, rotation.y, rotation.z)
       obj.updateMatrix()
       cylinderIMesh.setMatrixAt(index, obj.matrix)
-      cylinderIMesh.setColorAt(index, color)
+      cylinderIMesh.setColorAt(index, color3 || _color)
     })
 
   }, [])
 
-  /** transform the entire group using the metrix */
-  useLayoutEffect(() => {
-    const group = ref.current;
-    if (!group || !matrix) return
-    group.matrix.set(...matrix)
-  }, [ matrix ])
-
+  const mat = {};
+  if (opacity == 0 || opacity < 1) {
+    mat['transparent'] = true;
+    mat['opacity'] = opacity;
+  }
+  if (!!color) {
+    mat['color'] = color3;
+  }
 
   const material = wireframe
-    ? <meshStandardMaterial wireframe/>
-    : <meshBasicMaterial/>
+    ? <meshStandardMaterial wireframe {...mat}/>
+    : <meshBasicMaterial {...mat}/>
 
   return (
-    <group ref={ref} position={position} rotation={rotation} scale={scale}>
+    <VuerGroup ref={ref} _ref={ref} position={position} rotation={rotation} scale={scale} matrix={matrix}>
       <instancedMesh ref={coneRef} args={[ null, null, 3 ]}>
         <coneGeometry args={[ 0.05 * headScale, 0.1 * headScale, lod, lod ]}/>
         {material}
@@ -172,6 +183,6 @@ export function CoordsMarker({
         <cylinderGeometry args={[ 0.025, 0.025, 1, lod, lod ]}/>
         {material}
       </instancedMesh>
-    </group>
+    </VuerGroup>
   )
 }

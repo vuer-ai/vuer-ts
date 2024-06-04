@@ -1,19 +1,23 @@
-import { MutableRefObject, useRef } from 'react';
+import { MutableRefObject, useLayoutEffect, useRef } from 'react';
 import { useControls } from 'leva';
 import { Sphere, useHelper } from '@react-three/drei';
 import {
   AmbientLightProps as TALP,
   DirectionalLightProps as TDLP,
+  HemisphereLightProps as HSLP,
+  RectAreaLightProps as RALP,
   SpotLightProps as TSLP,
 } from '@react-three/fiber';
 import {
-  PointLight as TPL,
-  SpotLight as TSL,
-  DirectionalLight as TDL,
   AmbientLight as TAL,
+  DirectionalLight as TDL,
   DirectionalLightHelper,
+  HemisphereLightHelper,
+  PointLight as TPL,
   PointLightHelper,
+  SpotLight as TSL,
   SpotLightHelper,
+  Vector3,
 } from "three";
 import { VuerProps } from "../interfaces";
 
@@ -23,6 +27,79 @@ type LightProps<TLP> = VuerProps<{
   levaPrefix?: string;
   helper?: boolean;
 }, TLP>;
+
+export function RectAreaLight(
+  {
+    _key,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    children,
+    hide = false,
+    intensity = 1.0,
+    color = '#ffffff',
+    levaPrefix = 'Scene.',
+    lookAt = [ 0, 0, 0 ],
+    ...rest
+  }: LightProps<RALP> & { lookAt: [ number, number, number ] }
+) {
+  const lightRef = useRef() as MutableRefObject<RALP>;
+
+  let prefix = levaPrefix ? `${levaPrefix}Rect Area Light` : 'Rect Area Light'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
+  // @ts-ignore: leva is broken
+  const controls = useControls(prefix, {
+    intensity: { value: intensity, step: 0.05 },
+    // @ts-ignore: leva is broken
+    color,
+    hide,
+  }, [ intensity, color, hide ]);
+
+  useLayoutEffect(() => {
+    lightRef.current?.lookAt(new Vector3(...lookAt));
+  }, [ lookAt ]);
+
+  // @ts-ignore: leva is broken
+  if (controls.hide) return null;
+  // @ts-ignore: leva is broken
+  return <rectAreaLight key={_key} ref={lightRef} {...controls} {...rest} />;
+}
+
+
+export function HemisphereLight(
+  {
+    _key,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    children,
+    hide = false,
+    intensity = 1.0,
+    color = '#ffffff',
+    levaPrefix = 'Scene.',
+    helper = false,
+    ...rest
+  }: LightProps<HSLP>,
+) {
+  const lightRef = useRef() as MutableRefObject<HSLP>;
+
+  let prefix = levaPrefix ? `${levaPrefix}Hemisphere Light` : 'Hemisphere Light'
+  prefix = _key ? `${prefix}-[${_key}]` : prefix;
+
+  // @ts-ignore: leva is broken
+  const controls = useControls(prefix, {
+    useHelper: helper,
+    intensity: { value: intensity, step: 0.05 },
+    // @ts-ignore: leva is broken
+    color,
+    hide,
+  }, [ helper, intensity, color, hide ]);
+
+  // @ts-ignore: leva is broken
+  useHelper(controls.useHelper as boolean ? lightRef : null, HemisphereLightHelper, 1, 'red');
+
+  // @ts-ignore: leva is broken
+  if (controls.hide) return null;
+  // @ts-ignore: leva is broken
+  return <hemisphereLight key={_key} ref={lightRef} {...controls} {...rest} />;
+}
 
 export function DirectionalLight(
   {

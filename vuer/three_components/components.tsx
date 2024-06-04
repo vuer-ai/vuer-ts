@@ -1,5 +1,4 @@
-import { MutableRefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Center, PivotControls, Sphere } from '@react-three/drei';
+import { MutableRefObject, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   BufferGeometry,
   Color,
@@ -11,10 +10,11 @@ import {
   Points,
 } from 'three';
 import { URDFRobot } from 'urdf-loader';
-import { MaterialProps, ThreeEvent, useThree } from '@react-three/fiber';
+import { MaterialProps, useThree } from '@react-three/fiber';
 import { Matrix16T, VuerProps } from "../interfaces";
 import { GLTF } from "three-stdlib";
 import { ALL_MATERIALS, MaterialTypes } from "./primitives/three_materials";
+import { VuerGroup, VuerGroupProps } from "./primitives/better_group";
 
 export type PcdProps = VuerProps<{
   data?: Points;
@@ -32,13 +32,17 @@ export function PcdView(
 ): JSX.Element | null {
 
   const __ref = useRef();
-  const ref = _ref || __ref;
+  const ref = (_ref || __ref) as MutableRefObject<Points>;
+
   useLayoutEffect(() => {
-    if (matrix && matrix.length === 16) {
-      ref.current?.matrix.fromArray(matrix);
-      // ref.current?.matrix.decompose(ref.current?.position, ref.current?.quaternion, ref.current?.scale);
+    const group = ref.current;
+    if (!group) return
+    if (matrix) {
+      group.matrix.fromArray(matrix);
+      group.matrix.decompose(group.position, group.quaternion, group.scale);
+      group.rotation.setFromQuaternion(group.quaternion);
     }
-  }, [ matrix ]);
+  }, [ matrix, ref.current ])
 
   if (!data || hide) return null;
   // rest includes translation and rotation
@@ -76,12 +80,17 @@ export function ObjView(
 ) {
   const __ref = useRef();
   const ref = _ref || __ref;
+
   useLayoutEffect(() => {
-    if (matrix && matrix.length === 16) {
-      ref.current?.matrix.fromArray(matrix);
-      // ref.current?.matrix.decompose(ref.current?.position, ref.current?.quaternion, ref.current?.scale);
+    const group = ref.current;
+    if (!group) return
+    if (matrix) {
+      group.matrix.fromArray(matrix);
+      group.matrix.decompose(group.position, group.quaternion, group.scale);
+      group.rotation.setFromQuaternion(group.quaternion);
     }
-  }, [ matrix ]);
+  }, [ matrix, ref.current ])
+
   const { scene } = useThree();
   useLayoutEffect(() => {
     let mat;
@@ -93,6 +102,7 @@ export function ObjView(
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       if (mat) mesh.material = mat;
+      if (!mesh.material) return
       mesh.material.wireframe = wireframe;
       mesh.material.needsUpdate = true;
     })
@@ -139,11 +149,14 @@ export function PlyView(
   const __ref = useRef();
   const ref = _ref || __ref;
   useLayoutEffect(() => {
-    if (matrix && matrix.length === 16) {
-      ref.current?.matrix.fromArray(matrix);
-      // ref.current?.matrix.decompose(ref.current?.position, ref.current?.quaternion, ref.current?.scale);
+    const group = ref.current;
+    if (!group) return
+    if (matrix) {
+      group.matrix.fromArray(matrix);
+      group.matrix.decompose(group.position, group.quaternion, group.scale);
+      group.rotation.setFromQuaternion(group.quaternion);
     }
-  }, [ matrix ]);
+  }, [ matrix, ref.current ])
 
   if (!data || hide) return null;
   if (!data.attributes.normal) console.log('data.attributes.normal is missing');
@@ -213,6 +226,7 @@ export function GltfView({ data, _ref, matrix, color, materialType, material, ..
     if (matrix && matrix.length === 16) {
       data.scene.matrix.fromArray(matrix);
       data.scene.matrix.decompose(data.scene.position, data.scene.quaternion, data.scene.scale);
+      data.scene.rotation.setFromQuaternion(data.scene.quaternion);
     }
   }, [ data, matrix ]);
 
@@ -261,6 +275,7 @@ export function UrdfView(
     if (matrix && matrix.length === 16) {
       robot.matrix.fromArray(matrix);
       robot.matrix.decompose(robot.position, robot.quaternion, robot.scale);
+      robot.rotation.setFromQuaternion(robot.quaternion);
     }
   }, [ robot, matrix ])
 
@@ -276,6 +291,7 @@ export function UrdfView(
       if (obj?.isMesh) (obj.material as MeshBasicMaterial)?.color?.set(color);
     });
   }, [ robot, color, materialType, material ]);
+
   useEffect(
     () => {
       if (jointValues) robot?.setJointValues(jointValues);
@@ -296,20 +312,18 @@ export function UrdfView(
 
 type GripperProps = VuerProps<{
   color?: Color;
-  matrix?: Matrix16T;
   pinchWidth?: number;
   skeleton?: boolean;
   axes?: boolean;
   // showCoordnates?: boolean;
   showOrigin?: boolean;
   hide?: boolean;
-}, Group>;
+}, typeof Group> & VuerGroupProps;
 
 export function Gripper(
   {
     _ref,
     color,
-    matrix,
     pinchWidth = 0.04,
     skeleton = false,
     axes = false,
@@ -322,17 +336,11 @@ export function Gripper(
 ) {
   const __ref = useRef();
   const ref = _ref || __ref;
-  useLayoutEffect(() => {
-    if (matrix && matrix.length === 16) {
-      ref.current?.matrix.fromArray(matrix);
-      // ref.current?.matrix.decompose(ref.current?.position, ref.current?.quaternion, ref.current?.scale);
-    }
-  }, [ matrix ]);
   if (hide) return null;
   if (skeleton) {
     return (
       <SkeletalGripper
-        _ref={ref}
+        _ref={_ref}
         color={color}
         pinchWidth={pinchWidth}
         {...rest}
@@ -340,7 +348,7 @@ export function Gripper(
     );
   }
   return (
-    <group ref={ref} {...rest}>
+    <VuerGroup _ref={ref} {...rest}>
       {axes && <axesHelper args={[ 0.1 ]}/>}
       <mesh
         position={[ 0, 0.07, 0 ]}
@@ -381,23 +389,22 @@ export function Gripper(
           <meshBasicMaterial attach="material" color="green"/>
         </mesh>
       ) : null}
-    </group>
+    </VuerGroup>
   );
 }
+
 
 type SkeletalGripperProps = VuerProps<{
   color?: Color;
   pinchWidth?: number;
   opacity?: number;
   hide?: boolean;
-  matrix?: Matrix16T;
-}, Group>;
+}, typeof Group> & VuerGroupProps;
 
 export function SkeletalGripper(
   {
     _ref,
     color,
-    matrix,
     pinchWidth = 0.07,
     opacity = 0.9,
     hide,
@@ -406,126 +413,33 @@ export function SkeletalGripper(
 ) {
   const __ref = useRef();
   const ref = _ref || __ref;
-  useLayoutEffect(() => {
-    if (matrix && matrix.length === 16) {
-      ref.current?.matrix.fromArray(matrix);
-      ref.current?.matrix.decompose(ref.current?.position, ref.current?.quaternion, ref.current?.scale);
-    }
-  }, [ matrix ]);
   if (hide) return null;
   return (
-    <group scale={1} {...rest} ref={ref}>
-      <mesh
-        position={[ 0, 0.07, 0 ]}
-        rotation={[ Math.PI / 2, 0, 0 ]}
-        scale={[ 1, 1, 1 ]}
-      >
-        <cylinderGeometry
-          attach="geometry"
-          args={[ 0.005, 0.005, pinchWidth * 2, 32 ]}
-        />
-        <meshBasicMaterial
-          color={color || '#ffffff'}
-          transparent
-          opacity={opacity}
-        />
+    <VuerGroup _ref={ref} scale={1} {...rest} >
+      <mesh position={[ 0, 0.07, 0 ]} rotation={[ Math.PI / 2, 0, 0 ]} scale={[ 1, 1, 1 ]}>
+        <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, pinchWidth * 2, 32 ]}/>
+        <meshBasicMaterial color={color || '#ffffff'} transparent opacity={opacity}/>
       </mesh>
       <mesh position={[ 0, 0.02, pinchWidth ]} scale={1}>
         <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]}/>
-        <meshBasicMaterial
-          attach="material"
-          color={color || '#23aaff'}
-          transparent
-          opacity={opacity}
+        <meshBasicMaterial attach="material" color={color || '#23aaff'} transparent opacity={opacity}
         />
       </mesh>
       <mesh position={[ 0, 0.02, -pinchWidth ]} scale={1}>
         <cylinderGeometry attach="geometry" args={[ 0.005, 0.005, 0.1, 32 ]}/>
-        <meshBasicMaterial
-          attach="material"
-          color={color || '#ff5656'}
-          transparent
-          opacity={opacity}
+        <meshBasicMaterial attach="material" color={color || '#ff5656'} transparent opacity={opacity}
         />
       </mesh>
       <mesh position={[ 0, 0.09, 0 ]} rotation={[ 0, 0, 0 ]} scale={[ 0.8, 1, 1 ]}>
         <cylinderGeometry attach="geometry" args={[ 0.01, 0.01, 0.06, 32 ]}/>
-        <meshBasicMaterial
-          attach="material"
-          color={color || 'gray'}
-          transparent
-          opacity={opacity}
-        />
+        <meshBasicMaterial attach="material" color={color || 'gray'} transparent opacity={opacity}/>
       </mesh>
       <mesh position={[ 0, 0, 0 ]} rotation={[ 0, 0, 0 ]}>
         <sphereGeometry attach="geometry" args={[ 0.01, 32, 32 ]}/>
-        <meshBasicMaterial
-          attach="material"
-          color={color || 'green'}
-          transparent
-          opacity={opacity}
-        />
+        <meshBasicMaterial attach="material" color={color || 'green'} transparent opacity={opacity}/>
       </mesh>
-    </group>
+    </VuerGroup>
   );
 }
 
-type MarkerProps = VuerProps<{
-  anchor: [ number, number, number ];
-  rotation: [ number, number, number ];
-  radius: number;
-  hoverScale?: number;
-}>;
 
-export function Marker({
-  anchor, rotation, radius, hoverScale = 3,
-}: MarkerProps) {
-  const [ show, setShow ] = useState(false);
-  const [ scale, setScale ] = useState(1);
-
-  // use useEvent after upgrading to next react version
-  const onClick = (e: ThreeEvent<MouseEvent>) => {
-    setShow(!show);
-    e.stopPropagation();
-  };
-  const pointerOver = () => setScale(hoverScale);
-  const pointerOut = () => setScale(1);
-
-  if (!show) {
-    return (
-      <Sphere
-        args={[ radius * scale ]}
-        position={anchor}
-        onClick={onClick}
-        onPointerOver={pointerOver}
-        onPointerOut={pointerOut}
-      >
-        <meshPhongMaterial color="blue" opacity={1} transparent/>
-      </Sphere>
-    );
-  }
-
-  return (
-    <PivotControls
-      depthTest={false}
-      anchor={anchor}
-      rotation={rotation}
-      scale={radius * scale}
-      visible={show}
-      disableAxes={!show}
-      disableSliders={!show}
-      disableRotations={!show}
-    >
-      <Center position={anchor}>
-        <Sphere
-          args={[ radius * scale ]}
-          onClick={onClick}
-          onPointerOver={pointerOver}
-          onPointerOut={pointerOut}
-        >
-          <meshPhongMaterial color="blue" opacity={1} transparent/>
-        </Sphere>
-      </Center>
-    </PivotControls>
-  );
-}

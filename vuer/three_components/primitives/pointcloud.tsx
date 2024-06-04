@@ -1,6 +1,7 @@
-import { PropsWithChildren, Ref, useMemo } from 'react';
+import { MutableRefObject, PropsWithChildren, Ref, useLayoutEffect, useMemo, useRef } from 'react';
 import { Points } from 'three';
 import { half2float } from './half2float';
+import { Matrix16T } from "../../interfaces";
 
 type PointCloudProps = PropsWithChildren<{
   _key?: string;
@@ -8,6 +9,7 @@ type PointCloudProps = PropsWithChildren<{
   // hide?: boolean;
   position?: [ number, number, number ];
   rotation?: [ number, number, number ];
+  matrix?: Matrix16T;
   vertices: Uint16Array;
   colors?: Uint8Array;
   size?: number;
@@ -22,12 +24,16 @@ export function PointCloud(
     position = [ 0, 0, 0 ],
     rotation = [ 0, 0, 0 ],
     vertices,
+    matrix,
     colors,
     size = 0.01,
     color,
     ...rest
   }: PointCloudProps,
 ) {
+
+  const __ref = useRef<Points>();
+  const ref = (_ref || __ref) as MutableRefObject<Points>;
 
   const geometry = useMemo(() => ({
     /** note: use this to indicate the time of creation, and update the geometry when it changes.
@@ -38,6 +44,16 @@ export function PointCloud(
     vertices: half2float(vertices),
     colors: colors && Float32Array.from(colors, (octet) => octet / 0xff),
   }), [ vertices, colors ]);
+
+  useLayoutEffect(() => {
+    const group = ref.current;
+    if (!group) return
+    if (matrix) {
+      group.matrix.fromArray(matrix);
+      group.matrix.decompose(group.position, group.quaternion, group.scale);
+      group.rotation.setFromQuaternion(group.quaternion);
+    }
+  }, [ matrix, ref.current ])
 
   return (
     <points

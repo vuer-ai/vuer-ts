@@ -80,7 +80,8 @@ export default function ImagePlane(
   const isPresenting = useXR((state) => state.isPresenting)
 
   useEffect(() => {
-    if (!planeRef.current) return;
+    if (!planeRef.current || !isPresenting) return;
+
     if (typeof layers === "number" && isPresenting) {
       planeRef.current.layers.set(layers)
     }
@@ -91,8 +92,8 @@ export default function ImagePlane(
     const plane = planeRef.current;
     if (matrix) {
       plane.matrix.fromArray(matrix);
-      plane.matrixAutoUpdate = false;
-      return
+      plane.matrix.decompose(plane.position, plane.quaternion, plane.scale);
+      plane.rotation.setFromQuaternion(plane.quaternion);
     } else {
       if (quaternion) plane.quaternion.fromArray(quaternion);
       else if (rotation) plane.rotation.set(...rotation);
@@ -135,9 +136,10 @@ export default function ImagePlane(
     if (fixed) return;
 
     if (matrix) {
-      plane.matrixAutoUpdate = false;
       plane.matrix.fromArray(matrix);
       plane.matrix.premultiply(camera.matrixWorld);
+      plane.matrix.decompose(plane.position, plane.quaternion, plane.scale);
+      plane.rotation.setFromQuaternion(plane.quaternion);
       return
     }
 

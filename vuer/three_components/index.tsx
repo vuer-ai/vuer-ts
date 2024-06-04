@@ -115,6 +115,7 @@ export default function SceneContainer({
         console.log("Failed to parse scene", e);
         _scene = { children: [] };
       }
+    } else {
       console.log('not implemented');
     }
     if (!!scene) setScene(_scene);
@@ -130,19 +131,19 @@ export default function SceneContainer({
         { collapsed: true },
       ),
       "Share": button(() => {
-          const sceneStr = pack(scene);
-          if (sceneStr.length > 10_000) {
-            return showError(`The scene likely contains a large amount of data. To share, please replace 
-          geometry data with an URI. Length is ${sceneStr.length} bytes.`)
-          }
-          const chars = String.fromCharCode.apply(null, sceneStr)
-          const scene64b = btoa(chars);
-          const url = new URL(document.location);
-          url.searchParams.set('scene', scene64b);
-          document.location.href = url.toString();
-        },
-        // @ts-ignore: leva is broken
-        { label: "Share Scene" }),
+        const sceneStr = pack(scene);
+        if (sceneStr.length > 10_000) {
+          return showError(`The scene likely contains a large amount of data. To share, please replace 
+        geometry data with an URI. Length is ${sceneStr.length} bytes.`)
+        }
+        const chars = String.fromCharCode.apply(null, sceneStr)
+        const scene64b = btoa(chars);
+        const url = new URL(document.location);
+        url.searchParams.set('scene', scene64b);
+        document.location.href = url.toString();
+      },
+      // @ts-ignore: leva is broken
+      { label: "Share Scene" }),
       Scene: folder({}),
       Render: folder(
         {
